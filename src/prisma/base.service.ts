@@ -1,3 +1,4 @@
+import { NotFoundException } from "@nestjs/common";
 import { PrismaService } from "./prisma.service";
 import { PaginationDto, PaginatedResult } from '../Libs/common/';
 
@@ -115,7 +116,7 @@ export class BaseService<T, CreateDto, UpdateDto> {
 				where: { id, },
 			});
 			if (!result) {
-				throw new Error(`${this.model.name} with id ${id} not found`);
+				throw new NotFoundException(`Registro no encontrado`);
 			}
 			return result;
 		} catch (error) {
@@ -130,7 +131,7 @@ export class BaseService<T, CreateDto, UpdateDto> {
 				data,
 			});
 			if (!result) {
-				throw new Error(`${this.model.name} with id ${id} not found`);
+				throw new NotFoundException(`Registro no encontrado`);
 			}
 			return result;
 		} catch (error) {
@@ -144,7 +145,7 @@ export class BaseService<T, CreateDto, UpdateDto> {
 				where: { id },
 			});
 			if (!result) {
-				throw new Error(`${this.model.name} with id ${id} not found`);
+				throw new NotFoundException(`Registro no encontrado`);
 			}
 			return result;
 		} catch (error) {

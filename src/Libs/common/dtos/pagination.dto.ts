@@ -1,10 +1,12 @@
 import { Type } from "class-transformer";
 import {
 	IsIn,
+	Max,
 	IsNumber,
 	IsOptional,
 	IsPositive,
 	IsString,
+	MaxLength,
 } from "class-validator";
 
 export class PaginationDto {
@@ -17,6 +19,7 @@ export class PaginationDto {
 	@IsOptional()
 	@IsNumber()
 	@IsPositive()
+	@Max(50000)
 	@Type(() => Number)
 	limit?: number = 10;
 
@@ -27,9 +30,11 @@ export class PaginationDto {
 
 	@IsOptional()
 	@IsString()
+	@IsIn(["createdAt", "updatedAt"])
 	orderBy?: string = "createdAt";
 
 	@IsOptional()
 	@IsString()
+	@MaxLength(100)
 	search?: string;
 }

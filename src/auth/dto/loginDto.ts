@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MaxLength } from "class-validator";
 
 export class LoginDto {
 	@ApiProperty({
@@ -21,6 +21,7 @@ export class LoginDto {
     // CAMBIO IMPORTANTE: Quitamos @IsStrongPassword
     // Solo verificamos que sea texto y no esté vacío.
 	@IsString({ message: 'Contraseña incorrecta' })
+	@MaxLength(72)
 	@IsNotEmpty({ message: 'La contraseña es obligatoria' })
 	password: string;
 }

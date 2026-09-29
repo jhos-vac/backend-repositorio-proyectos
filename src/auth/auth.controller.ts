@@ -1,75 +1,77 @@
 import { Body, Controller, HttpCode, HttpStatus, Param, Post } from "@nestjs/common";
-import { ApiSecurity, ApiTags } from "@nestjs/swagger";
+import { ApiTags } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
+import { UserModel as User } from "src/prisma/generated/models/User";
 import { AuthService } from "./auth.service";
-import { Auth } from "./decorators";
+import { Auth, GetUser, Public } from "./decorators";
+import { ForgotPasswordDto } from "./dto/forgot-password.dto";
 import { LoginDto } from "./dto/loginDto";
 import { RefreshDto } from "./dto/refreshDto";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
+import { ValidRoles } from "./enums/valid-roles.enum";
+
+const MINUTE = 60_000;
 
 @ApiTags("auth")
 @Controller("auth")
 export class AuthController {
     constructor(private authService: AuthService) {}
 
-    /**
-     * Inicio de sesión para todos los usuarios.
-     * Devuelve los tokens de acceso y refresco.
-     */
+    /** Login: público, limitado a 5 intentos por minuto y por IP. */
+    @Public()
+    @Throttle({ default: { limit: 5, ttl: MINUTE } })
     @HttpCode(HttpStatus.OK)
     @Post("login")
-    async login(@Body() loginDto: LoginDto) {
+    login(@Body() loginDto: LoginDto) {
         return this.authService.login(loginDto);
     }
 
-    /**
-     * REGISTRO PÚBLICO:
-     * Se eliminó el decorador @Auth() para permitir que nuevos usuarios (Lectores)
-     * puedan crear su cuenta sin estar logueados.
-     */
+    /** Registro público (pendiente de reemplazar por invitaciones, RN-01). */
+    @Public()
+    @Throttle({ default: { limit: 5, ttl: MINUTE } })
     @Post("register")
-    async register(@Body() createUserDto: CreateUserDto) {
+    register(@Body() createUserDto: CreateUserDto) {
         return this.authService.register(createUserDto);
     }
 
-    /**
-     * REGISTRO DE ADMINISTRADOR / ESPECIAL:
-     * Este endpoint sí permanece protegido porque se usa para crear usuarios
-     * con roles específicos desde una cuenta con permisos.
-     */
-    @Auth()
-    @ApiSecurity("bearer", [])
+    /** Crea usuarios con cualquier rol: solo ADMIN. */
+    @Auth(ValidRoles.ADMIN)
     @Post("register-admin")
-    async registeradmin(@Body() createUserDto: CreateUserDto) {
+    registeradmin(@Body() createUserDto: CreateUserDto) {
         return this.authService.registerAdmin(createUserDto);
     }
 
-    /**
-     * Renovación de tokens.
-     */
+    /** Renueva tokens con el refresh token (público: no hay access válido). */
+    @Public()
+    @Throttle({ default: { limit: 20, ttl: MINUTE } })
     @HttpCode(HttpStatus.OK)
     @Post("refresh-token")
-    async refreshToken(@Body() refreshDto: RefreshDto) {
+    refreshToken(@Body() refreshDto: RefreshDto) {
         return this.authService.refreshToken(refreshDto);
     }
 
-    // --- NUEVOS ENDPOINTS DE RECUPERACIÓN DE CONTRASEÑA ---
-
-    /**
-     * Solicitar correo de recuperación.
-     */
-    @Post("forgot-password")
-    async forgotPassword(@Body("email") email: string) {
-        return this.authService.forgotPassword(email);
+    /** Cierra todas las sesiones del usuario autenticado. */
+    @Auth()
+    @HttpCode(HttpStatus.OK)
+    @Post("logout")
+    logout(@GetUser() user: User) {
+        return this.authService.logout(user.id);
     }
 
-    /**
-     * Restablecer contraseña usando el token.
-     */
+    @Public()
+    @Throttle({ default: { limit: 3, ttl: MINUTE } })
+    @HttpCode(HttpStatus.OK)
+    @Post("forgot-password")
+    forgotPassword(@Body() dto: ForgotPasswordDto) {
+        return this.authService.forgotPassword(dto.email);
+    }
+
+    @Public()
+    @Throttle({ default: { limit: 5, ttl: MINUTE } })
+    @HttpCode(HttpStatus.OK)
     @Post("reset-password/:token")
-    async resetPassword(
-        @Param("token") token: string,
-        @Body("password") password: string
-    ) {
-        return this.authService.resetPassword(token, password);
+    resetPassword(@Param("token") token: string, @Body() dto: ResetPasswordDto) {
+        return this.authService.resetPassword(token, dto.password);
     }
 }

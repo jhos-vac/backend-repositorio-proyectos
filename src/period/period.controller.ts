@@ -5,35 +5,38 @@ import {
   Body, 
   Param, 
   Delete, 
-  UseGuards 
+  ParseUUIDPipe
 } from '@nestjs/common';
 import { PeriodService } from './period.service';
 import { CreatePeriodDto } from './create-period.dto';
-import { AuthGuard } from '@nestjs/passport';
+import { Auth } from 'src/auth/decorators';
+import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 
 @Controller('period')
 export class PeriodController {
   constructor(private readonly periodService: PeriodService) {}
 
   @Post()
-  @UseGuards(AuthGuard()) 
+  @Auth(ValidRoles.ADMIN)
   create(@Body() createPeriodDto: CreatePeriodDto) {
     return this.periodService.create(createPeriodDto);
   }
 
   @Get()
+  @Auth()
   findAll() {
     return this.periodService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Auth()
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.periodService.findOne(id);
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard()) 
-  remove(@Param('id') id: string) {
+  @Auth(ValidRoles.ADMIN)
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.periodService.remove(id);
   }
 }

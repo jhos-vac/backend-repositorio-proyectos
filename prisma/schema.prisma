@@ -31,6 +31,9 @@ model User {
 
   // --- NUEVO CAMPO PARA CAMBIO DE CONTRASEÑA OBLIGATORIO ---
   needsPasswordChange Boolean   @default(false)
+
+  // Se incrementa para revocar todos los JWT emitidos (cambio de clave, logout)
+  tokenVersion Int @default(0)
   // ---------------------------------------------------------
 
   projects        UserProject[]

@@ -1,5 +1,5 @@
 // 1. Asegúrate de importar 'Query' desde @nestjs/common
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { SkillsService } from './skills.service';
 import { CreateSkillDto } from './dto/create-skill.dto';
 import { UpdateSkillDto } from './dto/update-skill.dto';
@@ -24,19 +24,21 @@ export class SkillsController {
 
   // CORRECCIÓN AQUÍ: Cambiamos @Param por @Query
   @Get()
+  @Auth()
   findAll(@Query() paginationDto?: PaginationDto) {
     return this.skillsService.findAll(paginationDto);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Auth()
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.skillsService.findOne(id);
   }
 
   @Patch(':id')
   @Auth()
   update(
-    @Param('id') id: string, 
+    @Param('id', ParseUUIDPipe) id: string, 
     @Body() updateSkillDto: UpdateSkillDto,
     @GetUser() user: User
   ) {
@@ -45,7 +47,7 @@ export class SkillsController {
 
   @Delete(':id')
   @Auth()
-  remove(@Param('id') id: string) {
-    return this.skillsService.remove(id);
+  remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
+    return this.skillsService.removeWithPermission(id, user);
   }
 }

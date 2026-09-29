@@ -1,12 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { RolesPermissionsService } from './roles-permissions.service';
 import { CreateRolesPermissionDto } from './dto/create-roles-permission.dto';
 import { UpdateRolesPermissionDto } from './dto/update-roles-permission.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from 'src/Libs/common';
+import { Auth } from 'src/auth/decorators';
+import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 
 @ApiTags('Roles-Permissions')
 @Controller('roles-permissions')
+@Auth(ValidRoles.ADMIN)
 export class RolesPermissionsController {
   constructor(private readonly rolesPermissionsService: RolesPermissionsService) {}
 
@@ -16,7 +19,7 @@ export class RolesPermissionsController {
   }
 
   @Get()
-  findAll(@Param() paginationDto?: PaginationDto) {
+  findAll(@Query() paginationDto?: PaginationDto) {
     return this.rolesPermissionsService.findAll(paginationDto);
   }
 

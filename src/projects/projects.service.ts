@@ -6,6 +6,8 @@ import { ProjectModel } from 'src/prisma/generated/models';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserModel as User } from 'src/prisma/generated/models/User';
 import { PaginationDto } from 'src/Libs/common';
+import { USER_OMIT } from 'src/common/sanitize';
+import { isAdmin as isAdminUser } from 'src/common/access';
 
 @Injectable()
 export class ProjectsService extends BaseService<ProjectModel, CreateProjectDto, UpdateProjectDto> {
@@ -52,7 +54,7 @@ export class ProjectsService extends BaseService<ProjectModel, CreateProjectDto,
       take: limit,
       where: whereCondition, 
       include: {
-        user: true, 
+        user: { omit: USER_OMIT }, 
         career: true,
         // CORRECCIÓN: Incluimos la habilidad real para evitar problemas de visualización
         projectSkills: {
@@ -86,7 +88,7 @@ export class ProjectsService extends BaseService<ProjectModel, CreateProjectDto,
     const project = await this.prismaService.project.findUnique({
       where: { id },
       include: {
-        user: true,
+        user: { omit: USER_OMIT },
         career: true,
         // CORRECCIÓN: Incluimos la habilidad real
         projectSkills: {
@@ -104,7 +106,7 @@ export class ProjectsService extends BaseService<ProjectModel, CreateProjectDto,
   }
 
   async createWithUser(createProjectDto: CreateProjectDto, user: User) {
-    const { startDate, endDate, ...rest } = createProjectDto;
+    const { startDate, endDate, createdBy: _cb, ...rest } = createProjectDto;
 
     return this.prismaService.project.create({
       data: {
@@ -125,7 +127,7 @@ export class ProjectsService extends BaseService<ProjectModel, CreateProjectDto,
         }
       },
       include: {
-        user: true,
+        user: { omit: USER_OMIT },
         projectSkills: true,
         career: true, 
       }
@@ -142,7 +144,7 @@ export class ProjectsService extends BaseService<ProjectModel, CreateProjectDto,
         },
       },
       include: {
-        user: true,
+        user: { omit: USER_OMIT },
         projectSkills: true,
         career: true,
       },
@@ -156,13 +158,7 @@ export class ProjectsService extends BaseService<ProjectModel, CreateProjectDto,
       throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
     }
 
-    const userWithRole = await this.prismaService.user.findUnique({
-      where: { id: user.id },
-      include: { role: true },
-    });
-
-    const roleName = userWithRole?.role?.name?.toLowerCase() || '';
-    const isAdmin = roleName.includes('admin');
+    const isAdmin = isAdminUser(user as any);
     const isOwner = project.createdBy === user.id;
 
     if (!isAdmin && !isOwner) {
@@ -170,7 +166,8 @@ export class ProjectsService extends BaseService<ProjectModel, CreateProjectDto,
     }
 
     // EXTRAEMOS 'skills' (array de IDs) y fechas del DTO
-    const { startDate, endDate, skills, ...rest } = updateProjectDto as any;
+    // createdBy/id nunca se modifican desde el cliente (evita robar la propiedad)
+    const { startDate, endDate, skills, createdBy: _cb, ...rest } = updateProjectDto as any;
 
     // Usamos una TRANSACCIÓN para asegurar que los cambios en habilidades sean atómicos
     return this.prismaService.$transaction(async (tx) => {
@@ -203,7 +200,7 @@ export class ProjectsService extends BaseService<ProjectModel, CreateProjectDto,
           ...(endDate && { endDate: new Date(endDate) }),
         },
         include: {
-          user: true,
+          user: { omit: USER_OMIT },
           career: true,
           projectSkills: {
             include: {

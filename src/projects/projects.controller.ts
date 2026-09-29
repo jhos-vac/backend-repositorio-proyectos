@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { PaginationDto } from 'src/Libs/common';
 import { Auth, GetUser } from 'src/auth/decorators';
+import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 import { UserModel as User } from 'src/prisma/generated/models/User';
 
 @ApiTags('Projects')
@@ -31,19 +32,21 @@ export class ProjectsController {
   }
 
   @Get('skill/:skillId')
-  findBySkill(@Param('skillId') skillId: string) {
+  @Auth()
+  findBySkill(@Param('skillId', ParseUUIDPipe) skillId: string) {
      return this.projectsService.findBySkill(skillId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Auth()
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.projectsService.findOne(id);
   }
 
   @Patch(':id')
   @Auth()
   update(
-    @Param('id') id: string, 
+    @Param('id', ParseUUIDPipe) id: string, 
     @Body() updateProjectDto: UpdateProjectDto,
     @GetUser() user: User
   ) {
@@ -51,8 +54,8 @@ export class ProjectsController {
   }
 
   @Delete(':id')
-  @Auth()
-  remove(@Param('id') id: string) {
+  @Auth(ValidRoles.ADMIN)
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.projectsService.remove(id);
   }
 }

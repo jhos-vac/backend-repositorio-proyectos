@@ -1,4 +1,5 @@
 import * as bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 import { config } from "dotenv";
 // Importamos el cliente generado
 import { PrismaClient } from '../src/prisma/generated/client';
@@ -28,6 +29,14 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
     console.log("🌱 Starting seed...");
+
+    // Seguridad: el seed BORRA todo. Solo corre sobre una BD vacía salvo que
+    // se fuerce explícitamente (SEED_FORCE=true).
+    const existing = await prisma.role.count();
+    if (existing > 0 && process.env.SEED_FORCE !== "true") {
+        console.log("⛔ La base de datos ya tiene datos. Usa SEED_FORCE=true para reiniciarla (BORRA TODO).");
+        return;
+    }
 
     // Limpiar la base de datos
     console.log("🧹 Cleaning database...");
@@ -258,13 +267,23 @@ async function main() {
 
     // ========== USERS ==========
     console.log("👤 Creating users...");
-    const hashedPassword = bcrypt.hashSync("Luis4036150.", 10);
+    // Sin contraseñas fijas en el código: se leen del entorno o se generan al azar.
+    const generated = () => randomBytes(9).toString("base64url");
+    const adminPlain = process.env.SEED_ADMIN_PASSWORD || generated();
+    const demoPlain = process.env.SEED_DEMO_PASSWORD || generated();
+    const hashedPassword = bcrypt.hashSync(demoPlain, 12);
+    const adminHashed = bcrypt.hashSync(adminPlain, 12);
+    if (!process.env.SEED_ADMIN_PASSWORD) {
+        console.log("==================================================");
+        console.log(` CONTRASEÑA ADMIN GENERADA (guárdala): ${adminPlain}`);
+        console.log("==================================================");
+    }
 
     // Admin user
     const adminUser = await prisma.user.create({
         data: {
-            email: "luis@gmail.com",
-            password: hashedPassword,
+            email: process.env.SEED_ADMIN_EMAIL || "luis@gmail.com",
+            password: adminHashed,
             name: "Administrator",
             roleId: adminRole.id,
             careerId: careers[0].id, 

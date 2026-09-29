@@ -8,6 +8,6 @@ import { RolePermissionModel } from 'src/prisma/generated/models';
 @Injectable()
 export class RolesPermissionsService extends BaseService<RolePermissionModel, CreateRolesPermissionDto, UpdateRolesPermissionDto> {
   constructor(private readonly prismaService: PrismaService) {
-    super(prismaService, { name: 'rolesPermission' });
+    super(prismaService, { name: 'rolePermission' });
   }
 }

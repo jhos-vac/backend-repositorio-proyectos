@@ -1,18 +1,21 @@
 import {
   BadRequestException,
+  HttpException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
-  NotFoundException, 
+  Logger,
 } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { JwtService, JwtSignOptions } from "@nestjs/jwt";
+import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt"; 
 import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import { LoginDto } from "./dto/loginDto";
 import { RefreshDto } from "./dto/refreshDto";
-import { JwtPayload } from "./interfaces/jwt-payload.interface";
+import { JwtPayload, TokenType } from "./interfaces/jwt-payload.interface";
+import { ACCESS_TTL, REFRESH_TTL, loadJwtSecrets } from "./jwt.config";
+import { USER_OMIT } from "src/common/sanitize";
 import * as crypto from 'crypto'; 
 import { google } from 'googleapis'; 
 
@@ -37,10 +40,40 @@ export class AuthService {
   }
 
   private isDomainAllowed(email: string): boolean {
-    const domain = email.split('@')[1].toLowerCase();
+    const domain = (email.split('@')[1] ?? '').toLowerCase();
     const allowedDomains = ['sudamericano.edu.ec', 'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'icloud.com'];
     const allowedExtensions = ['.edu.ec', '.gob.ec', '.org.ec', '.com.ec', '.net.ec', '.ec', '.com', '.edu'];
     return allowedDomains.includes(domain) || allowedExtensions.some(ext => domain.endsWith(ext));
+  }
+
+  private readonly logger = new Logger(AuthService.name);
+  // Hash de descarte: se compara siempre para que el tiempo de respuesta no
+  // revele si el correo existe.
+  private readonly dummyHash = bcrypt.hashSync("dummy-password-for-timing", 12);
+
+  issueTokens(user: { id: string; tokenVersion: number }) {
+    return this.signTokens(user);
+  }
+
+  private signTokens(user: { id: string; tokenVersion: number }) {
+    const { access, refresh } = loadJwtSecrets(this.configService);
+    const mk = (typ: TokenType, secret: string, expiresIn: string) =>
+      this.jwtService.sign(
+        { sub: user.id, typ, tv: user.tokenVersion } satisfies JwtPayload,
+        { secret, expiresIn: expiresIn as any, algorithm: "HS256" },
+      );
+    return {
+      accessToken: mk("access", access, ACCESS_TTL),
+      refreshToken: mk("refresh", refresh, REFRESH_TTL),
+    };
+  }
+
+  /** Invalida todos los tokens emitidos para el usuario. */
+  private async revokeTokens(userId: string) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { tokenVersion: { increment: 1 } },
+    });
   }
 
   async register(createUserDto: CreateUserDto) {
@@ -48,17 +81,16 @@ export class AuthService {
       const { password, email, roleId: _, ...userDto } = createUserDto;
       if (!this.isDomainAllowed(email)) throw new BadRequestException('Dominio de correo no permitido.');
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) throw new BadRequestException('Correo inválido.');
-
       const role = await this.prisma.role.findFirst({ where: { name: 'USER' } });
       if (!role) throw new InternalServerErrorException("Error: El rol 'USER' no existe.");
 
-      const hashedPassword = bcrypt.hashSync(password, 10);
+      const hashedPassword = await bcrypt.hash(password, 12);
       const user = await this.prisma.user.create({
         data: { ...userDto, email: email.toLowerCase(), password: hashedPassword, roleId: role.id },
+        omit: USER_OMIT,
       });
-      return { user, token: this.getJwtToken({ id: user.id }, { expiresIn: "2d" }) };
+      const tokens = this.signTokens({ id: user.id, tokenVersion: 0 });
+      return { user, token: tokens.accessToken, ...tokens };
     } catch (error) { this.handleDBErrors(error); }
   }
 
@@ -66,49 +98,59 @@ export class AuthService {
     try {
       const { password, email, roleId, ...userDto } = createUserDto;
       if (!roleId) throw new BadRequestException("El roleId es obligatorio.");
+      const role = await this.prisma.role.findUnique({ where: { id: roleId } });
+      if (!role) throw new BadRequestException("El rol indicado no existe.");
 
-      const hashedPassword = bcrypt.hashSync(password, 10);
-      const user = await this.prisma.user.create({
+      const hashedPassword = await bcrypt.hash(password, 12);
+      return await this.prisma.user.create({
         data: { ...userDto, email: email.toLowerCase(), password: hashedPassword, roleId },
-        include: { role: true }
+        include: { role: true },
+        omit: USER_OMIT,
       });
-
-      const { password: _, ...result } = user;
-      return result;
     } catch (error) { this.handleDBErrors(error); }
   }
 
   async login(loginDto: LoginDto) {
     const { password, email } = loginDto;
     const user = await this.prisma.user.findUnique({ where: { email: email.toLowerCase() }, include: { role: true } });
-    if (!user) throw new UnauthorizedException("correo no registrado");
-    const isPasswordValid = bcrypt.compareSync(password, user.password);
-    if (!isPasswordValid) throw new UnauthorizedException("contraseña incorrecta");
-    
+    const valid = await bcrypt.compare(password, user?.password ?? this.dummyHash);
+    if (!user || !valid) throw new UnauthorizedException("Credenciales incorrectas");
+
     return {
-      userId: user.id, 
-      userRole: user.role.name, 
+      userId: user.id,
+      userRole: user.role.name,
       userName: user.name,
-      needsPasswordChange: user.needsPasswordChange, // <--- AÑADIDO: Envía el estado de seguridad al frontend
-      accessToken: this.getJwtToken({ id: user.id }, { expiresIn: "2d" }),
-      refreshToken: this.getJwtToken({ id: user.id }, { expiresIn: "7d" }),
+      needsPasswordChange: user.needsPasswordChange,
+      ...this.signTokens(user),
     };
   }
 
   async refreshToken(refreshDto: RefreshDto) {
+    const invalid = new UnauthorizedException("Sesión expirada");
+    let payload: JwtPayload;
     try {
-      const payload = this.jwtService.verify(refreshDto.refreshToken, { secret: this.configService.get<string>("JWT_SECRET") });
-      const user = await this.prisma.user.findUnique({ where: { id: payload.id }, include: { role: true } });
-      if (!user) throw new UnauthorizedException("Token inválido");
-      
-      return {
-        userId: user.id, 
-        userRole: user.role.name,
-        needsPasswordChange: user.needsPasswordChange, // <--- AÑADIDO: También al refrescar token
-        accessToken: this.getJwtToken({ id: user.id }, { expiresIn: "2d" }),
-        refreshToken: this.getJwtToken({ id: user.id }, { expiresIn: "7d" }),
-      };
-    } catch (error) { throw new UnauthorizedException("Token expirado"); }
+      payload = this.jwtService.verify<JwtPayload>(refreshDto.refreshToken, {
+        secret: loadJwtSecrets(this.configService).refresh,
+        algorithms: ["HS256"],
+      });
+    } catch { throw invalid; }
+    if (payload.typ !== "refresh" || !payload.sub) throw invalid;
+
+    const user = await this.prisma.user.findUnique({ where: { id: payload.sub }, include: { role: true } });
+    if (!user || user.tokenVersion !== payload.tv) throw invalid;
+
+    return {
+      userId: user.id,
+      userRole: user.role.name,
+      needsPasswordChange: user.needsPasswordChange,
+      ...this.signTokens(user),
+    };
+  }
+
+  /** Cierra todas las sesiones del usuario (revoca access y refresh). */
+  async logout(userId: string) {
+    await this.revokeTokens(userId);
+    return { message: "Sesión cerrada" };
   }
 
   private makeBody(to: string, from: string, subject: string, message: string) {
@@ -130,69 +172,77 @@ export class AuthService {
   }
 
   async forgotPassword(email: string) {
+    // Respuesta idéntica exista o no el correo (evita enumeración de usuarios).
+    const generic = { message: 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.' };
     const user = await this.prisma.user.findUnique({ where: { email: email.toLowerCase() } });
-    if (!user) throw new NotFoundException('Correo no encontrado');
+    if (!user) return generic;
 
+    // El token en claro solo viaja por correo; en BD se guarda su hash.
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const resetTokenExpiry = new Date(Date.now() + 3600000); 
+    const resetTokenExpiry = new Date(Date.now() + 3600000);
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: { resetToken: this.hashToken(resetToken), resetTokenExpiry },
+    });
 
     try {
-      await this.prisma.user.update({ where: { id: user.id }, data: { resetToken, resetTokenExpiry } });
-
       const frontendUrl = this.configService.get('FRONTEND_URL') || 'http://localhost:5173';
       const resetUrl = `${frontendUrl}/reset-password/${resetToken}`;
-
-      const accessToken = await this.oauth2Client.getAccessToken();
-      
       const gmail = google.gmail({ version: 'v1', auth: this.oauth2Client });
 
       const emailBody = `
         <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; border-radius: 8px;">
           <h2 style="color: #0056b3;">Recuperación de Contraseña</h2>
-          <p>Hola <strong>${user.name}</strong>,</p>
+          <p>Hola <strong>${this.escapeHtml(user.name)}</strong>,</p>
           <p>Hemos recibido una solicitud para restablecer tu contraseña.</p>
           <a href="${resetUrl}" style="background-color: #0056b3; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block; margin: 10px 0;">Restablecer Contraseña</a>
+          <p style="color:#666;font-size:12px">El enlace vence en 1 hora. Si no fuiste tú, ignora este correo.</p>
         </div>
       `;
-
       const raw = this.makeBody(
         user.email,
         `"Soporte Tesis" <${this.configService.get('MAIL_USER')}>`,
         'Recuperación de Contraseña',
-        emailBody
+        emailBody,
       );
-
-      console.log("Enviando correo vía API Gmail (HTTP)...");
-      
-      await gmail.users.messages.send({
-        userId: 'me',
-        requestBody: { raw: raw },
-      });
-
-      console.log("¡Correo enviado con éxito vía API!");
-      return { message: 'Correo enviado correctamente.' };
+      await gmail.users.messages.send({ userId: 'me', requestBody: { raw } });
     } catch (error) {
-      console.error("Error FATAL enviando correo (API Gmail):", error);
-      throw new InternalServerErrorException("Error al enviar el correo.");
+      // Se registra internamente, pero no se revela al cliente.
+      this.logger.error(`No se pudo enviar el correo de recuperación: ${(error as Error).message}`);
     }
+    return generic;
   }
 
   async resetPassword(token: string, newPassword: string) {
-    const user = await this.prisma.user.findFirst({ where: { resetToken: token, resetTokenExpiry: { gt: new Date() } } });
+    const user = await this.prisma.user.findFirst({
+      where: { resetToken: this.hashToken(token), resetTokenExpiry: { gt: new Date() } },
+    });
     if (!user) throw new BadRequestException('El enlace es inválido o ha expirado.');
 
-    const hashedPassword = bcrypt.hashSync(newPassword, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
     await this.prisma.user.update({
       where: { id: user.id },
-      data: { password: hashedPassword, resetToken: null, resetTokenExpiry: null }
+      data: {
+        password: hashedPassword,
+        resetToken: null,
+        resetTokenExpiry: null,
+        tokenVersion: { increment: 1 }, // cierra las sesiones abiertas
+      },
     });
 
     return { message: 'Contraseña actualizada correctamente' };
   }
 
-  private getJwtToken(payload: JwtPayload, options?: JwtSignOptions) { return this.jwtService.sign(payload, options); }
+  private hashToken(token: string) {
+    return crypto.createHash('sha256').update(token).digest('hex');
+  }
+
+  private escapeHtml(v: string) {
+    return v.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  }
 
   private handleDBErrors(error: any): never {
+    if (error instanceof HttpException) throw error;
     if (error.code === 'P2002') throw new BadRequestException('Correo ya registrado');
     throw new InternalServerErrorException("Error interno del servidor.");
   }

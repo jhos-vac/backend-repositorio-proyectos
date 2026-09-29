@@ -5,20 +5,28 @@ import {
   ConflictException, 
   BadRequestException 
 } from '@nestjs/common';
+import { AuthService } from 'src/auth/auth.service';
 import { BaseService } from 'src/prisma/base.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserModel } from 'src/prisma/generated/models';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
 import { PaginationDto } from 'src/Libs/common';
 import { Prisma } from 'src/prisma/generated/client'; 
+import { USER_OMIT } from 'src/common/sanitize';
 import * as deepEmailValidator from 'deep-email-validator';
 
 @Injectable()
-export class UsersService extends BaseService<UserModel, CreateUserDto, UpdateUserDto> {
-  constructor(private readonly prismaService: PrismaService) {
+export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto> {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly authService: AuthService,
+  ) {
     super(prismaService, { name: 'user' });
+  }
+
+  private issueTokens(user: { id: string; tokenVersion: number }) {
+    return this.authService.issueTokens(user);
   }
 
   private isDomainAllowed(email: string): boolean {
@@ -71,7 +79,7 @@ export class UsersService extends BaseService<UserModel, CreateUserDto, UpdateUs
     const role = await this.prismaService.role.findFirst({ where: { name: 'USER' } });
     if (!role) throw new InternalServerErrorException('Error: El rol USER no existe.');
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     try {
       const user = await this.prismaService.user.create({
@@ -81,12 +89,12 @@ export class UsersService extends BaseService<UserModel, CreateUserDto, UpdateUs
           password: hashedPassword,
           roleId: role.id,
         },
-        include: { role: true, career: true }
+        include: { role: true, career: true },
+        omit: USER_OMIT
       });
       
 
-      const { password: __, ...userWithoutPassword } = user;
-      return userWithoutPassword as unknown as UserModel;
+      return user;
 
     } catch (error) {
       this.handleDBErrors(error);
@@ -105,7 +113,7 @@ export class UsersService extends BaseService<UserModel, CreateUserDto, UpdateUs
     const role = await this.prismaService.role.findFirst({ where: { name: 'TEACHER' } });
     if (!role) throw new InternalServerErrorException('Error: El rol TEACHER no existe.');
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     try {
       const user = await this.prismaService.user.create({
@@ -117,11 +125,11 @@ export class UsersService extends BaseService<UserModel, CreateUserDto, UpdateUs
           careerId: careerId,
           needsPasswordChange: true, // <--- AÑADIDO: Fuerza al docente a cambiar la clave
         },
-        include: { role: true, career: true }
+        include: { role: true, career: true },
+        omit: USER_OMIT
       });
       
-      const { password: __, ...userWithoutPassword } = user;
-      return userWithoutPassword as unknown as UserModel;
+      return user;
 
     } catch (error) {
       this.handleDBErrors(error);
@@ -137,7 +145,8 @@ export class UsersService extends BaseService<UserModel, CreateUserDto, UpdateUs
     const data = await this.prismaService.user.findMany({
       skip, 
       take: limit, 
-      include: { role: true, career: true }, 
+      include: { role: true, career: true },
+        omit: USER_OMIT, 
       orderBy: { createdAt: order }
     });
 
@@ -157,7 +166,8 @@ export class UsersService extends BaseService<UserModel, CreateUserDto, UpdateUs
   async findOne(id: string) {
     const user = await this.prismaService.user.findUnique({ 
       where: { id }, 
-      include: { role: true, career: true } 
+      include: { role: true, career: true },
+        omit: USER_OMIT 
     });
     if (!user) throw new NotFoundException(`Usuario no encontrado`);
     return user;
@@ -167,17 +177,19 @@ export class UsersService extends BaseService<UserModel, CreateUserDto, UpdateUs
     const user = await this.prismaService.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException(`Usuario no encontrado`);
 
-    const { password, email, roleId: _, ...rest } = updateUserDto;
-    
-    let dataToUpdate: any = { ...rest };
+    // password (solo por change-password), roleId (nadie se auto-asigna rol) e
+    // image (solo por PATCH :id/image) NO se aceptan aquí.
+    const { password: _p, roleId: _r, image: _i, email, ...rest } = updateUserDto;
+
+    const dataToUpdate: any = { ...rest };
     if (email) dataToUpdate.email = email.toLowerCase();
-    if (password) dataToUpdate.password = await bcrypt.hash(password, 10);
 
     try {
       return await this.prismaService.user.update({ 
         where: { id }, 
         data: dataToUpdate, 
-        include: { role: true, career: true } 
+        include: { role: true, career: true },
+        omit: USER_OMIT 
       });
     } catch (error) { this.handleDBErrors(error); }
   }
@@ -188,8 +200,9 @@ export class UsersService extends BaseService<UserModel, CreateUserDto, UpdateUs
 
     return this.prismaService.user.update({ 
       where: { id }, 
-      data: { image: `/uploads/${file.filename}` }, 
-      include: { role: true, career: true } 
+      data: { image: `/uploads/${file.filename}` },
+      include: { role: true, career: true },
+        omit: USER_OMIT 
     });
   }
 
@@ -211,18 +224,21 @@ export class UsersService extends BaseService<UserModel, CreateUserDto, UpdateUs
     }
 
     // Encriptamos la nueva contraseña
-    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+    const hashedNewPassword = await bcrypt.hash(newPassword, 12);
 
     try {
       await this.prismaService.user.update({
         where: { id },
         data: {
           password: hashedNewPassword,
-          needsPasswordChange: false, // <--- AÑADIDO: Libera al docente una vez cambie la clave
+          needsPasswordChange: false,
+          tokenVersion: { increment: 1 }, // cierra el resto de sesiones
         },
       });
 
-      return { message: 'Contraseña actualizada con éxito' };
+      // Se devuelven tokens nuevos para que ESTA sesión siga activa.
+      const fresh = await this.prismaService.user.findUniqueOrThrow({ where: { id }, select: { id: true, tokenVersion: true } });
+      return { message: 'Contraseña actualizada con éxito', ...(await this.issueTokens(fresh)) };
     } catch (error) {
       this.handleDBErrors(error);
     }
@@ -234,7 +250,7 @@ export class UsersService extends BaseService<UserModel, CreateUserDto, UpdateUs
     if (!user) throw new NotFoundException(`Usuario no encontrado`);
     
     try { 
-      return await this.prismaService.user.delete({ where: { id } }); 
+      return await this.prismaService.user.delete({ where: { id }, omit: USER_OMIT }); 
     } catch (error) { this.handleDBErrors(error); }
   }
 

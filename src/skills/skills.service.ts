@@ -12,6 +12,7 @@ import { SkillsModel } from 'src/prisma/generated/models';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { UserModel as User } from 'src/prisma/generated/models/User'; 
 import { Prisma } from 'src/prisma/generated/client';
+import { isAdmin as isAdminUser } from 'src/common/access';
 
 @Injectable()
 export class SkillsService extends BaseService<SkillsModel, CreateSkillDto, UpdateSkillDto> {
@@ -48,13 +49,7 @@ export class SkillsService extends BaseService<SkillsModel, CreateSkillDto, Upda
       throw new NotFoundException(`Skill con ID ${id} no encontrada`);
     }
 
-    const userWithRole = await this.prismaService.user.findUnique({
-      where: { id: user.id },
-      include: { role: true }
-    });
-
-    const roleName = userWithRole?.role?.name?.toLowerCase();
-    const isAdmin = roleName === 'admin' || roleName === 'administrador';
+    const isAdmin = isAdminUser(user as any);
     const isOwner = skill.createdById === user.id;
 
     if (!isAdmin && !isOwner) {
@@ -87,6 +82,15 @@ export class SkillsService extends BaseService<SkillsModel, CreateSkillDto, Upda
     }catch (error) {
       throw error;
     }
+  }
+
+  async removeWithPermission(id: string, user: User) {
+    const skill = await this.prismaService.skills.findUnique({ where: { id } });
+    if (!skill) throw new NotFoundException(`Skill con ID ${id} no encontrada`);
+    if (!isAdminUser(user as any) && skill.createdById !== user.id) {
+      throw new ForbiddenException('No tienes permiso para eliminar esta habilidad.');
+    }
+    return this.remove(id);
   }
 
   // --- NUEVO: Sobrescribimos el método remove para limpiar relaciones ---
