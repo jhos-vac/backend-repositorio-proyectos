@@ -64,7 +64,7 @@ export type Skills = Prisma.SkillsModel
 export type projectSkills = Prisma.projectSkillsModel
 /**
  * Model Period
- * 
+ * Período académico configurado por el ADMIN: solo mes y año de inicio y de fin (ej. Septiembre-2026 → Enero-2027).
  */
 export type Period = Prisma.PeriodModel
 /**

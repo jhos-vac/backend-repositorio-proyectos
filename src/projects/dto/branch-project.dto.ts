@@ -10,4 +10,9 @@ export class BranchProjectDto {
   @IsString()
   @MaxLength(5000)
   description?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  academic_period?: string;
 }

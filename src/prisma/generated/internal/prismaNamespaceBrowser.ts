@@ -213,6 +213,10 @@ export type ProjectSkillsScalarFieldEnum = (typeof ProjectSkillsScalarFieldEnum)
 export const PeriodScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  startMonth: 'startMonth',
+  startYear: 'startYear',
+  endMonth: 'endMonth',
+  endYear: 'endYear',
   createdAt: 'createdAt'
 } as const
 

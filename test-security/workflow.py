@@ -22,8 +22,9 @@ S1,s1=login("student1@sudamericano.edu.ec"); S2,s2=login("student2@sudamericano.
 careers=call("GET","/api/careers?limit=10")[1]["data"]; c0=careers[0]["id"]
 # los estudiantes del seed usan careers[0] del seed: tomamos la carrera real del perfil
 c0=call("GET",f"/api/users/{s1}",S1)[1]["careerId"]; c1=[c["id"] for c in careers if c["id"]!=c0][0]
+PER=call("GET","/api/period",A)[1][0]["name"]
 print("== Estudiante crea (pendiente)")
-s,p=call("POST","/api/projects",S1,{"name":"Proy A "+uuid.uuid4().hex[:4],"description":"desc","careerId":c1,"level":4,"status":"completado"})
+s,p=call("POST","/api/projects",S1,{"name":"Proy A "+uuid.uuid4().hex[:4],"description":"desc","academic_period":PER,"careerId":c1,"level":4,"status":"completado"})
 ok(s==201 and p["reviewStatus"]=="pending","proyecto de estudiante nace PENDIENTE")
 ok(p["careerId"]==c0 and p["level"]==1,"carrera y nivel salen del perfil (ignora los del cuerpo)")
 pid=p["id"]
@@ -75,7 +76,7 @@ ok(s==200 and all(x["parentId"] for x in c["data"]) and b1["id"] in [x["id"] for
 s,o=call("GET","/api/projects?continuity=origins&limit=100",A)
 ok(pid in [x["id"] for x in o["data"]] and o["data"][0]["_count"]["branches"]>=1,"admin filtra orígenes con ramas")
 print("== Estudiante borra lo suyo pendiente")
-s,p2=call("POST","/api/projects",S1,{"name":"Borrable "+uuid.uuid4().hex[:4],"description":"d","careerId":c0})
+s,p2=call("POST","/api/projects",S1,{"name":"Borrable "+uuid.uuid4().hex[:4],"description":"d","academic_period":PER,"careerId":c0})
 ok(call("DELETE",f"/api/projects/{p2['id']}",S1)[0]==200,"autor elimina su proyecto pendiente")
 print("== Perfil: carrera y nivel no se autoeditan")
 call("PATCH",f"/api/users/{s1}",S1,{"careerId":c1,"level":4,"name":"Ana Torres"})
@@ -109,10 +110,26 @@ allA=call("GET","/api/assignments",A)[1]; ok(len([x for x in allA if x["careerId
 ok(any(x["level"]==3 for x in call("GET","/api/assignments/mine",T2)[1]),"docente ve sus asignaciones")
 call("PUT","/api/assignments",A,{"careerId":c1,"level":3,"teacherId":None})
 print("== Admin elimina usuario: los proyectos se conservan")
-s,pp=call("POST","/api/projects",S2,{"name":"Huérfano "+uuid.uuid4().hex[:4],"description":"d","careerId":c0}); 
+s,pp=call("POST","/api/projects",S2,{"name":"Huérfano "+uuid.uuid4().hex[:4],"description":"d","academic_period":PER,"careerId":c0}); 
 call("PATCH",f"/api/projects/{pp['id']}/review",T1,{"decision":"approved"})
 ok(call("DELETE",f"/api/users/{s2}",A)[0]==200,"admin elimina estudiante con proyectos")
 g=call("GET",f"/api/projects/{pp['id']}",A); ok(g[0]==200 and g[1]["createdBy"] is None,"el proyecto sigue existiendo sin autor")
 ok(call("GET",f"/api/projects/{b1['id']}",A)[0]==200,"sus ramas siguen en el linaje")
 ok(call("DELETE",f"/api/users/{nu['id']}",A)[0]==200,"limpieza usuario de prueba")
+print("== Períodos académicos (solo mes y año)")
+s,pe=call("POST","/api/period",A,{"startMonth":9,"startYear":2030,"endMonth":1,"endYear":2031})
+ok(s==201 and pe["name"]=="Septiembre-2030 – Enero-2031","admin crea período con mes/año y se genera el nombre")
+ok(call("POST","/api/period",A,{"startMonth":9,"startYear":2030,"endMonth":1,"endYear":2031})[0]==409,"período duplicado -> 409")
+ok(call("POST","/api/period",A,{"startMonth":9,"startYear":2030,"endMonth":8,"endYear":2030})[0]==400,"fin anterior al inicio -> 400")
+ok(call("POST","/api/period",A,{"startMonth":13,"startYear":2030,"endMonth":1,"endYear":2031})[0]==400,"mes inválido -> 400")
+ok(call("POST","/api/period",T1,{"startMonth":1,"startYear":2032,"endMonth":5,"endYear":2032})[0]==403,"docente no configura períodos")
+ok(call("POST","/api/period",S1,{"startMonth":1,"startYear":2032,"endMonth":5,"endYear":2032})[0]==403,"estudiante no configura períodos")
+ok(call("GET","/api/period",A)[1][0]["name"]==pe["name"],"el más reciente aparece primero")
+ok(call("POST","/api/projects",S1,{"name":"Sin per "+uuid.uuid4().hex[:4],"description":"d","careerId":c0})[0]==400,"proyecto sin período -> 400")
+ok(call("POST","/api/projects",S1,{"name":"Per falso "+uuid.uuid4().hex[:4],"description":"d","careerId":c0,"academic_period":"Inventado-2099"})[0]==400,"período inexistente -> 400")
+s,pp2=call("POST","/api/projects",S1,{"name":"Con per "+uuid.uuid4().hex[:4],"description":"d","careerId":c0,"academic_period":pe["name"],"startDate":"2030-01-01"})
+ok(s==201 and pp2["academic_period"]==pe["name"] and pp2["startDate"] is None,"proyecto con período válido; las fechas ya no se guardan")
+ok(call("DELETE",f"/api/period/{pe['id']}",A)[0]==409,"no se elimina un período en uso")
+call("DELETE",f"/api/projects/{pp2['id']}",A)
+ok(call("DELETE",f"/api/period/{pe['id']}",A)[0] in (200,204),"período sin proyectos se elimina")
 print("\nRESULTADO:","OK" if fails==0 else f"{fails} FALLOS"); sys.exit(1 if fails else 0)

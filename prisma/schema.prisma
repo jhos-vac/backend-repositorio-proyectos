@@ -183,9 +183,14 @@ model projectSkills {
   @@unique([projectId, skillId])
 }
 
+/// Período académico configurado por el ADMIN: solo mes y año de inicio y de fin (ej. Septiembre-2026 → Enero-2027).
 model Period {
-  id        String   @id @default(uuid())
-  name      String   @unique
+  id         String   @id @default(uuid())
+  name       String   @unique
+  startMonth Int?
+  startYear  Int?
+  endMonth   Int?
+  endYear    Int?
   createdAt DateTime @default(now())
 }
 

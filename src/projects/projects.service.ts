@@ -165,21 +165,30 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
   }
 
   async createWithUser(createProjectDto: CreateProjectDto, user: AuthUser) {
-    const { startDate, endDate, createdBy: _cb, level: _lv, careerId: _c, status: _s, ...rest } = createProjectDto;
+    const { createdBy: _cb, level: _lv, careerId: _c, status: _s, ...rest } = createProjectDto as any;
     const auth = await this.authoring(createProjectDto, user);
+    await this.assertPeriod(createProjectDto.academic_period, true);
 
     return this.prismaService.project.create({
       data: {
         ...rest,
         status: 'in-progress',
         ...auth,
-        startDate: startDate ? new Date(startDate) : null,
-        endDate: endDate ? new Date(endDate) : null,
         createdBy: user.id,
         userProjects: { create: { userId: user.id } },
       } as any,
       include: LIST_INCLUDE,
     });
+  }
+
+  /** El período académico debe existir (lo configura el ADMIN). */
+  private async assertPeriod(name: string | undefined, required: boolean) {
+    if (!name) {
+      if (required) throw new BadRequestException('Selecciona el período académico.');
+      return;
+    }
+    const found = await this.prismaService.period.findUnique({ where: { name }, select: { id: true } });
+    if (!found) throw new BadRequestException('El período académico no existe. Pide al administrador que lo registre.');
   }
 
   // ---------------------------------------------------------------- edición / borrado
@@ -201,10 +210,11 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     this.assertCanModify(project, user, 'editar');
 
     // El cliente nunca cambia propietario ni flujo de revisión
-    const { startDate, endDate, createdBy: _cb, level, careerId, ...rest } = dto as any;
+    const { createdBy: _cb, level, careerId, ...rest } = dto as any;
     const data: any = { ...rest };
-    if (startDate) data.startDate = new Date(startDate);
-    if (endDate) data.endDate = new Date(endDate);
+    if (rest.academic_period !== undefined && rest.academic_period !== project.academic_period) {
+      await this.assertPeriod(rest.academic_period, true);
+    }
 
     if (isStudent(user)) {
       // carrera y nivel de un estudiante no se editan; corregir un rechazo lo reenvía a revisión
@@ -286,6 +296,12 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     if (dup) throw new ConflictException('Ya tienes una continuación activa de este proyecto.');
 
     const auth = await this.authoring({ careerId: src.careerId, level: src.level ?? undefined }, user);
+    // La continuación pertenece a un período nuevo: el elegido o, por defecto, el más reciente configurado.
+    await this.assertPeriod(dto.academic_period, false);
+    const latest = dto.academic_period
+      ? null
+      : (await this.prismaService.period.findMany({ orderBy: [{ startYear: { sort: 'desc', nulls: 'last' } }, { startMonth: { sort: 'desc', nulls: 'last' } }], take: 1 }))[0];
+    const academic_period = dto.academic_period ?? latest?.name ?? src.academic_period;
     const rootId = src.rootId ?? src.id;
     const inChain = await this.prismaService.project.count({ where: { OR: [{ id: rootId }, { rootId }] } });
 
@@ -297,6 +313,7 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
         summary: src.summary,
         objectives: src.objectives,
         cycle: src.cycle,
+        academic_period,
         status: 'in-progress',
         ...auth,
         parentId: src.id,

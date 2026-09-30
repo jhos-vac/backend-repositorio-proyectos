@@ -83,7 +83,7 @@ ok(call("GET",f"/api/users/{tid}",ut)[0]==403,"USER no lee a otro usuario")
 ok(call("POST","/api/auth/register",body={"email":email,"password":"Alumno#2026x","name":"Dup","careerId":car,"level":1})[0]==400,"correo duplicado -> 400")
 
 print("== Ownership")
-s,b,_=call("POST","/api/projects",ut,body={"name":"P prueba","description":"d","careerId":car,"createdBy":tid})
+s,b,_=call("POST","/api/projects",ut,body={"name":"P prueba","description":"d","academic_period":"Septiembre-2026 – Enero-2027","careerId":car,"createdBy":tid})
 ok(s==201,"USER crea proyecto"); proj=J(b); pid2=proj["id"]
 ok(proj["createdBy"]==uid2,"createdBy no se puede falsificar en POST")
 ok(call("PATCH",f"/api/projects/{pid2}",tt,body={"name":"hack"})[0]==403,"TEACHER no edita proyecto ajeno")

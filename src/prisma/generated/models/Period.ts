@@ -14,51 +14,105 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Period
- * 
+ * Período académico configurado por el ADMIN: solo mes y año de inicio y de fin (ej. Septiembre-2026 → Enero-2027).
  */
 export type PeriodModel = runtime.Types.Result.DefaultSelection<Prisma.$PeriodPayload>
 
 export type AggregatePeriod = {
   _count: PeriodCountAggregateOutputType | null
+  _avg: PeriodAvgAggregateOutputType | null
+  _sum: PeriodSumAggregateOutputType | null
   _min: PeriodMinAggregateOutputType | null
   _max: PeriodMaxAggregateOutputType | null
+}
+
+export type PeriodAvgAggregateOutputType = {
+  startMonth: number | null
+  startYear: number | null
+  endMonth: number | null
+  endYear: number | null
+}
+
+export type PeriodSumAggregateOutputType = {
+  startMonth: number | null
+  startYear: number | null
+  endMonth: number | null
+  endYear: number | null
 }
 
 export type PeriodMinAggregateOutputType = {
   id: string | null
   name: string | null
+  startMonth: number | null
+  startYear: number | null
+  endMonth: number | null
+  endYear: number | null
   createdAt: Date | null
 }
 
 export type PeriodMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  startMonth: number | null
+  startYear: number | null
+  endMonth: number | null
+  endYear: number | null
   createdAt: Date | null
 }
 
 export type PeriodCountAggregateOutputType = {
   id: number
   name: number
+  startMonth: number
+  startYear: number
+  endMonth: number
+  endYear: number
   createdAt: number
   _all: number
 }
 
 
+export type PeriodAvgAggregateInputType = {
+  startMonth?: true
+  startYear?: true
+  endMonth?: true
+  endYear?: true
+}
+
+export type PeriodSumAggregateInputType = {
+  startMonth?: true
+  startYear?: true
+  endMonth?: true
+  endYear?: true
+}
+
 export type PeriodMinAggregateInputType = {
   id?: true
   name?: true
+  startMonth?: true
+  startYear?: true
+  endMonth?: true
+  endYear?: true
   createdAt?: true
 }
 
 export type PeriodMaxAggregateInputType = {
   id?: true
   name?: true
+  startMonth?: true
+  startYear?: true
+  endMonth?: true
+  endYear?: true
   createdAt?: true
 }
 
 export type PeriodCountAggregateInputType = {
   id?: true
   name?: true
+  startMonth?: true
+  startYear?: true
+  endMonth?: true
+  endYear?: true
   createdAt?: true
   _all?: true
 }
@@ -101,6 +155,18 @@ export type PeriodAggregateArgs<ExtArgs extends runtime.Types.Extensions.Interna
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: PeriodAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: PeriodSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: PeriodMinAggregateInputType
@@ -131,6 +197,8 @@ export type PeriodGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   _count?: PeriodCountAggregateInputType | true
+  _avg?: PeriodAvgAggregateInputType
+  _sum?: PeriodSumAggregateInputType
   _min?: PeriodMinAggregateInputType
   _max?: PeriodMaxAggregateInputType
 }
@@ -138,8 +206,14 @@ export type PeriodGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type PeriodGroupByOutputType = {
   id: string
   name: string
+  startMonth: number | null
+  startYear: number | null
+  endMonth: number | null
+  endYear: number | null
   createdAt: Date
   _count: PeriodCountAggregateOutputType | null
+  _avg: PeriodAvgAggregateOutputType | null
+  _sum: PeriodSumAggregateOutputType | null
   _min: PeriodMinAggregateOutputType | null
   _max: PeriodMaxAggregateOutputType | null
 }
@@ -165,12 +239,20 @@ export type PeriodWhereInput = {
   NOT?: Prisma.PeriodWhereInput | Prisma.PeriodWhereInput[]
   id?: Prisma.StringFilter<"Period"> | string
   name?: Prisma.StringFilter<"Period"> | string
+  startMonth?: Prisma.IntNullableFilter<"Period"> | number | null
+  startYear?: Prisma.IntNullableFilter<"Period"> | number | null
+  endMonth?: Prisma.IntNullableFilter<"Period"> | number | null
+  endYear?: Prisma.IntNullableFilter<"Period"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Period"> | Date | string
 }
 
 export type PeriodOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  startMonth?: Prisma.SortOrderInput | Prisma.SortOrder
+  startYear?: Prisma.SortOrderInput | Prisma.SortOrder
+  endMonth?: Prisma.SortOrderInput | Prisma.SortOrder
+  endYear?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -180,16 +262,26 @@ export type PeriodWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.PeriodWhereInput | Prisma.PeriodWhereInput[]
   OR?: Prisma.PeriodWhereInput[]
   NOT?: Prisma.PeriodWhereInput | Prisma.PeriodWhereInput[]
+  startMonth?: Prisma.IntNullableFilter<"Period"> | number | null
+  startYear?: Prisma.IntNullableFilter<"Period"> | number | null
+  endMonth?: Prisma.IntNullableFilter<"Period"> | number | null
+  endYear?: Prisma.IntNullableFilter<"Period"> | number | null
   createdAt?: Prisma.DateTimeFilter<"Period"> | Date | string
 }, "id" | "name">
 
 export type PeriodOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  startMonth?: Prisma.SortOrderInput | Prisma.SortOrder
+  startYear?: Prisma.SortOrderInput | Prisma.SortOrder
+  endMonth?: Prisma.SortOrderInput | Prisma.SortOrder
+  endYear?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PeriodCountOrderByAggregateInput
+  _avg?: Prisma.PeriodAvgOrderByAggregateInput
   _max?: Prisma.PeriodMaxOrderByAggregateInput
   _min?: Prisma.PeriodMinOrderByAggregateInput
+  _sum?: Prisma.PeriodSumOrderByAggregateInput
 }
 
 export type PeriodScalarWhereWithAggregatesInput = {
@@ -198,67 +290,125 @@ export type PeriodScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PeriodScalarWhereWithAggregatesInput | Prisma.PeriodScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Period"> | string
   name?: Prisma.StringWithAggregatesFilter<"Period"> | string
+  startMonth?: Prisma.IntNullableWithAggregatesFilter<"Period"> | number | null
+  startYear?: Prisma.IntNullableWithAggregatesFilter<"Period"> | number | null
+  endMonth?: Prisma.IntNullableWithAggregatesFilter<"Period"> | number | null
+  endYear?: Prisma.IntNullableWithAggregatesFilter<"Period"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Period"> | Date | string
 }
 
 export type PeriodCreateInput = {
   id?: string
   name: string
+  startMonth?: number | null
+  startYear?: number | null
+  endMonth?: number | null
+  endYear?: number | null
   createdAt?: Date | string
 }
 
 export type PeriodUncheckedCreateInput = {
   id?: string
   name: string
+  startMonth?: number | null
+  startYear?: number | null
+  endMonth?: number | null
+  endYear?: number | null
   createdAt?: Date | string
 }
 
 export type PeriodUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  startMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  startYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PeriodUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  startMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  startYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PeriodCreateManyInput = {
   id?: string
   name: string
+  startMonth?: number | null
+  startYear?: number | null
+  endMonth?: number | null
+  endYear?: number | null
   createdAt?: Date | string
 }
 
 export type PeriodUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  startMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  startYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PeriodUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  startMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  startYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endMonth?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  endYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PeriodCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  startMonth?: Prisma.SortOrder
+  startYear?: Prisma.SortOrder
+  endMonth?: Prisma.SortOrder
+  endYear?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type PeriodAvgOrderByAggregateInput = {
+  startMonth?: Prisma.SortOrder
+  startYear?: Prisma.SortOrder
+  endMonth?: Prisma.SortOrder
+  endYear?: Prisma.SortOrder
 }
 
 export type PeriodMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  startMonth?: Prisma.SortOrder
+  startYear?: Prisma.SortOrder
+  endMonth?: Prisma.SortOrder
+  endYear?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type PeriodMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  startMonth?: Prisma.SortOrder
+  startYear?: Prisma.SortOrder
+  endMonth?: Prisma.SortOrder
+  endYear?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type PeriodSumOrderByAggregateInput = {
+  startMonth?: Prisma.SortOrder
+  startYear?: Prisma.SortOrder
+  endMonth?: Prisma.SortOrder
+  endYear?: Prisma.SortOrder
 }
 
 
@@ -266,28 +416,44 @@ export type PeriodMinOrderByAggregateInput = {
 export type PeriodSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  startMonth?: boolean
+  startYear?: boolean
+  endMonth?: boolean
+  endYear?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["period"]>
 
 export type PeriodSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  startMonth?: boolean
+  startYear?: boolean
+  endMonth?: boolean
+  endYear?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["period"]>
 
 export type PeriodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  startMonth?: boolean
+  startYear?: boolean
+  endMonth?: boolean
+  endYear?: boolean
   createdAt?: boolean
 }, ExtArgs["result"]["period"]>
 
 export type PeriodSelectScalar = {
   id?: boolean
   name?: boolean
+  startMonth?: boolean
+  startYear?: boolean
+  endMonth?: boolean
+  endYear?: boolean
   createdAt?: boolean
 }
 
-export type PeriodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "createdAt", ExtArgs["result"]["period"]>
+export type PeriodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "startMonth" | "startYear" | "endMonth" | "endYear" | "createdAt", ExtArgs["result"]["period"]>
 
 export type $PeriodPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Period"
@@ -295,6 +461,10 @@ export type $PeriodPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    startMonth: number | null
+    startYear: number | null
+    endMonth: number | null
+    endYear: number | null
     createdAt: Date
   }, ExtArgs["result"]["period"]>
   composites: {}
@@ -721,6 +891,10 @@ export interface Prisma__PeriodClient<T, Null = never, ExtArgs extends runtime.T
 export interface PeriodFieldRefs {
   readonly id: Prisma.FieldRef<"Period", 'String'>
   readonly name: Prisma.FieldRef<"Period", 'String'>
+  readonly startMonth: Prisma.FieldRef<"Period", 'Int'>
+  readonly startYear: Prisma.FieldRef<"Period", 'Int'>
+  readonly endMonth: Prisma.FieldRef<"Period", 'Int'>
+  readonly endYear: Prisma.FieldRef<"Period", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Period", 'DateTime'>
 }
     

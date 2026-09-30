@@ -274,7 +274,17 @@ async function main() {
     const demoPlain = process.env.SEED_DEMO_PASSWORD || generated();
     const hashedPassword = bcrypt.hashSync(demoPlain, 12);
     const adminHashed = bcrypt.hashSync(adminPlain, 12);
-    if (!process.env.SEED_ADMIN_PASSWORD) {
+    // DEV-ONLY (quitar antes de desplegar): con DEV_RESET=true se imprimen SIEMPRE las credenciales.
+    if (process.env.DEV_RESET === "true") {
+        const adminEmail = process.env.SEED_ADMIN_EMAIL || "luis@gmail.com";
+        console.log("==================================================");
+        console.log(" CREDENCIALES DE PRUEBA (DEV_RESET=true, NO USAR EN PRODUCCION)");
+        console.log(`  ADMIN     ${adminEmail}  /  ${adminPlain}`);
+        for (const e of ["teacher1", "teacher2", "teacher3", "student1", "student2"]) {
+            console.log(`  ${e.startsWith("t") ? "DOCENTE   " : "ESTUDIANTE"} ${e}@sudamericano.edu.ec  /  ${demoPlain}`);
+        }
+        console.log("==================================================");
+    } else if (!process.env.SEED_ADMIN_PASSWORD) {
         console.log("==================================================");
         console.log(` CONTRASEÑA ADMIN GENERADA (guárdala): ${adminPlain}`);
         console.log("==================================================");
@@ -345,6 +355,14 @@ async function main() {
     console.log(` - Admin: ${adminUser.email}`);
     console.log(` - Teacher: ${teacher1.email}`);
 
+    // ========== PERÍODOS ACADÉMICOS (solo mes y año) ==========
+    await prisma.period.createMany({
+        data: [
+            { name: "Mayo-2026 – Septiembre-2026", startMonth: 5, startYear: 2026, endMonth: 9, endYear: 2026 },
+            { name: "Septiembre-2026 – Enero-2027", startMonth: 9, startYear: 2026, endMonth: 1, endYear: 2027 },
+        ],
+    });
+
     // ========== PROJECTS ==========
     console.log("📁 Creating projects...");
     const projects = await Promise.all([
@@ -353,7 +371,7 @@ async function main() {
                 name: "Sistema de Gestión Escolar",
                 description: "Desarrollo de un sistema web para gestión administrativa y académica",
                 status: "en progreso",
-                startDate: new Date("2024-09-01"),
+                academic_period: "Septiembre-2026 – Enero-2027",
                 careerId: careers[0].id,
                 objectives: [
                     "Implementar módulo de gestión de estudiantes",
@@ -373,7 +391,7 @@ async function main() {
                 name: "Aplicación Móvil de Asistencia",
                 description: "App móvil para control de asistencia mediante código QR",
                 status: "en progreso",
-                startDate: new Date("2024-10-01"),
+                academic_period: "Septiembre-2026 – Enero-2027",
                 careerId: careers[0].id,
                 objectives: [
                     "Implementar generación de códigos QR",
@@ -388,8 +406,7 @@ async function main() {
                 name: "Optimización de Redes de Datos",
                 description: "Optimización de infraestructura de red mediante simulación",
                 status: "completado",
-                startDate: new Date("2024-08-01"),
-                endDate: new Date("2024-11-01"),
+                academic_period: "Septiembre-2026 – Enero-2027",
                 careerId: careers[1].id,
                 objectives: [
                     "Analizar la topología actual",
@@ -404,7 +421,7 @@ async function main() {
                 name: "Sistema IoT de Monitoreo Eléctrico",
                 description: "Sistema de monitoreo de consumo con sensores",
                 status: "en progreso",
-                startDate: new Date("2024-09-15"),
+                academic_period: "Septiembre-2026 – Enero-2027",
                 careerId: careers[2].id,
                 objectives: [
                     "Configurar sensores",
@@ -419,7 +436,7 @@ async function main() {
                 name: "Predicción de Demanda con ML",
                 description: "Modelo de machine learning para predecir demanda",
                 status: "en progreso",
-                startDate: new Date("2024-10-15"),
+                academic_period: "Septiembre-2026 – Enero-2027",
                 careerId: careers[0].id,
                 objectives: [
                     "Entrenar modelo",
