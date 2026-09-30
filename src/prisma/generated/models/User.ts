@@ -313,6 +313,8 @@ export type UserWhereInput = {
   projects?: Prisma.UserProjectListRelationFilter
   teachingAssignments?: Prisma.TeacherAssignmentListRelationFilter
   reviewedProjects?: Prisma.ProjectListRelationFilter
+  uploadedDocuments?: Prisma.ProjectDocumentListRelationFilter
+  createdLinks?: Prisma.ProjectLinkListRelationFilter
   createdProjects?: Prisma.ProjectListRelationFilter
   createdSkills?: Prisma.SkillsListRelationFilter
 }
@@ -339,6 +341,8 @@ export type UserOrderByWithRelationInput = {
   projects?: Prisma.UserProjectOrderByRelationAggregateInput
   teachingAssignments?: Prisma.TeacherAssignmentOrderByRelationAggregateInput
   reviewedProjects?: Prisma.ProjectOrderByRelationAggregateInput
+  uploadedDocuments?: Prisma.ProjectDocumentOrderByRelationAggregateInput
+  createdLinks?: Prisma.ProjectLinkOrderByRelationAggregateInput
   createdProjects?: Prisma.ProjectOrderByRelationAggregateInput
   createdSkills?: Prisma.SkillsOrderByRelationAggregateInput
 }
@@ -368,6 +372,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   projects?: Prisma.UserProjectListRelationFilter
   teachingAssignments?: Prisma.TeacherAssignmentListRelationFilter
   reviewedProjects?: Prisma.ProjectListRelationFilter
+  uploadedDocuments?: Prisma.ProjectDocumentListRelationFilter
+  createdLinks?: Prisma.ProjectLinkListRelationFilter
   createdProjects?: Prisma.ProjectListRelationFilter
   createdSkills?: Prisma.SkillsListRelationFilter
 }, "id" | "email">
@@ -438,6 +444,8 @@ export type UserCreateInput = {
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
@@ -462,6 +470,8 @@ export type UserUncheckedCreateInput = {
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
@@ -486,6 +496,8 @@ export type UserUpdateInput = {
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
@@ -510,6 +522,8 @@ export type UserUncheckedUpdateInput = {
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUncheckedUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
@@ -852,6 +866,38 @@ export type UserUpdateOneRequiredWithoutTeachingAssignmentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTeachingAssignmentsInput, Prisma.UserUpdateWithoutTeachingAssignmentsInput>, Prisma.UserUncheckedUpdateWithoutTeachingAssignmentsInput>
 }
 
+export type UserCreateNestedOneWithoutUploadedDocumentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUploadedDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedDocumentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUploadedDocumentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutUploadedDocumentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUploadedDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedDocumentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUploadedDocumentsInput
+  upsert?: Prisma.UserUpsertWithoutUploadedDocumentsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUploadedDocumentsInput, Prisma.UserUpdateWithoutUploadedDocumentsInput>, Prisma.UserUncheckedUpdateWithoutUploadedDocumentsInput>
+}
+
+export type UserCreateNestedOneWithoutCreatedLinksInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedLinksInput, Prisma.UserUncheckedCreateWithoutCreatedLinksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedLinksInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutCreatedLinksNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedLinksInput, Prisma.UserUncheckedCreateWithoutCreatedLinksInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedLinksInput
+  upsert?: Prisma.UserUpsertWithoutCreatedLinksInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedLinksInput, Prisma.UserUpdateWithoutCreatedLinksInput>, Prisma.UserUncheckedUpdateWithoutCreatedLinksInput>
+}
+
 export type UserCreateWithoutRoleInput = {
   id?: string
   email: string
@@ -871,6 +917,8 @@ export type UserCreateWithoutRoleInput = {
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
@@ -894,6 +942,8 @@ export type UserUncheckedCreateWithoutRoleInput = {
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
@@ -965,6 +1015,8 @@ export type UserCreateWithoutCareerInput = {
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
@@ -988,6 +1040,8 @@ export type UserUncheckedCreateWithoutCareerInput = {
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
@@ -1038,6 +1092,8 @@ export type UserCreateWithoutCreatedProjectsInput = {
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkCreateNestedManyWithoutCreatedByInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
 
@@ -1061,6 +1117,8 @@ export type UserUncheckedCreateWithoutCreatedProjectsInput = {
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutCreatedByInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
@@ -1088,6 +1146,8 @@ export type UserCreateWithoutReviewedProjectsInput = {
   career: Prisma.CareerCreateNestedOneWithoutUsersInput
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
+  uploadedDocuments?: Prisma.ProjectDocumentCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
@@ -1111,6 +1171,8 @@ export type UserUncheckedCreateWithoutReviewedProjectsInput = {
   updatedAt?: Date | string
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
@@ -1151,6 +1213,8 @@ export type UserUpdateWithoutCreatedProjectsInput = {
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUpdateManyWithoutCreatedByNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
 
@@ -1174,6 +1238,8 @@ export type UserUncheckedUpdateWithoutCreatedProjectsInput = {
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUncheckedUpdateManyWithoutCreatedByNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
@@ -1207,6 +1273,8 @@ export type UserUpdateWithoutReviewedProjectsInput = {
   career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
@@ -1230,6 +1298,8 @@ export type UserUncheckedUpdateWithoutReviewedProjectsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUncheckedUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
@@ -1253,6 +1323,8 @@ export type UserCreateWithoutProjectsInput = {
   career: Prisma.CareerCreateNestedOneWithoutUsersInput
   teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
@@ -1276,6 +1348,8 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   updatedAt?: Date | string
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
@@ -1315,6 +1389,8 @@ export type UserUpdateWithoutProjectsInput = {
   career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
@@ -1338,6 +1414,8 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUncheckedUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
@@ -1362,6 +1440,8 @@ export type UserCreateWithoutCreatedSkillsInput = {
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
 }
 
@@ -1385,6 +1465,8 @@ export type UserUncheckedCreateWithoutCreatedSkillsInput = {
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
   reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -1424,6 +1506,8 @@ export type UserUpdateWithoutCreatedSkillsInput = {
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
 }
 
@@ -1447,6 +1531,8 @@ export type UserUncheckedUpdateWithoutCreatedSkillsInput = {
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUncheckedUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -1469,6 +1555,8 @@ export type UserCreateWithoutTeachingAssignmentsInput = {
   career: Prisma.CareerCreateNestedOneWithoutUsersInput
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
   reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
@@ -1492,6 +1580,8 @@ export type UserUncheckedCreateWithoutTeachingAssignmentsInput = {
   updatedAt?: Date | string
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
   reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  createdLinks?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutCreatedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
@@ -1531,6 +1621,8 @@ export type UserUpdateWithoutTeachingAssignmentsInput = {
   career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
   reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
@@ -1554,6 +1646,240 @@ export type UserUncheckedUpdateWithoutTeachingAssignmentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
   reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutUploadedDocumentsInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  image?: string | null
+  resetToken?: string | null
+  resetTokenExpiry?: Date | string | null
+  isVerified?: boolean
+  activationToken?: string | null
+  needsPasswordChange?: boolean
+  tokenVersion?: number
+  level?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  career: Prisma.CareerCreateNestedOneWithoutUsersInput
+  projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
+  createdLinks?: Prisma.ProjectLinkCreateNestedManyWithoutCreatedByInput
+  createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutUploadedDocumentsInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  image?: string | null
+  roleId: string
+  careerId: string
+  resetToken?: string | null
+  resetTokenExpiry?: Date | string | null
+  isVerified?: boolean
+  activationToken?: string | null
+  needsPasswordChange?: boolean
+  tokenVersion?: number
+  level?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
+  createdLinks?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutCreatedByInput
+  createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutUploadedDocumentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUploadedDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedDocumentsInput>
+}
+
+export type UserUpsertWithoutUploadedDocumentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUploadedDocumentsInput, Prisma.UserUncheckedUpdateWithoutUploadedDocumentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUploadedDocumentsInput, Prisma.UserUncheckedCreateWithoutUploadedDocumentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUploadedDocumentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUploadedDocumentsInput, Prisma.UserUncheckedUpdateWithoutUploadedDocumentsInput>
+}
+
+export type UserUpdateWithoutUploadedDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
+  projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUpdateManyWithoutCreatedByNestedInput
+  createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUploadedDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleId?: Prisma.StringFieldUpdateOperationsInput | string
+  careerId?: Prisma.StringFieldUpdateOperationsInput | string
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUncheckedUpdateManyWithoutCreatedByNestedInput
+  createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutCreatedLinksInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  image?: string | null
+  resetToken?: string | null
+  resetTokenExpiry?: Date | string | null
+  isVerified?: boolean
+  activationToken?: string | null
+  needsPasswordChange?: boolean
+  tokenVersion?: number
+  level?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  career: Prisma.CareerCreateNestedOneWithoutUsersInput
+  projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentCreateNestedManyWithoutUploadedByInput
+  createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutCreatedLinksInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  image?: string | null
+  roleId: string
+  careerId: string
+  resetToken?: string | null
+  resetTokenExpiry?: Date | string | null
+  isVerified?: boolean
+  activationToken?: string | null
+  needsPasswordChange?: boolean
+  tokenVersion?: number
+  level?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutUploadedByInput
+  createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutCreatedLinksInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedLinksInput, Prisma.UserUncheckedCreateWithoutCreatedLinksInput>
+}
+
+export type UserUpsertWithoutCreatedLinksInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedLinksInput, Prisma.UserUncheckedUpdateWithoutCreatedLinksInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedLinksInput, Prisma.UserUncheckedCreateWithoutCreatedLinksInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedLinksInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedLinksInput, Prisma.UserUncheckedUpdateWithoutCreatedLinksInput>
+}
+
+export type UserUpdateWithoutCreatedLinksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
+  projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUpdateManyWithoutUploadedByNestedInput
+  createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedLinksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleId?: Prisma.StringFieldUpdateOperationsInput | string
+  careerId?: Prisma.StringFieldUpdateOperationsInput | string
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
@@ -1595,6 +1921,8 @@ export type UserUpdateWithoutRoleInput = {
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
@@ -1618,6 +1946,8 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUncheckedUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
@@ -1677,6 +2007,8 @@ export type UserUpdateWithoutCareerInput = {
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
@@ -1700,6 +2032,8 @@ export type UserUncheckedUpdateWithoutCareerInput = {
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
   teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
   reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
+  uploadedDocuments?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutUploadedByNestedInput
+  createdLinks?: Prisma.ProjectLinkUncheckedUpdateManyWithoutCreatedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
@@ -1731,6 +2065,8 @@ export type UserCountOutputType = {
   projects: number
   teachingAssignments: number
   reviewedProjects: number
+  uploadedDocuments: number
+  createdLinks: number
   createdProjects: number
   createdSkills: number
 }
@@ -1739,6 +2075,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   projects?: boolean | UserCountOutputTypeCountProjectsArgs
   teachingAssignments?: boolean | UserCountOutputTypeCountTeachingAssignmentsArgs
   reviewedProjects?: boolean | UserCountOutputTypeCountReviewedProjectsArgs
+  uploadedDocuments?: boolean | UserCountOutputTypeCountUploadedDocumentsArgs
+  createdLinks?: boolean | UserCountOutputTypeCountCreatedLinksArgs
   createdProjects?: boolean | UserCountOutputTypeCountCreatedProjectsArgs
   createdSkills?: boolean | UserCountOutputTypeCountCreatedSkillsArgs
 }
@@ -1772,6 +2110,20 @@ export type UserCountOutputTypeCountTeachingAssignmentsArgs<ExtArgs extends runt
  */
 export type UserCountOutputTypeCountReviewedProjectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProjectWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUploadedDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectDocumentWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectLinkWhereInput
 }
 
 /**
@@ -1811,6 +2163,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
   teachingAssignments?: boolean | Prisma.User$teachingAssignmentsArgs<ExtArgs>
   reviewedProjects?: boolean | Prisma.User$reviewedProjectsArgs<ExtArgs>
+  uploadedDocuments?: boolean | Prisma.User$uploadedDocumentsArgs<ExtArgs>
+  createdLinks?: boolean | Prisma.User$createdLinksArgs<ExtArgs>
   createdProjects?: boolean | Prisma.User$createdProjectsArgs<ExtArgs>
   createdSkills?: boolean | Prisma.User$createdSkillsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1884,6 +2238,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
   teachingAssignments?: boolean | Prisma.User$teachingAssignmentsArgs<ExtArgs>
   reviewedProjects?: boolean | Prisma.User$reviewedProjectsArgs<ExtArgs>
+  uploadedDocuments?: boolean | Prisma.User$uploadedDocumentsArgs<ExtArgs>
+  createdLinks?: boolean | Prisma.User$createdLinksArgs<ExtArgs>
   createdProjects?: boolean | Prisma.User$createdProjectsArgs<ExtArgs>
   createdSkills?: boolean | Prisma.User$createdSkillsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1905,6 +2261,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     projects: Prisma.$UserProjectPayload<ExtArgs>[]
     teachingAssignments: Prisma.$TeacherAssignmentPayload<ExtArgs>[]
     reviewedProjects: Prisma.$ProjectPayload<ExtArgs>[]
+    uploadedDocuments: Prisma.$ProjectDocumentPayload<ExtArgs>[]
+    createdLinks: Prisma.$ProjectLinkPayload<ExtArgs>[]
     createdProjects: Prisma.$ProjectPayload<ExtArgs>[]
     createdSkills: Prisma.$SkillsPayload<ExtArgs>[]
   }
@@ -2324,6 +2682,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   projects<T extends Prisma.User$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   teachingAssignments<T extends Prisma.User$teachingAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$teachingAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TeacherAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviewedProjects<T extends Prisma.User$reviewedProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewedProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  uploadedDocuments<T extends Prisma.User$uploadedDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$uploadedDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdLinks<T extends Prisma.User$createdLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdProjects<T extends Prisma.User$createdProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdSkills<T extends Prisma.User$createdSkillsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdSkillsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SkillsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -2836,6 +3196,54 @@ export type User$reviewedProjectsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.ProjectScalarFieldEnum | Prisma.ProjectScalarFieldEnum[]
+}
+
+/**
+ * User.uploadedDocuments
+ */
+export type User$uploadedDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectDocument
+   */
+  select?: Prisma.ProjectDocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectDocument
+   */
+  omit?: Prisma.ProjectDocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectDocumentInclude<ExtArgs> | null
+  where?: Prisma.ProjectDocumentWhereInput
+  orderBy?: Prisma.ProjectDocumentOrderByWithRelationInput | Prisma.ProjectDocumentOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectDocumentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectDocumentScalarFieldEnum | Prisma.ProjectDocumentScalarFieldEnum[]
+}
+
+/**
+ * User.createdLinks
+ */
+export type User$createdLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectLink
+   */
+  select?: Prisma.ProjectLinkSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectLink
+   */
+  omit?: Prisma.ProjectLinkOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectLinkInclude<ExtArgs> | null
+  where?: Prisma.ProjectLinkWhereInput
+  orderBy?: Prisma.ProjectLinkOrderByWithRelationInput | Prisma.ProjectLinkOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectLinkWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectLinkScalarFieldEnum | Prisma.ProjectLinkScalarFieldEnum[]
 }
 
 /**

@@ -15,6 +15,7 @@ import { MembersProjectDto } from './dto/members-project.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { USER_OMIT } from 'src/common/sanitize';
 import { isAdmin, isStudent, isTeacher } from 'src/common/access';
+import { unlinkQuiet } from './files/storage';
 
 type AuthUser = { id: string; careerId: string; level?: number | null; role?: { name?: string } };
 
@@ -262,9 +263,28 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
   }
 
   async remove(id: string) {
+    const docs = await this.prismaService.projectDocument.findMany({ where: { projectId: id }, select: { storedName: true } });
     await this.prismaService.projectSkills.deleteMany({ where: { projectId: id } });
     await this.prismaService.userProject.deleteMany({ where: { projectId: id } });
-    return super.remove(id);
+    const result = await super.remove(id); // los registros de documentos/enlaces se borran en cascada
+    await Promise.all(docs.map((d) => unlinkQuiet(d.storedName)));
+    return result;
+  }
+
+  /**
+   * Quién puede subir/borrar PDF y enlaces: ADMIN siempre; el creador o un integrante solo mientras
+   * el proyecto esté aprobado y no finalizado (no en revisión, no rechazado, no finalizado).
+   */
+  assertCanManageFiles(
+    project: { createdBy: string | null; reviewStatus: string; status: string; userProjects?: { userId: string }[] },
+    user: AuthUser,
+  ) {
+    if (isAdmin(user)) return;
+    const member = project.createdBy === user.id || (project.userProjects || []).some((m) => m.userId === user.id);
+    if (!member) throw new ForbiddenException('Solo el equipo del proyecto puede gestionar sus archivos y enlaces.');
+    if (project.reviewStatus === 'rejected') throw new ForbiddenException('El proyecto fue rechazado: no se pueden adjuntar archivos ni enlaces.');
+    if (project.reviewStatus !== 'approved') throw new ForbiddenException('El proyecto aún está en revisión: podrás adjuntar archivos cuando sea aprobado.');
+    if (/complet|finaliz/i.test(project.status || '')) throw new ForbiddenException('El proyecto está finalizado: ya no se pueden modificar sus archivos ni enlaces.');
   }
 
   // ---------------------------------------------------------------- revisión

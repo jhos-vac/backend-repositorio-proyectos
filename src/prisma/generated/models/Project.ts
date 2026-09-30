@@ -371,6 +371,8 @@ export type ProjectWhereInput = {
   branches?: Prisma.ProjectListRelationFilter
   userProjects?: Prisma.UserProjectListRelationFilter
   projectSkills?: Prisma.ProjectSkillsListRelationFilter
+  documents?: Prisma.ProjectDocumentListRelationFilter
+  links?: Prisma.ProjectLinkListRelationFilter
 }
 
 export type ProjectOrderByWithRelationInput = {
@@ -405,6 +407,8 @@ export type ProjectOrderByWithRelationInput = {
   branches?: Prisma.ProjectOrderByRelationAggregateInput
   userProjects?: Prisma.UserProjectOrderByRelationAggregateInput
   projectSkills?: Prisma.projectSkillsOrderByRelationAggregateInput
+  documents?: Prisma.ProjectDocumentOrderByRelationAggregateInput
+  links?: Prisma.ProjectLinkOrderByRelationAggregateInput
 }
 
 export type ProjectWhereUniqueInput = Prisma.AtLeast<{
@@ -442,6 +446,8 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   branches?: Prisma.ProjectListRelationFilter
   userProjects?: Prisma.UserProjectListRelationFilter
   projectSkills?: Prisma.ProjectSkillsListRelationFilter
+  documents?: Prisma.ProjectDocumentListRelationFilter
+  links?: Prisma.ProjectLinkListRelationFilter
 }, "id">
 
 export type ProjectOrderByWithAggregationInput = {
@@ -534,6 +540,8 @@ export type ProjectCreateInput = {
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateInput = {
@@ -564,6 +572,8 @@ export type ProjectUncheckedCreateInput = {
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUpdateInput = {
@@ -594,6 +604,8 @@ export type ProjectUpdateInput = {
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateInput = {
@@ -624,6 +636,8 @@ export type ProjectUncheckedUpdateInput = {
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyInput = {
@@ -1048,6 +1062,34 @@ export type ProjectUpdateOneRequiredWithoutProjectSkillsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutProjectSkillsInput, Prisma.ProjectUpdateWithoutProjectSkillsInput>, Prisma.ProjectUncheckedUpdateWithoutProjectSkillsInput>
 }
 
+export type ProjectCreateNestedOneWithoutDocumentsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDocumentsInput, Prisma.ProjectUncheckedCreateWithoutDocumentsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDocumentsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutDocumentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutDocumentsInput, Prisma.ProjectUncheckedCreateWithoutDocumentsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDocumentsInput
+  upsert?: Prisma.ProjectUpsertWithoutDocumentsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutDocumentsInput, Prisma.ProjectUpdateWithoutDocumentsInput>, Prisma.ProjectUncheckedUpdateWithoutDocumentsInput>
+}
+
+export type ProjectCreateNestedOneWithoutLinksInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLinksInput, Prisma.ProjectUncheckedCreateWithoutLinksInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLinksInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutLinksNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutLinksInput, Prisma.ProjectUncheckedCreateWithoutLinksInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLinksInput
+  upsert?: Prisma.ProjectUpsertWithoutLinksInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutLinksInput, Prisma.ProjectUpdateWithoutLinksInput>, Prisma.ProjectUncheckedUpdateWithoutLinksInput>
+}
+
 export type ProjectCreateWithoutReviewedByInput = {
   id?: string
   name: string
@@ -1075,6 +1117,8 @@ export type ProjectCreateWithoutReviewedByInput = {
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutReviewedByInput = {
@@ -1104,6 +1148,8 @@ export type ProjectUncheckedCreateWithoutReviewedByInput = {
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutReviewedByInput = {
@@ -1143,6 +1189,8 @@ export type ProjectCreateWithoutUserInput = {
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutUserInput = {
@@ -1172,6 +1220,8 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutUserInput = {
@@ -1273,6 +1323,8 @@ export type ProjectCreateWithoutCareerInput = {
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutCareerInput = {
@@ -1302,6 +1354,8 @@ export type ProjectUncheckedCreateWithoutCareerInput = {
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutCareerInput = {
@@ -1357,6 +1411,8 @@ export type ProjectCreateWithoutBranchesInput = {
   parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutBranchesInput = {
@@ -1386,6 +1442,8 @@ export type ProjectUncheckedCreateWithoutBranchesInput = {
   updatedAt?: Date | string
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutBranchesInput = {
@@ -1420,6 +1478,8 @@ export type ProjectCreateWithoutParentInput = {
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutParentInput = {
@@ -1449,6 +1509,8 @@ export type ProjectUncheckedCreateWithoutParentInput = {
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutParentInput = {
@@ -1499,6 +1561,8 @@ export type ProjectUpdateWithoutBranchesInput = {
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutBranchesInput = {
@@ -1528,6 +1592,8 @@ export type ProjectUncheckedUpdateWithoutBranchesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUpsertWithWhereUniqueWithoutParentInput = {
@@ -1573,6 +1639,8 @@ export type ProjectCreateWithoutUserProjectsInput = {
   parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutUserProjectsInput = {
@@ -1602,6 +1670,8 @@ export type ProjectUncheckedCreateWithoutUserProjectsInput = {
   updatedAt?: Date | string
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutUserProjectsInput = {
@@ -1647,6 +1717,8 @@ export type ProjectUpdateWithoutUserProjectsInput = {
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutUserProjectsInput = {
@@ -1676,6 +1748,8 @@ export type ProjectUncheckedUpdateWithoutUserProjectsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateWithoutProjectSkillsInput = {
@@ -1705,6 +1779,8 @@ export type ProjectCreateWithoutProjectSkillsInput = {
   parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectUncheckedCreateWithoutProjectSkillsInput = {
@@ -1734,6 +1810,8 @@ export type ProjectUncheckedCreateWithoutProjectSkillsInput = {
   updatedAt?: Date | string
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
 }
 
 export type ProjectCreateOrConnectWithoutProjectSkillsInput = {
@@ -1779,6 +1857,8 @@ export type ProjectUpdateWithoutProjectSkillsInput = {
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutProjectSkillsInput = {
@@ -1808,6 +1888,288 @@ export type ProjectUncheckedUpdateWithoutProjectSkillsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutDocumentsInput = {
+  id?: string
+  name: string
+  description: string
+  status?: string
+  problems?: string | null
+  summary?: string | null
+  objectives?: Prisma.ProjectCreateobjectivesInput | string[]
+  cycle?: string | null
+  academic_period?: string | null
+  deliverables?: Prisma.ProjectCreatedeliverablesInput | string[]
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  level?: number | null
+  reviewStatus?: string
+  reviewNote?: string | null
+  reviewedAt?: Date | string | null
+  rootId?: string | null
+  branchNumber?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutCreatedProjectsInput
+  career: Prisma.CareerCreateNestedOneWithoutProjectsInput
+  reviewedBy?: Prisma.UserCreateNestedOneWithoutReviewedProjectsInput
+  parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
+  userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutDocumentsInput = {
+  id?: string
+  name: string
+  description: string
+  status?: string
+  problems?: string | null
+  summary?: string | null
+  objectives?: Prisma.ProjectCreateobjectivesInput | string[]
+  cycle?: string | null
+  academic_period?: string | null
+  deliverables?: Prisma.ProjectCreatedeliverablesInput | string[]
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdBy?: string | null
+  careerId: string
+  level?: number | null
+  reviewStatus?: string
+  reviewNote?: string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
+  parentId?: string | null
+  rootId?: string | null
+  branchNumber?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
+  userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutDocumentsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDocumentsInput, Prisma.ProjectUncheckedCreateWithoutDocumentsInput>
+}
+
+export type ProjectUpsertWithoutDocumentsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutDocumentsInput, Prisma.ProjectUncheckedUpdateWithoutDocumentsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutDocumentsInput, Prisma.ProjectUncheckedCreateWithoutDocumentsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutDocumentsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutDocumentsInput, Prisma.ProjectUncheckedUpdateWithoutDocumentsInput>
+}
+
+export type ProjectUpdateWithoutDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
+  cycle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  academic_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.ProjectUpdatedeliverablesInput | string[]
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rootId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutCreatedProjectsNestedInput
+  career?: Prisma.CareerUpdateOneRequiredWithoutProjectsNestedInput
+  reviewedBy?: Prisma.UserUpdateOneWithoutReviewedProjectsNestedInput
+  parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
+  userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
+  cycle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  academic_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.ProjectUpdatedeliverablesInput | string[]
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  careerId?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rootId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
+  userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutLinksInput = {
+  id?: string
+  name: string
+  description: string
+  status?: string
+  problems?: string | null
+  summary?: string | null
+  objectives?: Prisma.ProjectCreateobjectivesInput | string[]
+  cycle?: string | null
+  academic_period?: string | null
+  deliverables?: Prisma.ProjectCreatedeliverablesInput | string[]
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  level?: number | null
+  reviewStatus?: string
+  reviewNote?: string | null
+  reviewedAt?: Date | string | null
+  rootId?: string | null
+  branchNumber?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutCreatedProjectsInput
+  career: Prisma.CareerCreateNestedOneWithoutProjectsInput
+  reviewedBy?: Prisma.UserCreateNestedOneWithoutReviewedProjectsInput
+  parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
+  userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutLinksInput = {
+  id?: string
+  name: string
+  description: string
+  status?: string
+  problems?: string | null
+  summary?: string | null
+  objectives?: Prisma.ProjectCreateobjectivesInput | string[]
+  cycle?: string | null
+  academic_period?: string | null
+  deliverables?: Prisma.ProjectCreatedeliverablesInput | string[]
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdBy?: string | null
+  careerId: string
+  level?: number | null
+  reviewStatus?: string
+  reviewNote?: string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
+  parentId?: string | null
+  rootId?: string | null
+  branchNumber?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
+  userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutLinksInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLinksInput, Prisma.ProjectUncheckedCreateWithoutLinksInput>
+}
+
+export type ProjectUpsertWithoutLinksInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutLinksInput, Prisma.ProjectUncheckedUpdateWithoutLinksInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutLinksInput, Prisma.ProjectUncheckedCreateWithoutLinksInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutLinksInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutLinksInput, Prisma.ProjectUncheckedUpdateWithoutLinksInput>
+}
+
+export type ProjectUpdateWithoutLinksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
+  cycle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  academic_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.ProjectUpdatedeliverablesInput | string[]
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rootId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutCreatedProjectsNestedInput
+  career?: Prisma.CareerUpdateOneRequiredWithoutProjectsNestedInput
+  reviewedBy?: Prisma.UserUpdateOneWithoutReviewedProjectsNestedInput
+  parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
+  userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutLinksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
+  cycle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  academic_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.ProjectUpdatedeliverablesInput | string[]
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  careerId?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rootId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
+  userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectCreateManyReviewedByInput = {
@@ -1889,6 +2251,8 @@ export type ProjectUpdateWithoutReviewedByInput = {
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutReviewedByInput = {
@@ -1918,6 +2282,8 @@ export type ProjectUncheckedUpdateWithoutReviewedByInput = {
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutReviewedByInput = {
@@ -1973,6 +2339,8 @@ export type ProjectUpdateWithoutUserInput = {
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutUserInput = {
@@ -2002,6 +2370,8 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutUserInput = {
@@ -2083,6 +2453,8 @@ export type ProjectUpdateWithoutCareerInput = {
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutCareerInput = {
@@ -2112,6 +2484,8 @@ export type ProjectUncheckedUpdateWithoutCareerInput = {
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutCareerInput = {
@@ -2193,6 +2567,8 @@ export type ProjectUpdateWithoutParentInput = {
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateWithoutParentInput = {
@@ -2222,6 +2598,8 @@ export type ProjectUncheckedUpdateWithoutParentInput = {
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
 }
 
 export type ProjectUncheckedUpdateManyWithoutParentInput = {
@@ -2259,12 +2637,16 @@ export type ProjectCountOutputType = {
   branches: number
   userProjects: number
   projectSkills: number
+  documents: number
+  links: number
 }
 
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   branches?: boolean | ProjectCountOutputTypeCountBranchesArgs
   userProjects?: boolean | ProjectCountOutputTypeCountUserProjectsArgs
   projectSkills?: boolean | ProjectCountOutputTypeCountProjectSkillsArgs
+  documents?: boolean | ProjectCountOutputTypeCountDocumentsArgs
+  links?: boolean | ProjectCountOutputTypeCountLinksArgs
 }
 
 /**
@@ -2296,6 +2678,20 @@ export type ProjectCountOutputTypeCountUserProjectsArgs<ExtArgs extends runtime.
  */
 export type ProjectCountOutputTypeCountProjectSkillsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.projectSkillsWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectDocumentWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
+export type ProjectCountOutputTypeCountLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectLinkWhereInput
 }
 
 
@@ -2331,6 +2727,8 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   branches?: boolean | Prisma.Project$branchesArgs<ExtArgs>
   userProjects?: boolean | Prisma.Project$userProjectsArgs<ExtArgs>
   projectSkills?: boolean | Prisma.Project$projectSkillsArgs<ExtArgs>
+  documents?: boolean | Prisma.Project$documentsArgs<ExtArgs>
+  links?: boolean | Prisma.Project$linksArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
@@ -2432,6 +2830,8 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   branches?: boolean | Prisma.Project$branchesArgs<ExtArgs>
   userProjects?: boolean | Prisma.Project$userProjectsArgs<ExtArgs>
   projectSkills?: boolean | Prisma.Project$projectSkillsArgs<ExtArgs>
+  documents?: boolean | Prisma.Project$documentsArgs<ExtArgs>
+  links?: boolean | Prisma.Project$linksArgs<ExtArgs>
   _count?: boolean | Prisma.ProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2457,6 +2857,8 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     branches: Prisma.$ProjectPayload<ExtArgs>[]
     userProjects: Prisma.$UserProjectPayload<ExtArgs>[]
     projectSkills: Prisma.$projectSkillsPayload<ExtArgs>[]
+    documents: Prisma.$ProjectDocumentPayload<ExtArgs>[]
+    links: Prisma.$ProjectLinkPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2884,6 +3286,8 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   branches<T extends Prisma.Project$branchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$branchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   userProjects<T extends Prisma.Project$userProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$userProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projectSkills<T extends Prisma.Project$projectSkillsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$projectSkillsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$projectSkillsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  documents<T extends Prisma.Project$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  links<T extends Prisma.Project$linksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$linksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3459,6 +3863,54 @@ export type Project$projectSkillsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.ProjectSkillsScalarFieldEnum | Prisma.ProjectSkillsScalarFieldEnum[]
+}
+
+/**
+ * Project.documents
+ */
+export type Project$documentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectDocument
+   */
+  select?: Prisma.ProjectDocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectDocument
+   */
+  omit?: Prisma.ProjectDocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectDocumentInclude<ExtArgs> | null
+  where?: Prisma.ProjectDocumentWhereInput
+  orderBy?: Prisma.ProjectDocumentOrderByWithRelationInput | Prisma.ProjectDocumentOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectDocumentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectDocumentScalarFieldEnum | Prisma.ProjectDocumentScalarFieldEnum[]
+}
+
+/**
+ * Project.links
+ */
+export type Project$linksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectLink
+   */
+  select?: Prisma.ProjectLinkSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectLink
+   */
+  omit?: Prisma.ProjectLinkOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectLinkInclude<ExtArgs> | null
+  where?: Prisma.ProjectLinkWhereInput
+  orderBy?: Prisma.ProjectLinkOrderByWithRelationInput | Prisma.ProjectLinkOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectLinkWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectLinkScalarFieldEnum | Prisma.ProjectLinkScalarFieldEnum[]
 }
 
 /**

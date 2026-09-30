@@ -92,3 +92,13 @@ export type Period = Prisma.PeriodModel
  * Docente encargado de una carrera + nivel: acepta y revisa los proyectos de esos estudiantes.
  */
 export type TeacherAssignment = Prisma.TeacherAssignmentModel
+/**
+ * Model ProjectDocument
+ * PDF de un proyecto (informe, presentación…). El archivo vive en el disco del servidor, fuera de /uploads.
+ */
+export type ProjectDocument = Prisma.ProjectDocumentModel
+/**
+ * Model ProjectLink
+ * Enlace externo del proyecto: repositorio (GitHub…), demo, video. `isFinal` marca el registro del producto final.
+ */
+export type ProjectLink = Prisma.ProjectLinkModel

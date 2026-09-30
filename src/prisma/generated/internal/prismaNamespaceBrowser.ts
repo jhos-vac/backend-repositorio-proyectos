@@ -61,7 +61,9 @@ export const ModelName = {
   Skills: 'Skills',
   projectSkills: 'projectSkills',
   Period: 'Period',
-  TeacherAssignment: 'TeacherAssignment'
+  TeacherAssignment: 'TeacherAssignment',
+  ProjectDocument: 'ProjectDocument',
+  ProjectLink: 'ProjectLink'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -233,6 +235,36 @@ export const TeacherAssignmentScalarFieldEnum = {
 } as const
 
 export type TeacherAssignmentScalarFieldEnum = (typeof TeacherAssignmentScalarFieldEnum)[keyof typeof TeacherAssignmentScalarFieldEnum]
+
+
+export const ProjectDocumentScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  kind: 'kind',
+  originalName: 'originalName',
+  storedName: 'storedName',
+  size: 'size',
+  sha256: 'sha256',
+  uploadedById: 'uploadedById',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectDocumentScalarFieldEnum = (typeof ProjectDocumentScalarFieldEnum)[keyof typeof ProjectDocumentScalarFieldEnum]
+
+
+export const ProjectLinkScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  type: 'type',
+  label: 'label',
+  url: 'url',
+  ref: 'ref',
+  isFinal: 'isFinal',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectLinkScalarFieldEnum = (typeof ProjectLinkScalarFieldEnum)[keyof typeof ProjectLinkScalarFieldEnum]
 
 
 export const SortOrder = {

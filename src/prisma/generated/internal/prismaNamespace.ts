@@ -394,7 +394,9 @@ export const ModelName = {
   Skills: 'Skills',
   projectSkills: 'projectSkills',
   Period: 'Period',
-  TeacherAssignment: 'TeacherAssignment'
+  TeacherAssignment: 'TeacherAssignment',
+  ProjectDocument: 'ProjectDocument',
+  ProjectLink: 'ProjectLink'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -410,7 +412,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "career" | "project" | "userProject" | "skills" | "projectSkills" | "period" | "teacherAssignment"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "career" | "project" | "userProject" | "skills" | "projectSkills" | "period" | "teacherAssignment" | "projectDocument" | "projectLink"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1228,6 +1230,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProjectDocument: {
+      payload: Prisma.$ProjectDocumentPayload<ExtArgs>
+      fields: Prisma.ProjectDocumentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectDocumentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectDocumentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectDocumentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectDocumentPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectDocumentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectDocumentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectDocumentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectDocumentPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectDocumentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectDocumentPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectDocumentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectDocumentPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectDocumentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProjectDocumentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectDocumentPayload>[]
+        }
+        delete: {
+          args: Prisma.ProjectDocumentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectDocumentPayload>
+        }
+        update: {
+          args: Prisma.ProjectDocumentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectDocumentPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectDocumentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectDocumentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProjectDocumentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectDocumentPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProjectDocumentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectDocumentPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectDocumentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectDocument>
+        }
+        groupBy: {
+          args: Prisma.ProjectDocumentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectDocumentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectDocumentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectDocumentCountAggregateOutputType> | number
+        }
+      }
+    }
+    ProjectLink: {
+      payload: Prisma.$ProjectLinkPayload<ExtArgs>
+      fields: Prisma.ProjectLinkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProjectLinkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLinkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProjectLinkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLinkPayload>
+        }
+        findFirst: {
+          args: Prisma.ProjectLinkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLinkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProjectLinkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLinkPayload>
+        }
+        findMany: {
+          args: Prisma.ProjectLinkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLinkPayload>[]
+        }
+        create: {
+          args: Prisma.ProjectLinkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLinkPayload>
+        }
+        createMany: {
+          args: Prisma.ProjectLinkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProjectLinkCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLinkPayload>[]
+        }
+        delete: {
+          args: Prisma.ProjectLinkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLinkPayload>
+        }
+        update: {
+          args: Prisma.ProjectLinkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLinkPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProjectLinkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProjectLinkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProjectLinkUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLinkPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProjectLinkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProjectLinkPayload>
+        }
+        aggregate: {
+          args: Prisma.ProjectLinkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProjectLink>
+        }
+        groupBy: {
+          args: Prisma.ProjectLinkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectLinkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProjectLinkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProjectLinkCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1420,6 +1570,36 @@ export const TeacherAssignmentScalarFieldEnum = {
 } as const
 
 export type TeacherAssignmentScalarFieldEnum = (typeof TeacherAssignmentScalarFieldEnum)[keyof typeof TeacherAssignmentScalarFieldEnum]
+
+
+export const ProjectDocumentScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  kind: 'kind',
+  originalName: 'originalName',
+  storedName: 'storedName',
+  size: 'size',
+  sha256: 'sha256',
+  uploadedById: 'uploadedById',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectDocumentScalarFieldEnum = (typeof ProjectDocumentScalarFieldEnum)[keyof typeof ProjectDocumentScalarFieldEnum]
+
+
+export const ProjectLinkScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  type: 'type',
+  label: 'label',
+  url: 'url',
+  ref: 'ref',
+  isFinal: 'isFinal',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectLinkScalarFieldEnum = (typeof ProjectLinkScalarFieldEnum)[keyof typeof ProjectLinkScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1651,6 +1831,8 @@ export type GlobalOmitConfig = {
   projectSkills?: Prisma.projectSkillsOmit
   period?: Prisma.PeriodOmit
   teacherAssignment?: Prisma.TeacherAssignmentOmit
+  projectDocument?: Prisma.ProjectDocumentOmit
+  projectLink?: Prisma.ProjectLinkOmit
 }
 
 /* Types for Logging */

@@ -42,6 +42,8 @@ model User {
   projects            UserProject[]
   teachingAssignments TeacherAssignment[]
   reviewedProjects    Project[]           @relation("ProjectReviewer")
+  uploadedDocuments   ProjectDocument[]   @relation("DocumentUploader")
+  createdLinks        ProjectLink[]       @relation("LinkCreator")
   createdProjects     Project[]           @relation("UserCreatedProjects")
 
   createdSkills Skills[] @relation("UserCreatedSkills")
@@ -139,6 +141,8 @@ model Project {
   updatedAt     DateTime        @updatedAt
   userProjects  UserProject[]
   projectSkills projectSkills[]
+  documents     ProjectDocument[]
+  links         ProjectLink[]
 }
 
 model UserProject {
@@ -206,4 +210,40 @@ model TeacherAssignment {
   updatedAt DateTime @updatedAt
 
   @@unique([careerId, level])
+}
+
+/// PDF de un proyecto (informe, presentación…). El archivo vive en el disco del servidor, fuera de /uploads.
+model ProjectDocument {
+  id           String   @id @default(uuid())
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  kind         String   @default("otro") // informe | presentacion | otro
+  originalName String
+  storedName   String   @unique // nombre aleatorio en disco
+  size         Int
+  sha256       String
+  uploadedById String?
+  uploadedBy   User?    @relation("DocumentUploader", fields: [uploadedById], references: [id], onDelete: SetNull)
+  createdAt    DateTime @default(now())
+
+  @@unique([projectId, sha256])
+  @@index([projectId])
+}
+
+/// Enlace externo del proyecto: repositorio (GitHub…), demo, video. `isFinal` marca el registro del producto final.
+model ProjectLink {
+  id          String   @id @default(uuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  type        String   @default("otro") // repositorio | demo | video | otro
+  label       String?
+  url         String
+  ref         String? // tag o commit de la versión final
+  isFinal     Boolean  @default(false)
+  createdById String?
+  createdBy   User?    @relation("LinkCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  @@unique([projectId, url])
+  @@index([projectId])
 }
