@@ -294,7 +294,7 @@ async function main() {
     // Teacher users
     const teacher1 = await prisma.user.create({
         data: {
-            email: "teacher1@example.com",
+            email: "teacher1@sudamericano.edu.ec",
             password: hashedPassword,
             name: "Juan Pérez García",
             roleId: teacherRole.id,
@@ -304,7 +304,7 @@ async function main() {
 
     const teacher2 = await prisma.user.create({
         data: {
-            email: "teacher2@example.com",
+            email: "teacher2@sudamericano.edu.ec",
             password: hashedPassword,
             name: "María López Hernández",
             roleId: teacherRole.id,
@@ -314,7 +314,7 @@ async function main() {
 
     const teacher3 = await prisma.user.create({
         data: {
-            email: "teacher3@example.com",
+            email: "teacher3@sudamericano.edu.ec",
             password: hashedPassword,
             name: "Carlos Ramírez Sánchez",
             roleId: teacherRole.id,
@@ -324,10 +324,10 @@ async function main() {
 
     // Estudiantes de demo (rol USER): carrera + nivel (1-4)
     const student1 = await prisma.user.create({
-        data: { email: "student1@example.com", password: hashedPassword, name: "Ana Torres", roleId: userRole.id, careerId: careers[0].id, level: 1 },
+        data: { email: "student1@sudamericano.edu.ec", password: hashedPassword, name: "Ana Torres", roleId: userRole.id, careerId: careers[0].id, level: 1 },
     });
     const student2 = await prisma.user.create({
-        data: { email: "student2@example.com", password: hashedPassword, name: "Luis Mora", roleId: userRole.id, careerId: careers[0].id, level: 2 },
+        data: { email: "student2@sudamericano.edu.ec", password: hashedPassword, name: "Luis Mora", roleId: userRole.id, careerId: careers[0].id, level: 2 },
     });
 
     // Docente encargado por carrera + nivel (acepta y revisa los proyectos de esos estudiantes)

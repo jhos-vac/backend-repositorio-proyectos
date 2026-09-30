@@ -49,9 +49,9 @@ s1,b1,_=call("POST","/api/auth/login",body={"email":"noexiste@gmail.com","passwo
 s2,b2,_=call("POST","/api/auth/login",body={"email":"luis@gmail.com","password":"Incorrecta1"})
 ok(s1==401 and s2==401 and J(b1)["message"]==J(b2)["message"],"mismo mensaje para correo inexistente y clave errónea")
 s1,b1,_=call("POST","/api/auth/forgot-password",body={"email":"noexiste@gmail.com"})
-s2,b2,_=call("POST","/api/auth/forgot-password",body={"email":"teacher2@example.com"})
+s2,b2,_=call("POST","/api/auth/forgot-password",body={"email":"teacher2@sudamericano.edu.ec"})
 ok(s1==200 and s2==200 and b1==b2,"forgot-password responde igual exista o no el correo")
-out=subprocess.run(["psql","postgresql://semillero:semillero_dev@localhost:5432/semillero","-Atc","select \"resetToken\" from \"User\" where email='teacher2@example.com'"],capture_output=True,text=True).stdout.strip()
+out=subprocess.run(["psql","postgresql://semillero:semillero_dev@localhost:5432/semillero","-Atc","select \"resetToken\" from \"User\" where email='teacher2@sudamericano.edu.ec'"],capture_output=True,text=True).stdout.strip()
 ok(len(out)==64 and all(c in"0123456789abcdef" for c in out),"resetToken se guarda como hash sha256 (64 hex)")
 ok(call("POST",f"/api/auth/reset-password/{out}",body={"password":"Nueva#Clave1"})[0]==400,"el hash almacenado NO sirve como token de reset")
 ok(call("POST","/api/auth/reset-password/abc",body={"password":"123"})[0]==400,"reset con clave débil -> 400")
@@ -60,7 +60,7 @@ print("== Fuga de datos")
 def leaks(path,tok):
     s,b,_=call("GET",path,tok); t=b.decode()
     return s==200 and not any(k in t for k in ('"password"','$2b$','"resetToken"','"activationToken"','"tokenVersion"'))
-s,pj=login("teacher1@example.com","Demo#Test2026x"); tt=pj["accessToken"]; tid=pj["userId"]
+s,pj=login("teacher1@sudamericano.edu.ec","Demo#Test2026x"); tt=pj["accessToken"]; tid=pj["userId"]
 for p,t in [("/api/users?limit=5",acc),(f"/api/users/{uid}",acc),("/api/projects?limit=5",tt),("/api/skills?limit=5",tt),("/api/projects/skill/"+str(uuid.uuid4()),tt),(f"/api/users-projects/user/{tid}",tt)]:
     ok(leaks(p,t),f"sin hashes/tokens en {p.split('?')[0]}")
 s,b,_=call("GET","/api/projects?limit=1",tt); pid=J(b)["data"][0]["id"]

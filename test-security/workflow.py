@@ -17,8 +17,8 @@ def call(method,path,tok=None,body=None):
         except: return e.code, b
 def login(e,p="Demo#Test2026x"):
     s,b=call("POST","/api/auth/login",body={"email":e,"password":p}); assert s==200,(e,s,b); return b["accessToken"],b["userId"]
-A,aid=login("luis@gmail.com","Admin#Test2026x"); T1,t1=login("teacher1@example.com"); T2,t2=login("teacher2@example.com")
-S1,s1=login("student1@example.com"); S2,s2=login("student2@example.com")
+A,aid=login("luis@gmail.com","Admin#Test2026x"); T1,t1=login("teacher1@sudamericano.edu.ec"); T2,t2=login("teacher2@sudamericano.edu.ec")
+S1,s1=login("student1@sudamericano.edu.ec"); S2,s2=login("student2@sudamericano.edu.ec")
 careers=call("GET","/api/careers?limit=10")[1]["data"]; c0=careers[0]["id"]
 # los estudiantes del seed usan careers[0] del seed: tomamos la carrera real del perfil
 c0=call("GET",f"/api/users/{s1}",S1)[1]["careerId"]; c1=[c["id"] for c in careers if c["id"]!=c0][0]

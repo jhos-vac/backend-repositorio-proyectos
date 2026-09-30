@@ -59,7 +59,7 @@ def login(email,pw):
     s,b=call("POST","/api/auth/login",body={"email":email,"password":pw}); assert s==200,(email,s,b)
     return json.loads(b)["accessToken"]
 
-tok={"ADMIN":login("luis@gmail.com","Admin#Test2026x"),"TEACHER":login("teacher1@example.com","Demo#Test2026x")}
+tok={"ADMIN":login("luis@gmail.com","Admin#Test2026x"),"TEACHER":login("teacher1@sudamericano.edu.ec","Demo#Test2026x")}
 s,b=call("GET","/api/careers"); career=json.loads(b)["data"][0]["id"]
 s,b=call("POST","/api/auth/register",body={"email":"alumno.test@gmail.com","password":"Alumno#2026x","name":"Alumno Test","careerId":career,"level":1})
 if s not in(200,201): tok["USER"]=login("alumno.test@gmail.com","Alumno#2026x")
