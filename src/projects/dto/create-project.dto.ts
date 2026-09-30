@@ -1,5 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
+  IsInt,
+  Max,
+  Min,
   IsArray,
   IsDateString,
   IsNotEmpty,
@@ -78,4 +82,13 @@ export class CreateProjectDto {
   @IsOptional()
   @IsUUID()
   createdBy?: string;
+
+  /** Solo lo usan docentes/admin; para estudiantes se toma de su perfil */
+  @ApiProperty({ required: false, minimum: 1, maximum: 4 })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(4)
+  level?: number;
 }

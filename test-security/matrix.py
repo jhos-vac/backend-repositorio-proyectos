@@ -19,7 +19,10 @@ P = {
  ("GET","/api/users/:id"):"SELF", ("PATCH","/api/users/:id"):"SELF", ("PATCH","/api/users/:id/image"):"SELF",
  ("PATCH","/api/users/:id/change-password"):"SELFONLY", ("DELETE","/api/users/:id"):"ADMIN",
  ("POST","/api/projects"):"ANY", ("GET","/api/projects"):"ANY", ("GET","/api/projects/skill/:skillId"):"ANY",
- ("GET","/api/projects/:id"):"ANY", ("PATCH","/api/projects/:id"):"ANY", ("DELETE","/api/projects/:id"):"ADMIN",
+ ("GET","/api/projects/:id"):"ANY", ("PATCH","/api/projects/:id"):"ANY", ("DELETE","/api/projects/:id"):"ANY", ("GET","/api/projects/review"):"STAFF", ("GET","/api/projects/:id/lineage"):"ANY",
+ ("PATCH","/api/projects/:id/review"):"STAFF", ("POST","/api/projects/:id/branch"):"ANY",
+ ("GET","/api/users/students"):"STAFF", ("PATCH","/api/users/:id/admin"):"ADMIN",
+ ("GET","/api/assignments"):"ADMIN", ("GET","/api/assignments/mine"):"STAFF", ("PUT","/api/assignments"):"ADMIN",
  ("POST","/api/skills"):"ANY", ("GET","/api/skills"):"ANY", ("GET","/api/skills/:id"):"ANY",
  ("PATCH","/api/skills/:id"):"ANY", ("DELETE","/api/skills/:id"):"ANY",
  ("POST","/api/period"):"ADMIN", ("GET","/api/period"):"ANY", ("GET","/api/period/:id"):"ANY", ("DELETE","/api/period/:id"):"ADMIN",
@@ -58,7 +61,7 @@ def login(email,pw):
 
 tok={"ADMIN":login("luis@gmail.com","Admin#Test2026x"),"TEACHER":login("teacher1@example.com","Demo#Test2026x")}
 s,b=call("GET","/api/careers"); career=json.loads(b)["data"][0]["id"]
-s,b=call("POST","/api/auth/register",body={"email":"alumno.test@gmail.com","password":"Alumno#2026x","name":"Alumno Test","careerId":career})
+s,b=call("POST","/api/auth/register",body={"email":"alumno.test@gmail.com","password":"Alumno#2026x","name":"Alumno Test","careerId":career,"level":1})
 if s not in(200,201): tok["USER"]=login("alumno.test@gmail.com","Alumno#2026x")
 else: tok["USER"]=json.loads(b)["accessToken"]
 
@@ -84,6 +87,8 @@ for method,route in routes:
         if pol=="ADMIN":
             check(res["USER"]==403 and res["TEACHER"]==403,f"{method} {route} USER/TEACHER deberían 403: {res}")
             check(res["ADMIN"] not in(401,403),f"{method} {route} ADMIN bloqueado: {res}")
+        elif pol=="STAFF":
+            check(res["USER"]==403 and res["TEACHER"] not in(401,403) and res["ADMIN"] not in(401,403),f"{method} {route} STAFF: {res}")
         elif pol=="ANY":
             for a in("USER","TEACHER","ADMIN"): check(res[a] not in(401,403),f"{method} {route} {a}->{res[a]}")
         elif pol=="SELFONLY":  # ni el admin cambia claves ajenas

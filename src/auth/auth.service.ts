@@ -79,6 +79,7 @@ export class AuthService {
   async register(createUserDto: CreateUserDto) {
     try {
       const { password, email, roleId: _, ...userDto } = createUserDto;
+      if (!userDto.level) throw new BadRequestException('El nivel (1 a 4) es obligatorio.');
       if (!this.isDomainAllowed(email)) throw new BadRequestException('Dominio de correo no permitido.');
 
       const role = await this.prisma.role.findFirst({ where: { name: 'USER' } });

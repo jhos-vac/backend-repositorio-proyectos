@@ -13,33 +13,38 @@ model User {
   password String
   name     String
   image    String?
-  
+
   // Relaciones
   roleId   String
-  role     Role    @relation(fields: [roleId], references: [id])
+  role     Role   @relation(fields: [roleId], references: [id])
   careerId String
-  career   Career  @relation(fields: [careerId], references: [id])
+  career   Career @relation(fields: [careerId], references: [id])
 
   // Recuperación de contraseña (Ya los tenías)
   resetToken       String?
   resetTokenExpiry DateTime?
 
   // --- NUEVOS CAMPOS PARA VERIFICACIÓN DE CORREO ---
-  isVerified      Boolean   @default(false) // Por defecto es falso hasta que den clic al correo
-  activationToken String?   // El código único que se envía por email
+  isVerified      Boolean @default(false) // Por defecto es falso hasta que den clic al correo
+  activationToken String? // El código único que se envía por email
   // --------------------------------------------------
 
   // --- NUEVO CAMPO PARA CAMBIO DE CONTRASEÑA OBLIGATORIO ---
-  needsPasswordChange Boolean   @default(false)
+  needsPasswordChange Boolean @default(false)
 
   // Se incrementa para revocar todos los JWT emitidos (cambio de clave, logout)
   tokenVersion Int @default(0)
+
+  // Nivel del estudiante (1 a 4). Junto con la carrera define su docente asignado.
+  level Int?
   // ---------------------------------------------------------
 
-  projects        UserProject[]
-  createdProjects Project[]     @relation("UserCreatedProjects")
-  
-  createdSkills   Skills[]      @relation("UserCreatedSkills") 
+  projects            UserProject[]
+  teachingAssignments TeacherAssignment[]
+  reviewedProjects    Project[]           @relation("ProjectReviewer")
+  createdProjects     Project[]           @relation("UserCreatedProjects")
+
+  createdSkills Skills[] @relation("UserCreatedSkills")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -85,8 +90,9 @@ model Career {
   id   String @id @default(uuid())
   name String
 
-  users    User[]
-  projects Project[]
+  users              User[]
+  projects           Project[]
+  teacherAssignments TeacherAssignment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -111,6 +117,23 @@ model Project {
   user      User?   @relation(fields: [createdBy], references: [id], name: "UserCreatedProjects")
   careerId  String
   career    Career  @relation(fields: [careerId], references: [id])
+
+  // Nivel (1-4) del autor al crear el proyecto: junto con la carrera define quién lo revisa
+  level Int?
+
+  // Revision del docente: pending | approved | rejected (los proyectos ya existentes quedan approved)
+  reviewStatus String    @default("approved")
+  reviewNote   String?
+  reviewedById String?
+  reviewedBy   User?     @relation("ProjectReviewer", fields: [reviewedById], references: [id])
+  reviewedAt   DateTime?
+
+  // Continuidad ("ramas"): parentId = proyecto del que se continua; rootId = origen de la cadena
+  parentId     String?
+  parent       Project?  @relation("ProjectBranches", fields: [parentId], references: [id], onDelete: SetNull)
+  branches     Project[] @relation("ProjectBranches")
+  rootId       String?
+  branchNumber Int       @default(1)
 
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -162,6 +185,20 @@ model projectSkills {
 
 model Period {
   id        String   @id @default(uuid())
-  name      String   @unique 
+  name      String   @unique
   createdAt DateTime @default(now())
+}
+
+/// Docente encargado de una carrera + nivel: acepta y revisa los proyectos de esos estudiantes.
+model TeacherAssignment {
+  id        String   @id @default(uuid())
+  careerId  String
+  career    Career   @relation(fields: [careerId], references: [id], onDelete: Cascade)
+  level     Int
+  teacherId String
+  teacher   User     @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([careerId, level])
 }

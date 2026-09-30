@@ -60,7 +60,8 @@ export const ModelName = {
   UserProject: 'UserProject',
   Skills: 'Skills',
   projectSkills: 'projectSkills',
-  Period: 'Period'
+  Period: 'Period',
+  TeacherAssignment: 'TeacherAssignment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -93,6 +94,7 @@ export const UserScalarFieldEnum = {
   activationToken: 'activationToken',
   needsPasswordChange: 'needsPasswordChange',
   tokenVersion: 'tokenVersion',
+  level: 'level',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -158,6 +160,14 @@ export const ProjectScalarFieldEnum = {
   endDate: 'endDate',
   createdBy: 'createdBy',
   careerId: 'careerId',
+  level: 'level',
+  reviewStatus: 'reviewStatus',
+  reviewNote: 'reviewNote',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  parentId: 'parentId',
+  rootId: 'rootId',
+  branchNumber: 'branchNumber',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -207,6 +217,18 @@ export const PeriodScalarFieldEnum = {
 } as const
 
 export type PeriodScalarFieldEnum = (typeof PeriodScalarFieldEnum)[keyof typeof PeriodScalarFieldEnum]
+
+
+export const TeacherAssignmentScalarFieldEnum = {
+  id: 'id',
+  careerId: 'careerId',
+  level: 'level',
+  teacherId: 'teacherId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TeacherAssignmentScalarFieldEnum = (typeof TeacherAssignmentScalarFieldEnum)[keyof typeof TeacherAssignmentScalarFieldEnum]
 
 
 export const SortOrder = {

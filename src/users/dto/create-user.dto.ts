@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEmail, IsOptional, IsString, IsStrongPassword, IsUUID, MaxLength } from "class-validator";
+import { Type } from 'class-transformer';
+import { IsInt, Max, Min, IsEmail, IsOptional, IsString, IsStrongPassword, IsUUID, MaxLength } from "class-validator";
 
 /**
  * Data Transfer Object para la creación de usuarios y docentes.
@@ -31,4 +32,12 @@ export class CreateUserDto {
     @ApiProperty({ description: 'UUID de la carrera asignada' })
     @IsUUID('all', { message: 'El careerId debe ser un UUID válido' })
     careerId: string;
+
+    @ApiProperty({ description: 'Nivel del estudiante (1 a 4)', required: false, minimum: 1, maximum: 4 })
+    @IsOptional()
+    @Type(() => Number)
+    @IsInt({ message: 'El nivel debe ser un número entero' })
+    @Min(1, { message: 'El nivel mínimo es 1' })
+    @Max(4, { message: 'El nivel máximo es 4' })
+    level?: number;
 }

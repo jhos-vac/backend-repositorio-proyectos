@@ -1,225 +1,312 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { BaseService } from 'src/prisma/base.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
-import { ProjectModel } from 'src/prisma/generated/models'; 
+import { ProjectQueryDto } from './dto/project-query.dto';
+import { ReviewProjectDto } from './dto/review-project.dto';
+import { BranchProjectDto } from './dto/branch-project.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { UserModel as User } from 'src/prisma/generated/models/User';
-import { PaginationDto } from 'src/Libs/common';
 import { USER_OMIT } from 'src/common/sanitize';
-import { isAdmin as isAdminUser } from 'src/common/access';
+import { isAdmin, isStudent, isTeacher } from 'src/common/access';
+
+type AuthUser = { id: string; careerId: string; level?: number | null; role?: { name?: string } };
+
+const LIST_INCLUDE = {
+  user: { omit: USER_OMIT },
+  career: true,
+  projectSkills: { include: { skill: true } },
+  parent: { select: { id: true, name: true } },
+  reviewedBy: { select: { id: true, name: true } },
+  _count: { select: { branches: true } },
+} as const;
 
 @Injectable()
-export class ProjectsService extends BaseService<ProjectModel, CreateProjectDto, UpdateProjectDto> {
+export class ProjectsService extends BaseService<any, CreateProjectDto, UpdateProjectDto> {
   constructor(private readonly prismaService: PrismaService) {
-    super(prismaService, { name: 'project' }); 
+    super(prismaService, { name: 'project' });
   }
 
-  async findAll(paginationDto?: PaginationDto, user?: User) {
-    const { limit = 10, page = 1, order = 'desc' } = paginationDto || {};
-    const skip = (page - 1) * limit;
-    
-    let whereCondition: any = {};
+  // ---------------------------------------------------------------- visibilidad
 
-    // COMENTADO: Se desactiva la restricción de visibilidad. 
-    // Como los proyectos ahora se crean directamente activos, ya no es necesario 
-    // filtrar los que están "pendientes".
-    /*
-    if (user) {
-      const userWithRole = await this.prismaService.user.findUnique({
-        where: { id: user.id },
-        include: { role: true },
-      });
+  /** Pares carrera+nivel que el docente tiene asignados. */
+  private async cohortsOf(teacherId: string) {
+    return this.prismaService.teacherAssignment.findMany({
+      where: { teacherId },
+      select: { careerId: true, level: true },
+    });
+  }
 
-      const roleName = userWithRole?.role?.name?.toLowerCase() || '';
-      const isAdmin = roleName.includes('admin');
-
-      if (!isAdmin) {
-        whereCondition = {
-          OR: [
-            { status: { not: 'pendiente' } }, 
-            { createdBy: user.id }            
-          ]
-        };
-      }
+  /**
+   * Quién ve qué:
+   *  - ADMIN: todo.
+   *  - DOCENTE: aprobados + lo propio + todo lo de sus carrera/nivel asignados.
+   *  - ESTUDIANTE: aprobados + lo propio (en cualquier estado).
+   */
+  private async visibleWhere(user: AuthUser): Promise<any> {
+    if (isAdmin(user)) return {};
+    const or: any[] = [{ reviewStatus: 'approved' }, { createdBy: user.id }];
+    if (isTeacher(user)) {
+      for (const c of await this.cohortsOf(user.id)) or.push({ careerId: c.careerId, level: c.level });
     }
-    */
+    return { OR: or };
+  }
 
-    const total = await this.prismaService.project.count({
-      where: whereCondition
-    });
-    
-    const data = await this.prismaService.project.findMany({
-      skip: skip,
-      take: limit,
-      where: whereCondition, 
-      include: {
-        user: { omit: USER_OMIT }, 
-        career: true,
-        // CORRECCIÓN: Incluimos la habilidad real para evitar problemas de visualización
-        projectSkills: {
-          include: {
-            skill: true
-          }
-        }, 
-      },
-      orderBy: { createdAt: order }
-    });
+  /** Proyectos que el usuario puede revisar (su cohorte). ADMIN: todos. */
+  private async reviewableWhere(user: AuthUser): Promise<any> {
+    if (isAdmin(user)) return {};
+    const cohorts = await this.cohortsOf(user.id);
+    if (cohorts.length === 0) return { id: { in: [] } }; // sin asignaciones no revisa nada
+    return { OR: cohorts.map((c) => ({ careerId: c.careerId, level: c.level })), NOT: { createdBy: user.id } };
+  }
 
+  private buildFilters(q: ProjectQueryDto, user: AuthUser) {
+    const f: any = {};
+    if (q.reviewStatus) f.reviewStatus = q.reviewStatus;
+    if (q.careerId) f.careerId = q.careerId;
+    if (q.level) f.level = q.level;
+    if (q.mine) f.createdBy = user.id;
+    if (q.continuity === 'continuations') f.parentId = { not: null };
+    if (q.continuity === 'origins') f.branches = { some: {} };
+    if (q.search) f.name = { contains: q.search, mode: 'insensitive' };
+    return f;
+  }
+
+  private async page(where: any, q: ProjectQueryDto) {
+    const { limit = 10, page = 1, order = 'desc' } = q || ({} as ProjectQueryDto);
+    const [total, data] = await Promise.all([
+      this.prismaService.project.count({ where }),
+      this.prismaService.project.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        include: LIST_INCLUDE,
+        orderBy: { createdAt: order },
+      }),
+    ]);
     const totalPages = Math.ceil(total / limit);
-
     return {
       data,
       meta: {
         total,
-        pagination: {
-          page,
-          limit,
-          order: order as "asc" | "desc"
-        },
+        pagination: { page, limit, order: order as 'asc' | 'desc' },
         totalPages,
         hasNextPage: page < totalPages,
         hasPreviousPage: page > 1,
-      }
+      },
     };
   }
 
-  async findOne(id: string) {
-    const project = await this.prismaService.project.findUnique({
-      where: { id },
+  // ---------------------------------------------------------------- consultas
+
+  async list(q: ProjectQueryDto, user: AuthUser) {
+    const where = { AND: [await this.visibleWhere(user), this.buildFilters(q, user)] };
+    return this.page(where, q);
+  }
+
+  /** Cola de revisión (docente/admin). Por defecto solo los pendientes. */
+  async findForReview(q: ProjectQueryDto, user: AuthUser) {
+    const filters = this.buildFilters({ ...q, reviewStatus: q.reviewStatus ?? 'pending' } as ProjectQueryDto, user);
+    return this.page({ AND: [await this.reviewableWhere(user), filters] }, q);
+  }
+
+  async findOne(id: string, user?: AuthUser) {
+    const project = await this.prismaService.project.findFirst({
+      where: { AND: [{ id }, user ? await this.visibleWhere(user) : {}] },
       include: {
-        user: { omit: USER_OMIT },
-        career: true,
-        // CORRECCIÓN: Incluimos la habilidad real
-        projectSkills: {
-          include: {
-            skill: true
-          }
-        },
+        ...LIST_INCLUDE,
+        userProjects: { include: { user: { select: { id: true, name: true, level: true } } } },
       },
     });
-
-    if (!project) {
-      throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
-    }
+    if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
     return project;
   }
 
-  async createWithUser(createProjectDto: CreateProjectDto, user: User) {
-    const { startDate, endDate, createdBy: _cb, ...rest } = createProjectDto;
+  async findBySkill(skillId: string, user: AuthUser) {
+    return this.prismaService.project.findMany({
+      where: { AND: [{ projectSkills: { some: { skillId } } }, await this.visibleWhere(user)] },
+      include: { user: { omit: USER_OMIT }, projectSkills: true, career: true },
+    });
+  }
+
+  /** Cadena completa de continuidad a la que pertenece el proyecto (solo lo visible). */
+  async lineage(id: string, user: AuthUser) {
+    const project = await this.findOne(id, user);
+    const rootId = project.rootId ?? project.id;
+    const nodes = await this.prismaService.project.findMany({
+      where: { AND: [{ OR: [{ id: rootId }, { rootId }] }, await this.visibleWhere(user)] },
+      select: {
+        id: true, name: true, parentId: true, rootId: true, branchNumber: true, reviewStatus: true,
+        status: true, createdAt: true, level: true,
+        user: { select: { id: true, name: true } },
+        career: { select: { id: true, name: true } },
+      },
+      orderBy: [{ branchNumber: 'asc' }, { createdAt: 'asc' }],
+    });
+    return { rootId, currentId: id, nodes };
+  }
+
+  // ---------------------------------------------------------------- creación
+
+  /** Alumno: carrera y nivel salen de su perfil y el proyecto nace "pendiente". Docente/admin: nace aprobado. */
+  private async authoring(dto: { careerId?: string; level?: number }, user: AuthUser) {
+    if (isStudent(user)) {
+      if (!user.level) {
+        throw new BadRequestException('Tu perfil no tiene nivel asignado. Pide al administrador que lo configure.');
+      }
+      return { careerId: user.careerId, level: user.level, reviewStatus: 'pending' };
+    }
+    return { careerId: dto.careerId, level: dto.level ?? null, reviewStatus: 'approved' };
+  }
+
+  async createWithUser(createProjectDto: CreateProjectDto, user: AuthUser) {
+    const { startDate, endDate, createdBy: _cb, level: _lv, careerId: _c, status: _s, ...rest } = createProjectDto;
+    const auth = await this.authoring(createProjectDto, user);
 
     return this.prismaService.project.create({
       data: {
         ...rest,
-        // COMENTADO: El estado inicial ya no será 'pendiente' para evitar la verificación del admin
-        // status: 'pendiente', 
-        
-        // AGREGADO: El proyecto se crea automáticamente como 'in-progress' (activo)
         status: 'in-progress',
-        
+        ...auth,
         startDate: startDate ? new Date(startDate) : null,
         endDate: endDate ? new Date(endDate) : null,
         createdBy: user.id,
-        userProjects: {
-          create: {
-            userId: user.id
-          }
-        }
-      },
-      include: {
-        user: { omit: USER_OMIT },
-        projectSkills: true,
-        career: true, 
-      }
+        userProjects: { create: { userId: user.id } },
+      } as any,
+      include: LIST_INCLUDE,
     });
   }
 
-  async findBySkill(skillId: string) {
-    return this.prismaService.project.findMany({
-      where: {
-        projectSkills: {
-          some: {
-            skillId: skillId,
-          },
-        },
-      },
-      include: {
-        user: { omit: USER_OMIT },
-        projectSkills: true,
-        career: true,
-      },
-    });
+  // ---------------------------------------------------------------- edición / borrado
+
+  /** Reglas: ADMIN todo; dueño docente todo lo suyo; dueño estudiante solo si NO está aprobado. */
+  private assertCanModify(project: { createdBy: string | null; reviewStatus: string }, user: AuthUser, verb: string) {
+    if (isAdmin(user)) return;
+    if (project.createdBy !== user.id) {
+      throw new ForbiddenException(`No tienes permiso para ${verb} este proyecto.`);
+    }
+    if (isStudent(user) && project.reviewStatus === 'approved') {
+      throw new ForbiddenException(`Un proyecto aprobado no puede ${verb === 'editar' ? 'modificarse' : 'eliminarse'} por el estudiante.`);
+    }
   }
 
-  async updateWithPermission(id: string, updateProjectDto: UpdateProjectDto, user: User) {
+  async updateWithPermission(id: string, dto: UpdateProjectDto, user: AuthUser) {
     const project = await this.prismaService.project.findUnique({ where: { id } });
+    if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
+    this.assertCanModify(project, user, 'editar');
 
-    if (!project) {
-      throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
-    }
+    // El cliente nunca cambia propietario ni flujo de revisión
+    const { startDate, endDate, createdBy: _cb, level, careerId, ...rest } = dto as any;
+    const data: any = { ...rest };
+    if (startDate) data.startDate = new Date(startDate);
+    if (endDate) data.endDate = new Date(endDate);
 
-    const isAdmin = isAdminUser(user as any);
-    const isOwner = project.createdBy === user.id;
-
-    if (!isAdmin && !isOwner) {
-      throw new ForbiddenException('No tienes permiso para editar este proyecto.');
-    }
-
-    // EXTRAEMOS 'skills' (array de IDs) y fechas del DTO
-    // createdBy/id nunca se modifican desde el cliente (evita robar la propiedad)
-    const { startDate, endDate, skills, createdBy: _cb, ...rest } = updateProjectDto as any;
-
-    // Usamos una TRANSACCIÓN para asegurar que los cambios en habilidades sean atómicos
-    return this.prismaService.$transaction(async (tx) => {
-      
-      // Si el usuario envió el campo 'skills' (incluso si es un array vacío [])
-      if (skills !== undefined && Array.isArray(skills)) {
-        // 1. Borramos todas las habilidades que tiene actualmente el proyecto para evitar errores de duplicados (400)
-        await tx.projectSkills.deleteMany({
-          where: { projectId: id }
-        });
-
-        // 2. Si hay nuevos IDs en el array, los insertamos todos de nuevo
-        if (skills.length > 0) {
-          await tx.projectSkills.createMany({
-            data: skills.map((skillId: string) => ({
-              projectId: id,
-              skillId: skillId,
-            })),
-          });
-        }
+    if (isStudent(user)) {
+      // carrera y nivel de un estudiante no se editan; corregir un rechazo lo reenvía a revisión
+      if (project.reviewStatus === 'rejected') {
+        Object.assign(data, { reviewStatus: 'pending', reviewedAt: null });
       }
+    } else {
+      if (careerId) data.careerId = careerId;
+      if (level !== undefined) data.level = level;
+    }
 
-      // 3. Actualizamos los datos generales del proyecto
-      return tx.project.update({
-        where: { id },
-        data: {
-          ...rest,
-          // Solo actualizamos la fecha si viene en el DTO
-          ...(startDate && { startDate: new Date(startDate) }),
-          ...(endDate && { endDate: new Date(endDate) }),
-        },
-        include: {
-          user: { omit: USER_OMIT },
-          career: true,
-          projectSkills: {
-            include: {
-              skill: true
-            }
-          },
-        }
-      });
+    return this.prismaService.project.update({ where: { id }, data, include: LIST_INCLUDE });
+  }
+
+  async removeWithPermission(id: string, user: AuthUser) {
+    const project = await this.prismaService.project.findUnique({ where: { id } });
+    if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
+    this.assertCanModify(project, user, 'eliminar');
+    return this.remove(id);
+  }
+
+  async remove(id: string) {
+    await this.prismaService.projectSkills.deleteMany({ where: { projectId: id } });
+    await this.prismaService.userProject.deleteMany({ where: { projectId: id } });
+    return super.remove(id);
+  }
+
+  // ---------------------------------------------------------------- revisión
+
+  async review(id: string, dto: ReviewProjectDto, user: AuthUser) {
+    const project = await this.prismaService.project.findUnique({ where: { id } });
+    if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
+
+    if (!isAdmin(user)) {
+      if (project.createdBy === user.id) throw new ForbiddenException('No puedes revisar tu propio proyecto.');
+      const assigned = project.level
+        ? await this.prismaService.teacherAssignment.findFirst({
+            where: { teacherId: user.id, careerId: project.careerId, level: project.level },
+          })
+        : null;
+      if (!assigned) throw new ForbiddenException('Este proyecto no pertenece a tus carrera y nivel asignados.');
+    }
+    if (dto.decision === 'rejected' && !dto.note?.trim()) {
+      throw new BadRequestException('Indica el motivo del rechazo para que el estudiante pueda corregirlo.');
+    }
+
+    return this.prismaService.project.update({
+      where: { id },
+      data: {
+        reviewStatus: dto.decision,
+        reviewNote: dto.note?.trim() || null,
+        reviewedById: user.id,
+        reviewedAt: new Date(),
+      },
+      include: LIST_INCLUDE,
     });
   }
 
-  async remove(id: string): Promise<ProjectModel> {
-    try {
-      // Limpieza manual de relaciones antes de borrar el proyecto
-      await this.prismaService.projectSkills.deleteMany({ where: { projectId: id } });
-      await this.prismaService.userProject.deleteMany({ where: { projectId: id } });
-      return super.remove(id);
-    } catch (error) {
-      throw error;
+  // ---------------------------------------------------------------- continuidad (ramas)
+
+  /**
+   * "Continuar proyecto": crea un proyecto nuevo enlazado al original (como un fork).
+   * Hereda descripción, objetivos y habilidades; el original queda intacto.
+   */
+  async branch(id: string, dto: BranchProjectDto, user: AuthUser) {
+    const src = await this.prismaService.project.findFirst({
+      where: { AND: [{ id }, await this.visibleWhere(user)] },
+      include: { projectSkills: true },
+    });
+    if (!src) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
+    if (src.reviewStatus !== 'approved') {
+      throw new BadRequestException('Solo se pueden continuar proyectos aprobados.');
     }
+
+    const dup = await this.prismaService.project.findFirst({
+      where: { parentId: id, createdBy: user.id, reviewStatus: { not: 'rejected' } },
+      select: { id: true },
+    });
+    if (dup) throw new ConflictException('Ya tienes una continuación activa de este proyecto.');
+
+    const auth = await this.authoring({ careerId: src.careerId, level: src.level ?? undefined }, user);
+    const rootId = src.rootId ?? src.id;
+    const inChain = await this.prismaService.project.count({ where: { OR: [{ id: rootId }, { rootId }] } });
+
+    return this.prismaService.project.create({
+      data: {
+        name: dto.name?.trim() || `${src.name} (continuación)`,
+        description: dto.description?.trim() || src.description,
+        problems: src.problems,
+        summary: src.summary,
+        objectives: src.objectives,
+        cycle: src.cycle,
+        status: 'in-progress',
+        ...auth,
+        parentId: src.id,
+        rootId,
+        branchNumber: inChain + 1,
+        createdBy: user.id,
+        userProjects: { create: { userId: user.id } },
+        projectSkills: { create: src.projectSkills.map((s) => ({ skillId: s.skillId })) },
+      } as any,
+      include: LIST_INCLUDE,
+    });
   }
 }

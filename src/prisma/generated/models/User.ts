@@ -28,10 +28,12 @@ export type AggregateUser = {
 
 export type UserAvgAggregateOutputType = {
   tokenVersion: number | null
+  level: number | null
 }
 
 export type UserSumAggregateOutputType = {
   tokenVersion: number | null
+  level: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -48,6 +50,7 @@ export type UserMinAggregateOutputType = {
   activationToken: string | null
   needsPasswordChange: boolean | null
   tokenVersion: number | null
+  level: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +69,7 @@ export type UserMaxAggregateOutputType = {
   activationToken: string | null
   needsPasswordChange: boolean | null
   tokenVersion: number | null
+  level: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -84,6 +88,7 @@ export type UserCountAggregateOutputType = {
   activationToken: number
   needsPasswordChange: number
   tokenVersion: number
+  level: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -92,10 +97,12 @@ export type UserCountAggregateOutputType = {
 
 export type UserAvgAggregateInputType = {
   tokenVersion?: true
+  level?: true
 }
 
 export type UserSumAggregateInputType = {
   tokenVersion?: true
+  level?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -112,6 +119,7 @@ export type UserMinAggregateInputType = {
   activationToken?: true
   needsPasswordChange?: true
   tokenVersion?: true
+  level?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -130,6 +138,7 @@ export type UserMaxAggregateInputType = {
   activationToken?: true
   needsPasswordChange?: true
   tokenVersion?: true
+  level?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -148,6 +157,7 @@ export type UserCountAggregateInputType = {
   activationToken?: true
   needsPasswordChange?: true
   tokenVersion?: true
+  level?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -253,6 +263,7 @@ export type UserGroupByOutputType = {
   activationToken: string | null
   needsPasswordChange: boolean
   tokenVersion: number
+  level: number | null
   createdAt: Date
   updatedAt: Date
   _count: UserCountAggregateOutputType | null
@@ -294,11 +305,14 @@ export type UserWhereInput = {
   activationToken?: Prisma.StringNullableFilter<"User"> | string | null
   needsPasswordChange?: Prisma.BoolFilter<"User"> | boolean
   tokenVersion?: Prisma.IntFilter<"User"> | number
+  level?: Prisma.IntNullableFilter<"User"> | number | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
   career?: Prisma.XOR<Prisma.CareerScalarRelationFilter, Prisma.CareerWhereInput>
   projects?: Prisma.UserProjectListRelationFilter
+  teachingAssignments?: Prisma.TeacherAssignmentListRelationFilter
+  reviewedProjects?: Prisma.ProjectListRelationFilter
   createdProjects?: Prisma.ProjectListRelationFilter
   createdSkills?: Prisma.SkillsListRelationFilter
 }
@@ -317,11 +331,14 @@ export type UserOrderByWithRelationInput = {
   activationToken?: Prisma.SortOrderInput | Prisma.SortOrder
   needsPasswordChange?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
+  level?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   role?: Prisma.RoleOrderByWithRelationInput
   career?: Prisma.CareerOrderByWithRelationInput
   projects?: Prisma.UserProjectOrderByRelationAggregateInput
+  teachingAssignments?: Prisma.TeacherAssignmentOrderByRelationAggregateInput
+  reviewedProjects?: Prisma.ProjectOrderByRelationAggregateInput
   createdProjects?: Prisma.ProjectOrderByRelationAggregateInput
   createdSkills?: Prisma.SkillsOrderByRelationAggregateInput
 }
@@ -343,11 +360,14 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   activationToken?: Prisma.StringNullableFilter<"User"> | string | null
   needsPasswordChange?: Prisma.BoolFilter<"User"> | boolean
   tokenVersion?: Prisma.IntFilter<"User"> | number
+  level?: Prisma.IntNullableFilter<"User"> | number | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
   role?: Prisma.XOR<Prisma.RoleScalarRelationFilter, Prisma.RoleWhereInput>
   career?: Prisma.XOR<Prisma.CareerScalarRelationFilter, Prisma.CareerWhereInput>
   projects?: Prisma.UserProjectListRelationFilter
+  teachingAssignments?: Prisma.TeacherAssignmentListRelationFilter
+  reviewedProjects?: Prisma.ProjectListRelationFilter
   createdProjects?: Prisma.ProjectListRelationFilter
   createdSkills?: Prisma.SkillsListRelationFilter
 }, "id" | "email">
@@ -366,6 +386,7 @@ export type UserOrderByWithAggregationInput = {
   activationToken?: Prisma.SortOrderInput | Prisma.SortOrder
   needsPasswordChange?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
+  level?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.UserCountOrderByAggregateInput
@@ -392,6 +413,7 @@ export type UserScalarWhereWithAggregatesInput = {
   activationToken?: Prisma.StringNullableWithAggregatesFilter<"User"> | string | null
   needsPasswordChange?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   tokenVersion?: Prisma.IntWithAggregatesFilter<"User"> | number
+  level?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
 }
@@ -408,11 +430,14 @@ export type UserCreateInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
   career: Prisma.CareerCreateNestedOneWithoutUsersInput
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
@@ -431,9 +456,12 @@ export type UserUncheckedCreateInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
@@ -450,11 +478,14 @@ export type UserUpdateInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
   career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
@@ -473,9 +504,12 @@ export type UserUncheckedUpdateInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
@@ -494,6 +528,7 @@ export type UserCreateManyInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -510,6 +545,7 @@ export type UserUpdateManyMutationInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -528,6 +564,7 @@ export type UserUncheckedUpdateManyInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -546,12 +583,14 @@ export type UserCountOrderByAggregateInput = {
   activationToken?: Prisma.SortOrder
   needsPasswordChange?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
+  level?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserAvgOrderByAggregateInput = {
   tokenVersion?: Prisma.SortOrder
+  level?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -568,6 +607,7 @@ export type UserMaxOrderByAggregateInput = {
   activationToken?: Prisma.SortOrder
   needsPasswordChange?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
+  level?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -586,12 +626,14 @@ export type UserMinOrderByAggregateInput = {
   activationToken?: Prisma.SortOrder
   needsPasswordChange?: Prisma.SortOrder
   tokenVersion?: Prisma.SortOrder
+  level?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type UserSumOrderByAggregateInput = {
   tokenVersion?: Prisma.SortOrder
+  level?: Prisma.SortOrder
 }
 
 export type UserListRelationFilter = {
@@ -632,6 +674,14 @@ export type BoolFieldUpdateOperationsInput = {
 
 export type IntFieldUpdateOperationsInput = {
   set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
   increment?: number
   decrement?: number
   multiply?: number
@@ -732,6 +782,12 @@ export type UserCreateNestedOneWithoutCreatedProjectsInput = {
   connect?: Prisma.UserWhereUniqueInput
 }
 
+export type UserCreateNestedOneWithoutReviewedProjectsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReviewedProjectsInput, Prisma.UserUncheckedCreateWithoutReviewedProjectsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewedProjectsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
 export type UserUpdateOneWithoutCreatedProjectsNestedInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedProjectsInput, Prisma.UserUncheckedCreateWithoutCreatedProjectsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedProjectsInput
@@ -740,6 +796,16 @@ export type UserUpdateOneWithoutCreatedProjectsNestedInput = {
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedProjectsInput, Prisma.UserUpdateWithoutCreatedProjectsInput>, Prisma.UserUncheckedUpdateWithoutCreatedProjectsInput>
+}
+
+export type UserUpdateOneWithoutReviewedProjectsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutReviewedProjectsInput, Prisma.UserUncheckedCreateWithoutReviewedProjectsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewedProjectsInput
+  upsert?: Prisma.UserUpsertWithoutReviewedProjectsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReviewedProjectsInput, Prisma.UserUpdateWithoutReviewedProjectsInput>, Prisma.UserUncheckedUpdateWithoutReviewedProjectsInput>
 }
 
 export type UserCreateNestedOneWithoutProjectsInput = {
@@ -772,6 +838,20 @@ export type UserUpdateOneWithoutCreatedSkillsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedSkillsInput, Prisma.UserUpdateWithoutCreatedSkillsInput>, Prisma.UserUncheckedUpdateWithoutCreatedSkillsInput>
 }
 
+export type UserCreateNestedOneWithoutTeachingAssignmentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTeachingAssignmentsInput, Prisma.UserUncheckedCreateWithoutTeachingAssignmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTeachingAssignmentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutTeachingAssignmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutTeachingAssignmentsInput, Prisma.UserUncheckedCreateWithoutTeachingAssignmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutTeachingAssignmentsInput
+  upsert?: Prisma.UserUpsertWithoutTeachingAssignmentsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTeachingAssignmentsInput, Prisma.UserUpdateWithoutTeachingAssignmentsInput>, Prisma.UserUncheckedUpdateWithoutTeachingAssignmentsInput>
+}
+
 export type UserCreateWithoutRoleInput = {
   id?: string
   email: string
@@ -784,10 +864,13 @@ export type UserCreateWithoutRoleInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   career: Prisma.CareerCreateNestedOneWithoutUsersInput
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
@@ -805,9 +888,12 @@ export type UserUncheckedCreateWithoutRoleInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
@@ -855,6 +941,7 @@ export type UserScalarWhereInput = {
   activationToken?: Prisma.StringNullableFilter<"User"> | string | null
   needsPasswordChange?: Prisma.BoolFilter<"User"> | boolean
   tokenVersion?: Prisma.IntFilter<"User"> | number
+  level?: Prisma.IntNullableFilter<"User"> | number | null
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
 }
@@ -871,10 +958,13 @@ export type UserCreateWithoutCareerInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
@@ -892,9 +982,12 @@ export type UserUncheckedCreateWithoutCareerInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
@@ -937,11 +1030,14 @@ export type UserCreateWithoutCreatedProjectsInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
   career: Prisma.CareerCreateNestedOneWithoutUsersInput
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
 
@@ -959,15 +1055,69 @@ export type UserUncheckedCreateWithoutCreatedProjectsInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserCreateOrConnectWithoutCreatedProjectsInput = {
   where: Prisma.UserWhereUniqueInput
   create: Prisma.XOR<Prisma.UserCreateWithoutCreatedProjectsInput, Prisma.UserUncheckedCreateWithoutCreatedProjectsInput>
+}
+
+export type UserCreateWithoutReviewedProjectsInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  image?: string | null
+  resetToken?: string | null
+  resetTokenExpiry?: Date | string | null
+  isVerified?: boolean
+  activationToken?: string | null
+  needsPasswordChange?: boolean
+  tokenVersion?: number
+  level?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  career: Prisma.CareerCreateNestedOneWithoutUsersInput
+  projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
+  createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutReviewedProjectsInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  image?: string | null
+  roleId: string
+  careerId: string
+  resetToken?: string | null
+  resetTokenExpiry?: Date | string | null
+  isVerified?: boolean
+  activationToken?: string | null
+  needsPasswordChange?: boolean
+  tokenVersion?: number
+  level?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
+  createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutReviewedProjectsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutReviewedProjectsInput, Prisma.UserUncheckedCreateWithoutReviewedProjectsInput>
 }
 
 export type UserUpsertWithoutCreatedProjectsInput = {
@@ -993,11 +1143,14 @@ export type UserUpdateWithoutCreatedProjectsInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
   career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
 
@@ -1015,9 +1168,69 @@ export type UserUncheckedUpdateWithoutCreatedProjectsInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
+  createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUpsertWithoutReviewedProjectsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutReviewedProjectsInput, Prisma.UserUncheckedUpdateWithoutReviewedProjectsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutReviewedProjectsInput, Prisma.UserUncheckedCreateWithoutReviewedProjectsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutReviewedProjectsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutReviewedProjectsInput, Prisma.UserUncheckedUpdateWithoutReviewedProjectsInput>
+}
+
+export type UserUpdateWithoutReviewedProjectsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
+  projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
+  createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutReviewedProjectsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleId?: Prisma.StringFieldUpdateOperationsInput | string
+  careerId?: Prisma.StringFieldUpdateOperationsInput | string
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
+  createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
@@ -1033,10 +1246,13 @@ export type UserCreateWithoutProjectsInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
   career: Prisma.CareerCreateNestedOneWithoutUsersInput
+  teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
 }
@@ -1055,8 +1271,11 @@ export type UserUncheckedCreateWithoutProjectsInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
   createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
 }
@@ -1089,10 +1308,13 @@ export type UserUpdateWithoutProjectsInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
   career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
@@ -1111,8 +1333,11 @@ export type UserUncheckedUpdateWithoutProjectsInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
@@ -1129,11 +1354,14 @@ export type UserCreateWithoutCreatedSkillsInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   role: Prisma.RoleCreateNestedOneWithoutUsersInput
   career: Prisma.CareerCreateNestedOneWithoutUsersInput
   projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
   createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
 }
 
@@ -1151,9 +1379,12 @@ export type UserUncheckedCreateWithoutCreatedSkillsInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutTeacherInput
+  reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
   createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
 }
 
@@ -1185,11 +1416,14 @@ export type UserUpdateWithoutCreatedSkillsInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
   career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
 }
 
@@ -1207,10 +1441,121 @@ export type UserUncheckedUpdateWithoutCreatedSkillsInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutTeachingAssignmentsInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  image?: string | null
+  resetToken?: string | null
+  resetTokenExpiry?: Date | string | null
+  isVerified?: boolean
+  activationToken?: string | null
+  needsPasswordChange?: boolean
+  tokenVersion?: number
+  level?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  role: Prisma.RoleCreateNestedOneWithoutUsersInput
+  career: Prisma.CareerCreateNestedOneWithoutUsersInput
+  projects?: Prisma.UserProjectCreateNestedManyWithoutUserInput
+  reviewedProjects?: Prisma.ProjectCreateNestedManyWithoutReviewedByInput
+  createdProjects?: Prisma.ProjectCreateNestedManyWithoutUserInput
+  createdSkills?: Prisma.SkillsCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutTeachingAssignmentsInput = {
+  id?: string
+  email: string
+  password: string
+  name: string
+  image?: string | null
+  roleId: string
+  careerId: string
+  resetToken?: string | null
+  resetTokenExpiry?: Date | string | null
+  isVerified?: boolean
+  activationToken?: string | null
+  needsPasswordChange?: boolean
+  tokenVersion?: number
+  level?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  projects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutUserInput
+  reviewedProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutReviewedByInput
+  createdProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutUserInput
+  createdSkills?: Prisma.SkillsUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutTeachingAssignmentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutTeachingAssignmentsInput, Prisma.UserUncheckedCreateWithoutTeachingAssignmentsInput>
+}
+
+export type UserUpsertWithoutTeachingAssignmentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutTeachingAssignmentsInput, Prisma.UserUncheckedUpdateWithoutTeachingAssignmentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutTeachingAssignmentsInput, Prisma.UserUncheckedCreateWithoutTeachingAssignmentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutTeachingAssignmentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutTeachingAssignmentsInput, Prisma.UserUncheckedUpdateWithoutTeachingAssignmentsInput>
+}
+
+export type UserUpdateWithoutTeachingAssignmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
+  career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
+  projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
+  reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
+  createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
+  createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutTeachingAssignmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  roleId?: Prisma.StringFieldUpdateOperationsInput | string
+  careerId?: Prisma.StringFieldUpdateOperationsInput | string
+  resetToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resetTokenExpiry?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
+  reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
+  createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
+  createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateManyRoleInput = {
@@ -1226,6 +1571,7 @@ export type UserCreateManyRoleInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1242,10 +1588,13 @@ export type UserUpdateWithoutRoleInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   career?: Prisma.CareerUpdateOneRequiredWithoutUsersNestedInput
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
@@ -1263,9 +1612,12 @@ export type UserUncheckedUpdateWithoutRoleInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
@@ -1283,6 +1635,7 @@ export type UserUncheckedUpdateManyWithoutRoleInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1300,6 +1653,7 @@ export type UserCreateManyCareerInput = {
   activationToken?: string | null
   needsPasswordChange?: boolean
   tokenVersion?: number
+  level?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1316,10 +1670,13 @@ export type UserUpdateWithoutCareerInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   role?: Prisma.RoleUpdateOneRequiredWithoutUsersNestedInput
   projects?: Prisma.UserProjectUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUpdateManyWithoutReviewedByNestedInput
   createdProjects?: Prisma.ProjectUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUpdateManyWithoutCreatedByNestedInput
 }
@@ -1337,9 +1694,12 @@ export type UserUncheckedUpdateWithoutCareerInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.UserProjectUncheckedUpdateManyWithoutUserNestedInput
+  teachingAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutTeacherNestedInput
+  reviewedProjects?: Prisma.ProjectUncheckedUpdateManyWithoutReviewedByNestedInput
   createdProjects?: Prisma.ProjectUncheckedUpdateManyWithoutUserNestedInput
   createdSkills?: Prisma.SkillsUncheckedUpdateManyWithoutCreatedByNestedInput
 }
@@ -1357,6 +1717,7 @@ export type UserUncheckedUpdateManyWithoutCareerInput = {
   activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   needsPasswordChange?: Prisma.BoolFieldUpdateOperationsInput | boolean
   tokenVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1368,12 +1729,16 @@ export type UserUncheckedUpdateManyWithoutCareerInput = {
 
 export type UserCountOutputType = {
   projects: number
+  teachingAssignments: number
+  reviewedProjects: number
   createdProjects: number
   createdSkills: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   projects?: boolean | UserCountOutputTypeCountProjectsArgs
+  teachingAssignments?: boolean | UserCountOutputTypeCountTeachingAssignmentsArgs
+  reviewedProjects?: boolean | UserCountOutputTypeCountReviewedProjectsArgs
   createdProjects?: boolean | UserCountOutputTypeCountCreatedProjectsArgs
   createdSkills?: boolean | UserCountOutputTypeCountCreatedSkillsArgs
 }
@@ -1393,6 +1758,20 @@ export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensi
  */
 export type UserCountOutputTypeCountProjectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.UserProjectWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountTeachingAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TeacherAssignmentWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountReviewedProjectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectWhereInput
 }
 
 /**
@@ -1424,11 +1803,14 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   activationToken?: boolean
   needsPasswordChange?: boolean
   tokenVersion?: boolean
+  level?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   career?: boolean | Prisma.CareerDefaultArgs<ExtArgs>
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
+  teachingAssignments?: boolean | Prisma.User$teachingAssignmentsArgs<ExtArgs>
+  reviewedProjects?: boolean | Prisma.User$reviewedProjectsArgs<ExtArgs>
   createdProjects?: boolean | Prisma.User$createdProjectsArgs<ExtArgs>
   createdSkills?: boolean | Prisma.User$createdSkillsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1448,6 +1830,7 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   activationToken?: boolean
   needsPasswordChange?: boolean
   tokenVersion?: boolean
+  level?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
@@ -1468,6 +1851,7 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   activationToken?: boolean
   needsPasswordChange?: boolean
   tokenVersion?: boolean
+  level?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
@@ -1488,15 +1872,18 @@ export type UserSelectScalar = {
   activationToken?: boolean
   needsPasswordChange?: boolean
   tokenVersion?: boolean
+  level?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "name" | "image" | "roleId" | "careerId" | "resetToken" | "resetTokenExpiry" | "isVerified" | "activationToken" | "needsPasswordChange" | "tokenVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "password" | "name" | "image" | "roleId" | "careerId" | "resetToken" | "resetTokenExpiry" | "isVerified" | "activationToken" | "needsPasswordChange" | "tokenVersion" | "level" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   role?: boolean | Prisma.RoleDefaultArgs<ExtArgs>
   career?: boolean | Prisma.CareerDefaultArgs<ExtArgs>
   projects?: boolean | Prisma.User$projectsArgs<ExtArgs>
+  teachingAssignments?: boolean | Prisma.User$teachingAssignmentsArgs<ExtArgs>
+  reviewedProjects?: boolean | Prisma.User$reviewedProjectsArgs<ExtArgs>
   createdProjects?: boolean | Prisma.User$createdProjectsArgs<ExtArgs>
   createdSkills?: boolean | Prisma.User$createdSkillsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1516,6 +1903,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     role: Prisma.$RolePayload<ExtArgs>
     career: Prisma.$CareerPayload<ExtArgs>
     projects: Prisma.$UserProjectPayload<ExtArgs>[]
+    teachingAssignments: Prisma.$TeacherAssignmentPayload<ExtArgs>[]
+    reviewedProjects: Prisma.$ProjectPayload<ExtArgs>[]
     createdProjects: Prisma.$ProjectPayload<ExtArgs>[]
     createdSkills: Prisma.$SkillsPayload<ExtArgs>[]
   }
@@ -1533,6 +1922,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     activationToken: string | null
     needsPasswordChange: boolean
     tokenVersion: number
+    level: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["user"]>
@@ -1932,6 +2322,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   role<T extends Prisma.RoleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RoleDefaultArgs<ExtArgs>>): Prisma.Prisma__RoleClient<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   career<T extends Prisma.CareerDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CareerDefaultArgs<ExtArgs>>): Prisma.Prisma__CareerClient<runtime.Types.Result.GetResult<Prisma.$CareerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   projects<T extends Prisma.User$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  teachingAssignments<T extends Prisma.User$teachingAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$teachingAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TeacherAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  reviewedProjects<T extends Prisma.User$reviewedProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewedProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdProjects<T extends Prisma.User$createdProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdSkills<T extends Prisma.User$createdSkillsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdSkillsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SkillsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1976,6 +2368,7 @@ export interface UserFieldRefs {
   readonly activationToken: Prisma.FieldRef<"User", 'String'>
   readonly needsPasswordChange: Prisma.FieldRef<"User", 'Boolean'>
   readonly tokenVersion: Prisma.FieldRef<"User", 'Int'>
+  readonly level: Prisma.FieldRef<"User", 'Int'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"User", 'DateTime'>
 }
@@ -2395,6 +2788,54 @@ export type User$projectsArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   distinct?: Prisma.UserProjectScalarFieldEnum | Prisma.UserProjectScalarFieldEnum[]
+}
+
+/**
+ * User.teachingAssignments
+ */
+export type User$teachingAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TeacherAssignment
+   */
+  select?: Prisma.TeacherAssignmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TeacherAssignment
+   */
+  omit?: Prisma.TeacherAssignmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TeacherAssignmentInclude<ExtArgs> | null
+  where?: Prisma.TeacherAssignmentWhereInput
+  orderBy?: Prisma.TeacherAssignmentOrderByWithRelationInput | Prisma.TeacherAssignmentOrderByWithRelationInput[]
+  cursor?: Prisma.TeacherAssignmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TeacherAssignmentScalarFieldEnum | Prisma.TeacherAssignmentScalarFieldEnum[]
+}
+
+/**
+ * User.reviewedProjects
+ */
+export type User$reviewedProjectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Project
+   */
+  select?: Prisma.ProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Project
+   */
+  omit?: Prisma.ProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInclude<ExtArgs> | null
+  where?: Prisma.ProjectWhereInput
+  orderBy?: Prisma.ProjectOrderByWithRelationInput | Prisma.ProjectOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectScalarFieldEnum | Prisma.ProjectScalarFieldEnum[]
 }
 
 /**

@@ -87,3 +87,8 @@ export type projectSkills = Prisma.projectSkillsModel
  * 
  */
 export type Period = Prisma.PeriodModel
+/**
+ * Model TeacherAssignment
+ * Docente encargado de una carrera + nivel: acepta y revisa los proyectos de esos estudiantes.
+ */
+export type TeacherAssignment = Prisma.TeacherAssignmentModel

@@ -41,6 +41,7 @@ async function main() {
     // Limpiar la base de datos
     console.log("🧹 Cleaning database...");
     try {
+        await prisma.teacherAssignment.deleteMany();
         await prisma.userProject.deleteMany();
         await prisma.projectSkills.deleteMany();
         await prisma.project.deleteMany();
@@ -319,6 +320,25 @@ async function main() {
             roleId: teacherRole.id,
             careerId: careers[2].id, 
         },
+    });
+
+    // Estudiantes de demo (rol USER): carrera + nivel (1-4)
+    const student1 = await prisma.user.create({
+        data: { email: "student1@example.com", password: hashedPassword, name: "Ana Torres", roleId: userRole.id, careerId: careers[0].id, level: 1 },
+    });
+    const student2 = await prisma.user.create({
+        data: { email: "student2@example.com", password: hashedPassword, name: "Luis Mora", roleId: userRole.id, careerId: careers[0].id, level: 2 },
+    });
+
+    // Docente encargado por carrera + nivel (acepta y revisa los proyectos de esos estudiantes)
+    await prisma.teacherAssignment.createMany({
+        data: [
+            { careerId: careers[0].id, level: 1, teacherId: teacher1.id },
+            { careerId: careers[0].id, level: 2, teacherId: teacher1.id },
+            { careerId: careers[0].id, level: 3, teacherId: teacher2.id },
+            { careerId: careers[0].id, level: 4, teacherId: teacher2.id },
+            { careerId: careers[1].id, level: 1, teacherId: teacher2.id },
+        ],
     });
 
     console.log("✅ Created users:");

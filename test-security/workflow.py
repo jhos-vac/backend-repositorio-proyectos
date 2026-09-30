@@ -1,0 +1,118 @@
+#!/usr/bin/env python3
+"""Reglas de negocio: estudiantes, revisión por docente (carrera+nivel), ramas y administración.
+Requiere API en :8000 con seed (student1/2, teacher1/2, luis@gmail.com)."""
+import json, urllib.request, urllib.error, uuid, sys
+BASE="http://localhost:8000"; fails=0
+def ok(c,m):
+    global fails; print(("  ok   " if c else "  FALLO ")+m); fails+= (not c)
+def call(method,path,tok=None,body=None):
+    d=json.dumps(body).encode() if body is not None else None
+    r=urllib.request.Request(BASE+path,data=d,method=method); r.add_header("Content-Type","application/json")
+    if tok: r.add_header("Authorization","Bearer "+tok)
+    try:
+        with urllib.request.urlopen(r) as x: return x.status, json.loads(x.read() or b"null")
+    except urllib.error.HTTPError as e:
+        b=e.read()
+        try: return e.code, json.loads(b)
+        except: return e.code, b
+def login(e,p="Demo#Test2026x"):
+    s,b=call("POST","/api/auth/login",body={"email":e,"password":p}); assert s==200,(e,s,b); return b["accessToken"],b["userId"]
+A,aid=login("luis@gmail.com","Admin#Test2026x"); T1,t1=login("teacher1@example.com"); T2,t2=login("teacher2@example.com")
+S1,s1=login("student1@example.com"); S2,s2=login("student2@example.com")
+careers=call("GET","/api/careers?limit=10")[1]["data"]; c0=careers[0]["id"]
+# los estudiantes del seed usan careers[0] del seed: tomamos la carrera real del perfil
+c0=call("GET",f"/api/users/{s1}",S1)[1]["careerId"]; c1=[c["id"] for c in careers if c["id"]!=c0][0]
+print("== Estudiante crea (pendiente)")
+s,p=call("POST","/api/projects",S1,{"name":"Proy A "+uuid.uuid4().hex[:4],"description":"desc","careerId":c1,"level":4,"status":"completado"})
+ok(s==201 and p["reviewStatus"]=="pending","proyecto de estudiante nace PENDIENTE")
+ok(p["careerId"]==c0 and p["level"]==1,"carrera y nivel salen del perfil (ignora los del cuerpo)")
+pid=p["id"]
+print("== Visibilidad")
+ok(call("GET",f"/api/projects/{pid}",S1)[0]==200,"autor ve su pendiente")
+ok(call("GET",f"/api/projects/{pid}",S2)[0]==404,"otro estudiante NO ve pendiente ajeno")
+ok(pid not in [x["id"] for x in call("GET","/api/projects?limit=1000",S2)[1]["data"]],"no aparece en listado del otro estudiante")
+ok(call("GET",f"/api/projects/{pid}",T2)[0]==404,"docente NO asignado no lo ve")
+ok(call("GET",f"/api/projects/{pid}",T1)[0]==200,"docente asignado (carrera+nivel) lo ve")
+ok(call("GET",f"/api/projects/{pid}",A)[0]==200,"admin lo ve")
+print("== Revisión")
+ok(pid in [x["id"] for x in call("GET","/api/projects/review",T1)[1]["data"]],"cola del docente asignado incluye el pendiente")
+ok(pid not in [x["id"] for x in call("GET","/api/projects/review",T2)[1]["data"]],"cola del otro docente NO lo incluye")
+ok(call("GET","/api/projects/review",S1)[0]==403,"estudiante no accede a la cola")
+ok(call("PATCH",f"/api/projects/{pid}/review",S1,{"decision":"approved"})[0]==403,"estudiante no se autoaprueba")
+ok(call("PATCH",f"/api/projects/{pid}/review",T2,{"decision":"approved"})[0]==403,"docente no asignado no revisa")
+ok(call("PATCH",f"/api/projects/{pid}/review",T1,{"decision":"rejected"})[0]==400,"rechazar exige motivo")
+s,r=call("PATCH",f"/api/projects/{pid}/review",T1,{"decision":"rejected","note":"Falta objetivo"})
+ok(s==200 and r["reviewStatus"]=="rejected" and r["reviewNote"]=="Falta objetivo","docente rechaza con nota")
+s,r=call("PATCH",f"/api/projects/{pid}",S1,{"description":"corregida"})
+ok(s==200 and r["reviewStatus"]=="pending","estudiante corrige un rechazado y vuelve a PENDIENTE")
+ok(call("PATCH",f"/api/projects/{pid}",S2,{"name":"hack"})[0]==404 or call("PATCH",f"/api/projects/{pid}",S2,{"name":"hack"})[0]==403,"otro estudiante no edita")
+s,r=call("PATCH",f"/api/projects/{pid}/review",T1,{"decision":"approved"})
+ok(s==200 and r["reviewStatus"]=="approved" and r["reviewedBy"]["id"]==t1,"docente aprueba (queda registrado quién)")
+print("== Aprobado: el estudiante ya no modifica")
+ok(call("PATCH",f"/api/projects/{pid}",S1,{"description":"x"})[0]==403,"autor NO edita proyecto aprobado")
+ok(call("DELETE",f"/api/projects/{pid}",S1)[0]==403,"autor NO elimina proyecto aprobado")
+ok(call("PATCH",f"/api/projects/{pid}",A,{"description":"ajuste admin"})[0]==200,"admin sí edita")
+ok(call("GET",f"/api/projects/{pid}",S2)[0]==200,"aprobado visible para otros estudiantes")
+print("== Continuar proyecto (rama)")
+sk=call("GET","/api/skills?limit=1",A)[1]["data"][0]["id"]
+call("POST","/api/porjects-skills",A,{"projectId":pid,"skillId":sk})
+s,b1=call("POST",f"/api/projects/{pid}/branch",S2,{})
+ok(s==201 and b1["parentId"]==pid and b1["rootId"]==pid and b1["branchNumber"]==2,"S2 continúa: nueva rama enlazada al original")
+ok(b1["reviewStatus"]=="pending" and b1["level"]==2 and b1["createdBy"]==s2,"la rama nace pendiente con nivel del nuevo autor")
+ok(b1["name"].endswith("(continuación)"),"nombre por defecto '(continuación)'")
+ok(len(call("GET",f"/api/projects/{b1['id']}",S2)[1]["projectSkills"])==1,"hereda habilidades")
+ok(call("GET",f"/api/projects/{pid}",S1)[1]["description"]=="ajuste admin","el original queda intacto")
+ok(call("POST",f"/api/projects/{pid}/branch",S2,{})[0]==409,"no duplica continuación activa del mismo alumno")
+ok(call("POST",f"/api/projects/{b1['id']}/branch",S1,{})[0]==404,"no se continúa un proyecto pendiente ajeno")
+call("PATCH",f"/api/projects/{b1['id']}/review",T1,{"decision":"approved"})
+s,b2=call("POST",f"/api/projects/{b1['id']}/branch",S1,{"name":"Rama de rama"})
+ok(s==201 and b2["rootId"]==pid and b2["parentId"]==b1["id"] and b2["branchNumber"]==3,"rama de rama conserva el origen (root) y numera")
+s,l=call("GET",f"/api/projects/{b1['id']}/lineage",S2)
+ok(s==200 and l["rootId"]==pid and {n["id"] for n in l["nodes"]}>={pid,b1["id"]},"linaje devuelve la cadena visible")
+ok(b2["id"] not in [n["id"] for n in l["nodes"]],"linaje no revela la rama pendiente de otro alumno")
+s,c=call("GET","/api/projects?continuity=continuations&limit=100",A)
+ok(s==200 and all(x["parentId"] for x in c["data"]) and b1["id"] in [x["id"] for x in c["data"]],"admin filtra continuaciones")
+s,o=call("GET","/api/projects?continuity=origins&limit=100",A)
+ok(pid in [x["id"] for x in o["data"]] and o["data"][0]["_count"]["branches"]>=1,"admin filtra orígenes con ramas")
+print("== Estudiante borra lo suyo pendiente")
+s,p2=call("POST","/api/projects",S1,{"name":"Borrable "+uuid.uuid4().hex[:4],"description":"d","careerId":c0})
+ok(call("DELETE",f"/api/projects/{p2['id']}",S1)[0]==200,"autor elimina su proyecto pendiente")
+print("== Perfil: carrera y nivel no se autoeditan")
+call("PATCH",f"/api/users/{s1}",S1,{"careerId":c1,"level":4,"name":"Ana Torres"})
+u=call("GET",f"/api/users/{s1}",S1)[1]; ok(u["careerId"]==c0 and u["level"]==1,"estudiante no cambia su carrera/nivel")
+print("== Docente: sus estudiantes")
+d=call("GET","/api/users/students?limit=100",T1)[1]["data"]; ids={x["id"] for x in d}
+ok(s1 in ids and s2 in ids,"docente1 ve estudiantes de sus carrera+nivel")
+ok(s2 not in {x["id"] for x in call("GET","/api/users/students?limit=100",T2)[1]["data"]},"docente2 no ve estudiantes de otro nivel")
+print("== Admin: usuarios y roles")
+rl={r["name"]:r["id"] for r in call("GET","/api/roles?limit=10",A)[1]["data"]}
+ok(len(call("GET",f"/api/users?role=USER&level=2&limit=50",A)[1]["data"])>=1,"filtro usuarios por rol+nivel")
+em=f"nuevo{uuid.uuid4().hex[:5]}@gmail.com"
+s,nu=call("POST","/api/users",A,{"email":em,"password":"Clave#2026ab","name":"Nuevo Est","careerId":c0,"level":3})
+ok(s==201 and nu["role"]["name"]=="USER","admin crea estudiante")
+ok(call("POST","/api/users",A,{"email":"x"+em,"password":"Clave#2026ab","name":"Sin nivel","careerId":c0})[0]==400,"estudiante sin nivel -> 400")
+s,r=call("PATCH",f"/api/users/{nu['id']}/admin",A,{"roleId":rl["TEACHER"]})
+ok(s==200 and r["role"]["name"]=="TEACHER","admin reasigna rol USER -> TEACHER")
+ok(call("PATCH",f"/api/users/{nu['id']}/admin",A,{"roleId":rl["USER"],"level":None})[0]==400,"volver a estudiante exige nivel")
+s,r=call("PATCH",f"/api/users/{nu['id']}/admin",A,{"roleId":rl["USER"],"level":2,"careerId":c1})
+ok(s==200 and r["level"]==2 and r["careerId"]==c1,"admin cambia rol, carrera y nivel")
+s,r=call("PATCH",f"/api/users/{nu['id']}/admin",A,{"password":"Reset#2026ab"})
+ok(s==200 and call("POST","/api/auth/login",body={"email":em,"password":"Reset#2026ab"})[0]==200,"admin reinicia contraseña")
+ok(call("PATCH",f"/api/users/{aid}/admin",A,{"roleId":rl["USER"],"level":1})[0]==409,"no se puede quitar el rol al único admin/uno mismo")
+ok(call("DELETE",f"/api/users/{aid}",A)[0]==409,"admin no elimina su propia cuenta")
+ok(call("PATCH",f"/api/users/{nu['id']}/admin",S1,{"name":"x"})[0]==403,"estudiante no usa el panel admin")
+print("== Admin: asignación docente por carrera+nivel")
+ok(call("PUT","/api/assignments",A,{"careerId":c1,"level":3,"teacherId":s1})[0]==400,"no se asigna a un no-docente")
+s,a=call("PUT","/api/assignments",A,{"careerId":c1,"level":3,"teacherId":t1}); ok(s==200 and a["teacher"]["id"]==t1,"asigna docente a carrera+nivel")
+s,a=call("PUT","/api/assignments",A,{"careerId":c1,"level":3,"teacherId":t2}); ok(s==200 and a["teacher"]["id"]==t2,"reasigna (unique carrera+nivel)")
+allA=call("GET","/api/assignments",A)[1]; ok(len([x for x in allA if x["careerId"]==c1 and x["level"]==3])==1,"una sola asignación por carrera+nivel")
+ok(any(x["level"]==3 for x in call("GET","/api/assignments/mine",T2)[1]),"docente ve sus asignaciones")
+call("PUT","/api/assignments",A,{"careerId":c1,"level":3,"teacherId":None})
+print("== Admin elimina usuario: los proyectos se conservan")
+s,pp=call("POST","/api/projects",S2,{"name":"Huérfano "+uuid.uuid4().hex[:4],"description":"d","careerId":c0}); 
+call("PATCH",f"/api/projects/{pp['id']}/review",T1,{"decision":"approved"})
+ok(call("DELETE",f"/api/users/{s2}",A)[0]==200,"admin elimina estudiante con proyectos")
+g=call("GET",f"/api/projects/{pp['id']}",A); ok(g[0]==200 and g[1]["createdBy"] is None,"el proyecto sigue existiendo sin autor")
+ok(call("GET",f"/api/projects/{b1['id']}",A)[0]==200,"sus ramas siguen en el linaje")
+ok(call("DELETE",f"/api/users/{nu['id']}",A)[0]==200,"limpieza usuario de prueba")
+print("\nRESULTADO:","OK" if fails==0 else f"{fails} FALLOS"); sys.exit(1 if fails else 0)

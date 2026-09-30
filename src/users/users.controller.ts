@@ -22,7 +22,8 @@ import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
-import { PaginationDto } from 'src/Libs/common';
+import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
+import { UserQueryDto } from './dto/user-query.dto';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 import { UserModel as User } from 'src/prisma/generated/models/User';
@@ -58,8 +59,15 @@ export class UsersController {
   /** Listado completo de usuarios: solo ADMIN. */
   @Get()
   @Auth(ValidRoles.ADMIN)
-  findAll(@Query() paginationDto?: PaginationDto) {
-    return this.usersService.findAll(paginationDto);
+  findAll(@Query() query: UserQueryDto) {
+    return this.usersService.findAll(query);
+  }
+
+  /** Estudiantes de las carrera+nivel del docente (ADMIN: todos). */
+  @Get('students')
+  @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
+  findStudents(@Query() query: UserQueryDto, @GetUser() user: User) {
+    return this.usersService.findStudents(query, user);
   }
 
   /** Un usuario: el propio o ADMIN. */
@@ -68,6 +76,13 @@ export class UsersController {
   findOne(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
     assertSelfOrAdmin(user, id);
     return this.usersService.findOne(id);
+  }
+
+  /** Edición completa (rol, carrera, nivel, reinicio de clave): solo ADMIN. */
+  @Patch(':id/admin')
+  @Auth(ValidRoles.ADMIN)
+  adminUpdate(@Param('id', ParseUUIDPipe) id: string, @Body() dto: AdminUpdateUserDto, @GetUser() user: User) {
+    return this.usersService.adminUpdate(id, dto, user);
   }
 
   @Patch(':id')
@@ -124,7 +139,7 @@ export class UsersController {
 
   @Delete(':id')
   @Auth(ValidRoles.ADMIN)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.usersService.remove(id);
+  remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
+    return this.usersService.remove(id, user);
   }
 }

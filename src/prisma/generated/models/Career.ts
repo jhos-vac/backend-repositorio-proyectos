@@ -176,6 +176,7 @@ export type CareerWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Career"> | Date | string
   users?: Prisma.UserListRelationFilter
   projects?: Prisma.ProjectListRelationFilter
+  teacherAssignments?: Prisma.TeacherAssignmentListRelationFilter
 }
 
 export type CareerOrderByWithRelationInput = {
@@ -185,6 +186,7 @@ export type CareerOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   users?: Prisma.UserOrderByRelationAggregateInput
   projects?: Prisma.ProjectOrderByRelationAggregateInput
+  teacherAssignments?: Prisma.TeacherAssignmentOrderByRelationAggregateInput
 }
 
 export type CareerWhereUniqueInput = Prisma.AtLeast<{
@@ -197,6 +199,7 @@ export type CareerWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Career"> | Date | string
   users?: Prisma.UserListRelationFilter
   projects?: Prisma.ProjectListRelationFilter
+  teacherAssignments?: Prisma.TeacherAssignmentListRelationFilter
 }, "id">
 
 export type CareerOrderByWithAggregationInput = {
@@ -226,6 +229,7 @@ export type CareerCreateInput = {
   updatedAt?: Date | string
   users?: Prisma.UserCreateNestedManyWithoutCareerInput
   projects?: Prisma.ProjectCreateNestedManyWithoutCareerInput
+  teacherAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutCareerInput
 }
 
 export type CareerUncheckedCreateInput = {
@@ -235,6 +239,7 @@ export type CareerUncheckedCreateInput = {
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCareerInput
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCareerInput
+  teacherAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutCareerInput
 }
 
 export type CareerUpdateInput = {
@@ -244,6 +249,7 @@ export type CareerUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUpdateManyWithoutCareerNestedInput
   projects?: Prisma.ProjectUpdateManyWithoutCareerNestedInput
+  teacherAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutCareerNestedInput
 }
 
 export type CareerUncheckedUpdateInput = {
@@ -253,6 +259,7 @@ export type CareerUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutCareerNestedInput
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutCareerNestedInput
+  teacherAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutCareerNestedInput
 }
 
 export type CareerCreateManyInput = {
@@ -330,12 +337,27 @@ export type CareerUpdateOneRequiredWithoutProjectsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CareerUpdateToOneWithWhereWithoutProjectsInput, Prisma.CareerUpdateWithoutProjectsInput>, Prisma.CareerUncheckedUpdateWithoutProjectsInput>
 }
 
+export type CareerCreateNestedOneWithoutTeacherAssignmentsInput = {
+  create?: Prisma.XOR<Prisma.CareerCreateWithoutTeacherAssignmentsInput, Prisma.CareerUncheckedCreateWithoutTeacherAssignmentsInput>
+  connectOrCreate?: Prisma.CareerCreateOrConnectWithoutTeacherAssignmentsInput
+  connect?: Prisma.CareerWhereUniqueInput
+}
+
+export type CareerUpdateOneRequiredWithoutTeacherAssignmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.CareerCreateWithoutTeacherAssignmentsInput, Prisma.CareerUncheckedCreateWithoutTeacherAssignmentsInput>
+  connectOrCreate?: Prisma.CareerCreateOrConnectWithoutTeacherAssignmentsInput
+  upsert?: Prisma.CareerUpsertWithoutTeacherAssignmentsInput
+  connect?: Prisma.CareerWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CareerUpdateToOneWithWhereWithoutTeacherAssignmentsInput, Prisma.CareerUpdateWithoutTeacherAssignmentsInput>, Prisma.CareerUncheckedUpdateWithoutTeacherAssignmentsInput>
+}
+
 export type CareerCreateWithoutUsersInput = {
   id?: string
   name: string
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectCreateNestedManyWithoutCareerInput
+  teacherAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutCareerInput
 }
 
 export type CareerUncheckedCreateWithoutUsersInput = {
@@ -344,6 +366,7 @@ export type CareerUncheckedCreateWithoutUsersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCareerInput
+  teacherAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutCareerInput
 }
 
 export type CareerCreateOrConnectWithoutUsersInput = {
@@ -368,6 +391,7 @@ export type CareerUpdateWithoutUsersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUpdateManyWithoutCareerNestedInput
+  teacherAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutCareerNestedInput
 }
 
 export type CareerUncheckedUpdateWithoutUsersInput = {
@@ -376,6 +400,7 @@ export type CareerUncheckedUpdateWithoutUsersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   projects?: Prisma.ProjectUncheckedUpdateManyWithoutCareerNestedInput
+  teacherAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutCareerNestedInput
 }
 
 export type CareerCreateWithoutProjectsInput = {
@@ -384,6 +409,7 @@ export type CareerCreateWithoutProjectsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserCreateNestedManyWithoutCareerInput
+  teacherAssignments?: Prisma.TeacherAssignmentCreateNestedManyWithoutCareerInput
 }
 
 export type CareerUncheckedCreateWithoutProjectsInput = {
@@ -392,6 +418,7 @@ export type CareerUncheckedCreateWithoutProjectsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   users?: Prisma.UserUncheckedCreateNestedManyWithoutCareerInput
+  teacherAssignments?: Prisma.TeacherAssignmentUncheckedCreateNestedManyWithoutCareerInput
 }
 
 export type CareerCreateOrConnectWithoutProjectsInput = {
@@ -416,6 +443,7 @@ export type CareerUpdateWithoutProjectsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUpdateManyWithoutCareerNestedInput
+  teacherAssignments?: Prisma.TeacherAssignmentUpdateManyWithoutCareerNestedInput
 }
 
 export type CareerUncheckedUpdateWithoutProjectsInput = {
@@ -424,6 +452,59 @@ export type CareerUncheckedUpdateWithoutProjectsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   users?: Prisma.UserUncheckedUpdateManyWithoutCareerNestedInput
+  teacherAssignments?: Prisma.TeacherAssignmentUncheckedUpdateManyWithoutCareerNestedInput
+}
+
+export type CareerCreateWithoutTeacherAssignmentsInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserCreateNestedManyWithoutCareerInput
+  projects?: Prisma.ProjectCreateNestedManyWithoutCareerInput
+}
+
+export type CareerUncheckedCreateWithoutTeacherAssignmentsInput = {
+  id?: string
+  name: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  users?: Prisma.UserUncheckedCreateNestedManyWithoutCareerInput
+  projects?: Prisma.ProjectUncheckedCreateNestedManyWithoutCareerInput
+}
+
+export type CareerCreateOrConnectWithoutTeacherAssignmentsInput = {
+  where: Prisma.CareerWhereUniqueInput
+  create: Prisma.XOR<Prisma.CareerCreateWithoutTeacherAssignmentsInput, Prisma.CareerUncheckedCreateWithoutTeacherAssignmentsInput>
+}
+
+export type CareerUpsertWithoutTeacherAssignmentsInput = {
+  update: Prisma.XOR<Prisma.CareerUpdateWithoutTeacherAssignmentsInput, Prisma.CareerUncheckedUpdateWithoutTeacherAssignmentsInput>
+  create: Prisma.XOR<Prisma.CareerCreateWithoutTeacherAssignmentsInput, Prisma.CareerUncheckedCreateWithoutTeacherAssignmentsInput>
+  where?: Prisma.CareerWhereInput
+}
+
+export type CareerUpdateToOneWithWhereWithoutTeacherAssignmentsInput = {
+  where?: Prisma.CareerWhereInput
+  data: Prisma.XOR<Prisma.CareerUpdateWithoutTeacherAssignmentsInput, Prisma.CareerUncheckedUpdateWithoutTeacherAssignmentsInput>
+}
+
+export type CareerUpdateWithoutTeacherAssignmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUpdateManyWithoutCareerNestedInput
+  projects?: Prisma.ProjectUpdateManyWithoutCareerNestedInput
+}
+
+export type CareerUncheckedUpdateWithoutTeacherAssignmentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  users?: Prisma.UserUncheckedUpdateManyWithoutCareerNestedInput
+  projects?: Prisma.ProjectUncheckedUpdateManyWithoutCareerNestedInput
 }
 
 
@@ -434,11 +515,13 @@ export type CareerUncheckedUpdateWithoutProjectsInput = {
 export type CareerCountOutputType = {
   users: number
   projects: number
+  teacherAssignments: number
 }
 
 export type CareerCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | CareerCountOutputTypeCountUsersArgs
   projects?: boolean | CareerCountOutputTypeCountProjectsArgs
+  teacherAssignments?: boolean | CareerCountOutputTypeCountTeacherAssignmentsArgs
 }
 
 /**
@@ -465,6 +548,13 @@ export type CareerCountOutputTypeCountProjectsArgs<ExtArgs extends runtime.Types
   where?: Prisma.ProjectWhereInput
 }
 
+/**
+ * CareerCountOutputType without action
+ */
+export type CareerCountOutputTypeCountTeacherAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TeacherAssignmentWhereInput
+}
+
 
 export type CareerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -473,6 +563,7 @@ export type CareerSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   updatedAt?: boolean
   users?: boolean | Prisma.Career$usersArgs<ExtArgs>
   projects?: boolean | Prisma.Career$projectsArgs<ExtArgs>
+  teacherAssignments?: boolean | Prisma.Career$teacherAssignmentsArgs<ExtArgs>
   _count?: boolean | Prisma.CareerCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["career"]>
 
@@ -501,6 +592,7 @@ export type CareerOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
 export type CareerInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   users?: boolean | Prisma.Career$usersArgs<ExtArgs>
   projects?: boolean | Prisma.Career$projectsArgs<ExtArgs>
+  teacherAssignments?: boolean | Prisma.Career$teacherAssignmentsArgs<ExtArgs>
   _count?: boolean | Prisma.CareerCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CareerIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -511,6 +603,7 @@ export type $CareerPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   objects: {
     users: Prisma.$UserPayload<ExtArgs>[]
     projects: Prisma.$ProjectPayload<ExtArgs>[]
+    teacherAssignments: Prisma.$TeacherAssignmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -913,6 +1006,7 @@ export interface Prisma__CareerClient<T, Null = never, ExtArgs extends runtime.T
   readonly [Symbol.toStringTag]: "PrismaPromise"
   users<T extends Prisma.Career$usersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Career$usersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projects<T extends Prisma.Career$projectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Career$projectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  teacherAssignments<T extends Prisma.Career$teacherAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Career$teacherAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TeacherAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1379,6 +1473,30 @@ export type Career$projectsArgs<ExtArgs extends runtime.Types.Extensions.Interna
   take?: number
   skip?: number
   distinct?: Prisma.ProjectScalarFieldEnum | Prisma.ProjectScalarFieldEnum[]
+}
+
+/**
+ * Career.teacherAssignments
+ */
+export type Career$teacherAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TeacherAssignment
+   */
+  select?: Prisma.TeacherAssignmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TeacherAssignment
+   */
+  omit?: Prisma.TeacherAssignmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TeacherAssignmentInclude<ExtArgs> | null
+  where?: Prisma.TeacherAssignmentWhereInput
+  orderBy?: Prisma.TeacherAssignmentOrderByWithRelationInput | Prisma.TeacherAssignmentOrderByWithRelationInput[]
+  cursor?: Prisma.TeacherAssignmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TeacherAssignmentScalarFieldEnum | Prisma.TeacherAssignmentScalarFieldEnum[]
 }
 
 /**

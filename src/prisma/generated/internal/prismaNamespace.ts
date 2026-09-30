@@ -393,7 +393,8 @@ export const ModelName = {
   UserProject: 'UserProject',
   Skills: 'Skills',
   projectSkills: 'projectSkills',
-  Period: 'Period'
+  Period: 'Period',
+  TeacherAssignment: 'TeacherAssignment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -409,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "role" | "permission" | "rolePermission" | "career" | "project" | "userProject" | "skills" | "projectSkills" | "period"
+    modelProps: "user" | "role" | "permission" | "rolePermission" | "career" | "project" | "userProject" | "skills" | "projectSkills" | "period" | "teacherAssignment"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1153,6 +1154,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TeacherAssignment: {
+      payload: Prisma.$TeacherAssignmentPayload<ExtArgs>
+      fields: Prisma.TeacherAssignmentFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TeacherAssignmentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherAssignmentPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TeacherAssignmentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherAssignmentPayload>
+        }
+        findFirst: {
+          args: Prisma.TeacherAssignmentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherAssignmentPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TeacherAssignmentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherAssignmentPayload>
+        }
+        findMany: {
+          args: Prisma.TeacherAssignmentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherAssignmentPayload>[]
+        }
+        create: {
+          args: Prisma.TeacherAssignmentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherAssignmentPayload>
+        }
+        createMany: {
+          args: Prisma.TeacherAssignmentCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TeacherAssignmentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherAssignmentPayload>[]
+        }
+        delete: {
+          args: Prisma.TeacherAssignmentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherAssignmentPayload>
+        }
+        update: {
+          args: Prisma.TeacherAssignmentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherAssignmentPayload>
+        }
+        deleteMany: {
+          args: Prisma.TeacherAssignmentDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TeacherAssignmentUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TeacherAssignmentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherAssignmentPayload>[]
+        }
+        upsert: {
+          args: Prisma.TeacherAssignmentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TeacherAssignmentPayload>
+        }
+        aggregate: {
+          args: Prisma.TeacherAssignmentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTeacherAssignment>
+        }
+        groupBy: {
+          args: Prisma.TeacherAssignmentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TeacherAssignmentGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TeacherAssignmentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TeacherAssignmentCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1206,6 +1281,7 @@ export const UserScalarFieldEnum = {
   activationToken: 'activationToken',
   needsPasswordChange: 'needsPasswordChange',
   tokenVersion: 'tokenVersion',
+  level: 'level',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1271,6 +1347,14 @@ export const ProjectScalarFieldEnum = {
   endDate: 'endDate',
   createdBy: 'createdBy',
   careerId: 'careerId',
+  level: 'level',
+  reviewStatus: 'reviewStatus',
+  reviewNote: 'reviewNote',
+  reviewedById: 'reviewedById',
+  reviewedAt: 'reviewedAt',
+  parentId: 'parentId',
+  rootId: 'rootId',
+  branchNumber: 'branchNumber',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1320,6 +1404,18 @@ export const PeriodScalarFieldEnum = {
 } as const
 
 export type PeriodScalarFieldEnum = (typeof PeriodScalarFieldEnum)[keyof typeof PeriodScalarFieldEnum]
+
+
+export const TeacherAssignmentScalarFieldEnum = {
+  id: 'id',
+  careerId: 'careerId',
+  level: 'level',
+  teacherId: 'teacherId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TeacherAssignmentScalarFieldEnum = (typeof TeacherAssignmentScalarFieldEnum)[keyof typeof TeacherAssignmentScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1550,6 +1646,7 @@ export type GlobalOmitConfig = {
   skills?: Prisma.SkillsOmit
   projectSkills?: Prisma.projectSkillsOmit
   period?: Prisma.PeriodOmit
+  teacherAssignment?: Prisma.TeacherAssignmentOmit
 }
 
 /* Types for Logging */
