@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Put, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
 import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectQueryDto } from './dto/project-query.dto';
 import { ReviewProjectDto } from './dto/review-project.dto';
 import { BranchProjectDto } from './dto/branch-project.dto';
+import { MembersProjectDto } from './dto/members-project.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
@@ -66,6 +67,13 @@ export class ProjectsController {
   @Auth()
   branch(@Param('id', ParseUUIDPipe) id: string, @Body() dto: BranchProjectDto, @GetUser() user: User) {
     return this.projectsService.branch(id, dto, user as any);
+  }
+
+  /** Define los integrantes (estudiantes de la carrera del proyecto). */
+  @Put(':id/members')
+  @Auth()
+  setMembers(@Param('id', ParseUUIDPipe) id: string, @Body() dto: MembersProjectDto, @GetUser() user: User) {
+    return this.projectsService.setMembers(id, dto, user as any);
   }
 
   @Patch(':id')

@@ -24,6 +24,13 @@ export class AssignmentsController {
     return this.service.findMine(user.id);
   }
 
+  /** Docente asignado a mi carrera y nivel (estudiante). */
+  @Get('my-teacher')
+  @Auth()
+  myTeacher(@GetUser() user: User) {
+    return this.service.myTeacher(user as any);
+  }
+
   @Put()
   @Auth(ValidRoles.ADMIN)
   set(@Body() dto: SetAssignmentDto) {

@@ -109,6 +109,20 @@ s,a=call("PUT","/api/assignments",A,{"careerId":c1,"level":3,"teacherId":t2}); o
 allA=call("GET","/api/assignments",A)[1]; ok(len([x for x in allA if x["careerId"]==c1 and x["level"]==3])==1,"una sola asignación por carrera+nivel")
 ok(any(x["level"]==3 for x in call("GET","/api/assignments/mine",T2)[1]),"docente ve sus asignaciones")
 call("PUT","/api/assignments",A,{"careerId":c1,"level":3,"teacherId":None})
+print("== Integrantes, candidatos y docente asignado")
+s,mp=call("POST","/api/projects",S1,{"name":"Equipo "+uuid.uuid4().hex[:4],"description":"d","careerId":c0,"academic_period":PER})
+cand=call("GET","/api/users/candidates",S1)[1]
+ok(any(c["id"]==s2 for c in cand) and all(set(c)=={"id","name","level"} for c in cand),"candidatos: solo id/nombre/nivel de su carrera")
+ok(call("GET","/api/users/candidates",T1)[0]==400,"docente sin careerId -> 400")
+s,mm=call("PUT",f"/api/projects/{mp['id']}/members",S1,{"userIds":[s2]})
+ok(s==200 and {u["user"]["id"] for u in mm["userProjects"]}=={s1,s2},"dueño agrega integrante (el creador se conserva)")
+ok(mp["id"] in [x["id"] for x in call("GET","/api/projects?limit=100",S2)[1]["data"]],"el integrante ve el proyecto aunque esté pendiente")
+ok(call("PUT",f"/api/projects/{mp['id']}/members",S2,{"userIds":[]})[0]==403,"integrante no edita integrantes")
+ok(call("PUT",f"/api/projects/{mp['id']}/members",S1,{"userIds":[t1]})[0]==400,"un docente no puede ser integrante")
+ok(call("PUT",f"/api/projects/{mp['id']}/members",S1,{"userIds":["nope"]})[0]==400,"id inválido -> 400")
+tm=call("GET","/api/assignments/my-teacher",S1)[1]
+ok(tm["teacher"] and tm["teacher"]["id"]==t1 and tm["level"]==1,"estudiante ve su docente asignado")
+call("DELETE",f"/api/projects/{mp['id']}",A)
 print("== Admin elimina usuario: los proyectos se conservan")
 s,pp=call("POST","/api/projects",S2,{"name":"Huérfano "+uuid.uuid4().hex[:4],"description":"d","academic_period":PER,"careerId":c0}); 
 call("PATCH",f"/api/projects/{pp['id']}/review",T1,{"decision":"approved"})

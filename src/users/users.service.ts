@@ -1,3 +1,4 @@
+import { isStudent } from 'src/common/access';
 import { 
   Injectable, 
   NotFoundException, 
@@ -96,6 +97,7 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
           email: email.toLowerCase(),
           password: hashedPassword,
           roleId: role.id,
+          needsPasswordChange: true, // alta hecha por el admin: la clave inicial es temporal
         },
         include: { role: true, career: true },
         omit: USER_OMIT
@@ -181,6 +183,17 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
 
   async findAll(q?: UserQueryDto) {
     return this.pageUsers(this.userWhere(q || ({} as UserQueryDto)), q as PaginationDto);
+  }
+
+  async candidates(careerId: string | undefined, user: any) {
+    const career = isStudent(user) ? user.careerId : careerId;
+    if (!career) throw new BadRequestException('Indica la carrera (careerId).');
+    return this.prismaService.user.findMany({
+      where: { careerId: career, role: { name: 'USER' } },
+      select: { id: true, name: true, level: true },
+      orderBy: { name: 'asc' },
+      take: 500,
+    });
   }
 
   /** Estudiantes de las carrera+nivel del docente (ADMIN: todos). */

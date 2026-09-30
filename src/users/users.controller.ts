@@ -63,6 +63,13 @@ export class UsersController {
     return this.usersService.findAll(query);
   }
 
+  /** Estudiantes que se pueden sumar como integrantes: misma carrera (el estudiante solo ve la suya). */
+  @Get('candidates')
+  @Auth()
+  candidates(@Query('careerId') careerId: string | undefined, @GetUser() user: User) {
+    return this.usersService.candidates(careerId, user);
+  }
+
   /** Estudiantes de las carrera+nivel del docente (ADMIN: todos). */
   @Get('students')
   @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)

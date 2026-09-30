@@ -11,6 +11,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectQueryDto } from './dto/project-query.dto';
 import { ReviewProjectDto } from './dto/review-project.dto';
 import { BranchProjectDto } from './dto/branch-project.dto';
+import { MembersProjectDto } from './dto/members-project.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { USER_OMIT } from 'src/common/sanitize';
 import { isAdmin, isStudent, isTeacher } from 'src/common/access';
@@ -21,6 +22,7 @@ const LIST_INCLUDE = {
   user: { omit: USER_OMIT },
   career: true,
   projectSkills: { include: { skill: true } },
+  userProjects: { include: { user: { select: { id: true, name: true, level: true } } } },
   parent: { select: { id: true, name: true } },
   reviewedBy: { select: { id: true, name: true } },
   _count: { select: { branches: true } },
@@ -50,7 +52,7 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
    */
   private async visibleWhere(user: AuthUser): Promise<any> {
     if (isAdmin(user)) return {};
-    const or: any[] = [{ reviewStatus: 'approved' }, { createdBy: user.id }];
+    const or: any[] = [{ reviewStatus: 'approved' }, { createdBy: user.id }, { userProjects: { some: { userId: user.id } } }];
     if (isTeacher(user)) {
       for (const c of await this.cohortsOf(user.id)) or.push({ careerId: c.careerId, level: c.level });
     }
@@ -189,6 +191,29 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     }
     const found = await this.prismaService.period.findUnique({ where: { name }, select: { id: true } });
     if (!found) throw new BadRequestException('El período académico no existe. Pide al administrador que lo registre.');
+  }
+
+  /** Reemplaza los integrantes: solo quien puede editar; deben ser estudiantes de la carrera del proyecto. */
+  async setMembers(id: string, dto: MembersProjectDto, user: AuthUser) {
+    const project = await this.prismaService.project.findUnique({ where: { id } });
+    if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
+    this.assertCanModify(project, user, 'editar');
+
+    const ids = Array.from(new Set([...(project.createdBy ? [project.createdBy] : []), ...dto.userIds]));
+    const extra = ids.filter((x) => x !== project.createdBy);
+    if (extra.length) {
+      const valid = await this.prismaService.user.count({
+        where: { id: { in: extra }, careerId: project.careerId, role: { name: 'USER' } },
+      });
+      if (valid !== extra.length) {
+        throw new BadRequestException('Los integrantes deben ser estudiantes de la misma carrera del proyecto.');
+      }
+    }
+    await this.prismaService.$transaction([
+      this.prismaService.userProject.deleteMany({ where: { projectId: id } }),
+      this.prismaService.userProject.createMany({ data: ids.map((userId) => ({ userId, projectId: id })) }),
+    ]);
+    return this.findOne(id, user);
   }
 
   // ---------------------------------------------------------------- edición / borrado

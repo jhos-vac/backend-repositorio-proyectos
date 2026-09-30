@@ -25,6 +25,7 @@ P = {
  ("GET","/api/assignments"):"ADMIN", ("GET","/api/assignments/mine"):"STAFF", ("PUT","/api/assignments"):"ADMIN",
  ("POST","/api/skills"):"ANY", ("GET","/api/skills"):"ANY", ("GET","/api/skills/:id"):"ANY",
  ("PATCH","/api/skills/:id"):"ANY", ("DELETE","/api/skills/:id"):"ANY",
+ ("PUT","/api/projects/:id/members"):"ANY", ("GET","/api/users/candidates"):"ANY", ("GET","/api/assignments/my-teacher"):"ANY",
  ("POST","/api/period"):"ADMIN", ("GET","/api/period"):"ANY", ("GET","/api/period/:id"):"ANY", ("DELETE","/api/period/:id"):"ADMIN",
  ("POST","/api/careers"):"ADMIN", ("GET","/api/careers"):"PUBLIC", ("GET","/api/careers/:id"):"PUBLIC",
  ("PATCH","/api/careers/:id"):"ADMIN", ("DELETE","/api/careers/:id"):"ADMIN",

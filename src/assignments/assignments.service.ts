@@ -20,6 +20,15 @@ export class AssignmentsService {
     });
   }
 
+  async myTeacher(user: { careerId: string; level?: number | null }) {
+    if (!user.level) return { careerId: user.careerId, level: null, teacher: null };
+    const a = await this.prisma.teacherAssignment.findUnique({
+      where: { careerId_level: { careerId: user.careerId, level: user.level } },
+      include: { teacher: { select: { id: true, name: true, email: true } } },
+    });
+    return { careerId: user.careerId, level: user.level, teacher: a?.teacher ?? null };
+  }
+
   /** Las carrera+nivel que atiende el docente. */
   findMine(teacherId: string) {
     return this.prisma.teacherAssignment.findMany({
