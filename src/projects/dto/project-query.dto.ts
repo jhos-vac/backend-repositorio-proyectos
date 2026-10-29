@@ -1,5 +1,5 @@
 import { Transform, Type } from 'class-transformer';
-import { IsBoolean, IsIn, IsInt, IsOptional, IsUUID, Max, Min } from 'class-validator';
+import { IsArray, IsBoolean, IsIn, IsInt, IsOptional, IsString, IsUUID, Max, MaxLength, Min } from 'class-validator';
 import { PaginationDto } from 'src/Libs/common';
 
 export const REVIEW_STATUSES = ['pending', 'approved', 'rejected'] as const;
@@ -31,4 +31,23 @@ export class ProjectQueryDto extends PaginationDto {
   @Transform(({ value }) => value === true || value === 'true')
   @IsBoolean()
   mine?: boolean;
+
+  /** Solo los de ciclos (períodos académicos) ya terminados; solo aprobados (se pueden continuar). */
+  @IsOptional()
+  @Transform(({ value }) => value === true || value === 'true')
+  @IsBoolean()
+  pastPeriods?: boolean;
+
+  /** Etiquetas (tecnologías): ids separados por coma. El proyecto debe tener todas. */
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.split(',').map((v) => v.trim()).filter(Boolean) : value))
+  @IsArray()
+  @IsUUID('all', { each: true })
+  skillIds?: string[];
+
+  /** Período académico exacto (ej. "Septiembre-2026"). */
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  period?: string;
 }

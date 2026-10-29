@@ -8,7 +8,8 @@ COPY prisma ./prisma/
 
 # Instalamos y generamos Prisma
 RUN npm install
-RUN npx prisma generate
+# prisma.config.ts exige DATABASE_URL incluso para generate; se usa un valor de relleno en la compilacion
+RUN DATABASE_URL="postgresql://build:build@localhost:5432/build" npx prisma generate
 
 # Copiamos el resto del código
 COPY . .

@@ -36,6 +36,20 @@ export class ProjectsController {
     return this.projectsService.findForReview(q, user as any);
   }
 
+  /** Resumen de los proyectos del propio usuario (todos los ciclos). */
+  @Get('mine/summary')
+  @Auth()
+  mySummary(@GetUser() user: User) {
+    return this.projectsService.mySummary(user as any);
+  }
+
+  /** Etiquetas usadas en proyectos de ciclos pasados (para filtrar). */
+  @Get('past/tags')
+  @Auth()
+  pastTags(@GetUser() user: User) {
+    return this.projectsService.pastTags(user as any);
+  }
+
   @Get('skill/:skillId')
   @Auth()
   findBySkill(@Param('skillId', ParseUUIDPipe) skillId: string, @GetUser() user: User) {

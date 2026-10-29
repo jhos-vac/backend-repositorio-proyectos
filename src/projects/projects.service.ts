@@ -73,7 +73,10 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     if (q.reviewStatus) f.reviewStatus = q.reviewStatus;
     if (q.careerId) f.careerId = q.careerId;
     if (q.level) f.level = q.level;
-    if (q.mine) f.createdBy = user.id;
+    // "Mío" = lo creó o es integrante (cualquier ciclo)
+    if (q.mine) f.OR = [{ createdBy: user.id }, { userProjects: { some: { userId: user.id } } }];
+    if (q.period) f.academic_period = q.period;
+    if (q.skillIds?.length) f.AND = q.skillIds.map((skillId) => ({ projectSkills: { some: { skillId } } }));
     if (q.continuity === 'continuations') f.parentId = { not: null };
     if (q.continuity === 'origins') f.branches = { some: {} };
     if (q.search) f.name = { contains: q.search, mode: 'insensitive' };
@@ -108,8 +111,60 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
   // ---------------------------------------------------------------- consultas
 
   async list(q: ProjectQueryDto, user: AuthUser) {
-    const where = { AND: [await this.visibleWhere(user), this.buildFilters(q, user)] };
+    const where = { AND: [await this.visibleWhere(user), this.buildFilters(q, user), await this.pastFilter(q)] };
     return this.page(where, q);
+  }
+
+  /** Nombres de los períodos académicos ya terminados (fin anterior al mes actual). */
+  private async pastPeriodNames(): Promise<string[]> {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth() + 1;
+    const periods = await this.prismaService.period.findMany({
+      where: {
+        OR: [{ endYear: { lt: y } }, { endYear: y, endMonth: { lt: m } }],
+      },
+      select: { name: true },
+    });
+    return periods.map((p) => p.name);
+  }
+
+  /** Filtro "ciclos pasados": proyectos aprobados de períodos ya terminados. */
+  private async pastFilter(q: Pick<ProjectQueryDto, 'pastPeriods'>): Promise<any> {
+    if (!q.pastPeriods) return {};
+    return { reviewStatus: 'approved', academic_period: { in: await this.pastPeriodNames() } };
+  }
+
+  /** Etiquetas (tecnologías) usadas en proyectos de ciclos pasados, con cuántos proyectos las usan. */
+  async pastTags(user: AuthUser) {
+    const projectWhere = { AND: [await this.visibleWhere(user), await this.pastFilter({ pastPeriods: true })] };
+    const skills = await this.prismaService.skills.findMany({
+      where: { projectSkills: { some: { project: projectWhere } } },
+      select: { id: true, name: true, _count: { select: { projectSkills: { where: { project: projectWhere } } } } },
+    });
+    return skills
+      .map((s) => ({ id: s.id, name: s.name, count: s._count.projectSkills }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }
+
+  /** Resumen de los proyectos propios del usuario (creados por él o donde es integrante), de todos los ciclos. */
+  async mySummary(user: AuthUser) {
+    const own = { OR: [{ createdBy: user.id }, { userProjects: { some: { userId: user.id } } }] };
+    const done = {
+      OR: [
+        { status: { contains: 'complet', mode: 'insensitive' as const } },
+        { status: { contains: 'finaliz', mode: 'insensitive' as const } },
+      ],
+    };
+    const count = (extra: any = {}) => this.prismaService.project.count({ where: { AND: [own, extra] } });
+    const [total, pending, approved, rejected, completed] = await Promise.all([
+      count(),
+      count({ reviewStatus: 'pending' }),
+      count({ reviewStatus: 'approved' }),
+      count({ reviewStatus: 'rejected' }),
+      count({ reviewStatus: 'approved', ...done }),
+    ]);
+    return { total, pending, approved, rejected, completed, inProgress: approved - completed };
   }
 
   /** Cola de revisión (docente/admin). Por defecto solo los pendientes. */
