@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Put } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Auth, GetUser } from 'src/auth/decorators';
+import { AllowPendingPassword, Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 import { UserModel as User } from 'src/prisma/generated/models/User';
 import { AssignmentsService } from './assignments.service';
@@ -27,6 +27,7 @@ export class AssignmentsController {
   /** Docente asignado a mi carrera y nivel (estudiante). */
   @Get('my-teacher')
   @Auth()
+  @AllowPendingPassword()
   myTeacher(@GetUser() user: User) {
     return this.service.myTeacher(user as any);
   }

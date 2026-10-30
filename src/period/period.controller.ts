@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { PeriodService } from './period.service';
 import { CreatePeriodDto } from './create-period.dto';
-import { Auth } from 'src/auth/decorators';
+import { AllowPendingPassword, Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 
 @Controller('period')
@@ -24,6 +24,7 @@ export class PeriodController {
 
   @Get()
   @Auth()
+  @AllowPendingPassword()
   findAll() {
     return this.periodService.findAll();
   }
