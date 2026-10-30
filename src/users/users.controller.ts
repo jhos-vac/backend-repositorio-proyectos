@@ -24,7 +24,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import { UserQueryDto } from './dto/user-query.dto';
-import { Auth, GetUser } from 'src/auth/decorators';
+import { AllowPendingPassword, Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 import { UserModel as User } from 'src/prisma/generated/models/User';
 import { assertSelfOrAdmin } from 'src/common/access';
@@ -80,6 +80,7 @@ export class UsersController {
   /** Un usuario: el propio o ADMIN. */
   @Get(':id')
   @Auth()
+  @AllowPendingPassword()
   findOne(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
     assertSelfOrAdmin(user, id);
     return this.usersService.findOne(id);
@@ -134,6 +135,7 @@ export class UsersController {
   /** Cambia la contraseña: SOLO la propia (exige la contraseña actual). */
   @Patch(':id/change-password')
   @Auth()
+  @AllowPendingPassword()
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   changePassword(
     @Param('id', ParseUUIDPipe) id: string,
