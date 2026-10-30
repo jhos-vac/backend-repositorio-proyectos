@@ -20,6 +20,7 @@ import { diskStorage } from 'multer';
 import { randomBytes } from 'crypto';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { CreateTeachersDto } from './dto/create-teachers.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
@@ -47,6 +48,13 @@ export class UsersController {
   @Auth(ValidRoles.ADMIN)
   createTeacher(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createTeacher(createUserDto);
+  }
+
+  /** Carga masiva de docentes (ADMIN): valida todas las filas y crea todas o ninguna. */
+  @Post('create-teachers')
+  @Auth(ValidRoles.ADMIN)
+  createTeachers(@Body() dto: CreateTeachersDto) {
+    return this.usersService.createTeachers(dto.teachers);
   }
 
   /** Alta directa de usuario (rol USER): solo ADMIN. El registro público es /auth/register. */
