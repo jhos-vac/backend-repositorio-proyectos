@@ -146,6 +146,63 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
     }
   }
 
+  /**
+   * Carga masiva de docentes: primero valida TODAS las filas (dominio, correo,
+   * repetidos en el archivo o ya registrados, carrera) y, si alguna falla, no
+   * crea nada y devuelve la lista de errores. Si todas pasan, se insertan en
+   * una sola operación atómica.
+   */
+  async createTeachers(rows: CreateUserDto[]) {
+    const role = await this.prismaService.role.findFirst({ where: { name: 'TEACHER' } });
+    if (!role) throw new InternalServerErrorException('Error: El rol TEACHER no existe.');
+
+    const emails = rows.map((r) => r.email.trim().toLowerCase());
+    const [existing, careers] = await Promise.all([
+      this.prismaService.user.findMany({ where: { email: { in: emails } }, select: { email: true } }),
+      this.prismaService.career.findMany({ where: { id: { in: rows.map((r) => r.careerId) } }, select: { id: true } }),
+    ]);
+    const taken = new Set(existing.map((u) => u.email));
+    const careerIds = new Set(careers.map((c) => c.id));
+
+    const errors: string[] = [];
+    const seen = new Set<string>();
+    for (const [i, row] of rows.entries()) {
+      const email = emails[i];
+      const label = `Fila ${i + 1} (${email})`;
+      if (!this.isDomainAllowed(email)) {
+        errors.push(`${label}: dominio de correo no permitido.`);
+      } else {
+        try {
+          await this.validateEmailDeep(email);
+        } catch (e: any) {
+          errors.push(`${label}: ${[].concat(e?.response?.message ?? e?.message).join(', ')}`);
+        }
+      }
+      if (seen.has(email)) errors.push(`${label}: el correo está repetido en el archivo.`);
+      if (taken.has(email)) errors.push(`${label}: ya existe un usuario con ese correo.`);
+      if (!careerIds.has(row.careerId)) errors.push(`${label}: la carrera no existe.`);
+      seen.add(email);
+    }
+    if (errors.length) throw new BadRequestException(errors);
+
+    const hashed = await Promise.all(rows.map((r) => bcrypt.hash(r.password, 12)));
+    try {
+      const { count } = await this.prismaService.user.createMany({
+        data: rows.map((r, i) => ({
+          name: r.name.trim(),
+          email: emails[i],
+          password: hashed[i],
+          roleId: role.id,
+          careerId: r.careerId,
+          needsPasswordChange: true, // clave temporal: deben cambiarla al entrar
+        })),
+      });
+      return { created: count };
+    } catch (error) {
+      this.handleDBErrors(error);
+    }
+  }
+
 
   private userWhere(q: UserQueryDto) {
     const w: any = {};
