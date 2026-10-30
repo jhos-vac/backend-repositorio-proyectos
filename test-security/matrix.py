@@ -15,7 +15,7 @@ P = {
  ("POST","/api/auth/refresh-token"):"PUBLIC", ("POST","/api/auth/forgot-password"):"PUBLIC",
  ("POST","/api/auth/reset-password/:token"):"PUBLIC",
  ("POST","/api/auth/register-admin"):"ADMIN", ("POST","/api/auth/logout"):"ANY",
- ("POST","/api/users/create-teacher"):"ADMIN", ("POST","/api/users"):"ADMIN", ("GET","/api/users"):"ADMIN",
+ ("POST","/api/users/create-teacher"):"ADMIN", ("POST","/api/users/create-teachers"):"ADMIN", ("POST","/api/users"):"ADMIN", ("GET","/api/users"):"ADMIN",
  ("GET","/api/users/:id"):"SELF", ("PATCH","/api/users/:id"):"SELF", ("PATCH","/api/users/:id/image"):"SELF",
  ("PATCH","/api/users/:id/change-password"):"SELFONLY", ("DELETE","/api/users/:id"):"ADMIN",
  ("POST","/api/projects"):"ANY", ("GET","/api/projects"):"ANY", ("GET","/api/projects/skill/:skillId"):"ANY",
