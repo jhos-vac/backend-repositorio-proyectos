@@ -21,6 +21,7 @@ P = {
  ("POST","/api/projects"):"ANY", ("GET","/api/projects"):"ANY", ("GET","/api/projects/skill/:skillId"):"ANY",
  ("GET","/api/projects/:id"):"ANY", ("PATCH","/api/projects/:id"):"ANY", ("DELETE","/api/projects/:id"):"ANY", ("GET","/api/projects/review"):"STAFF", ("GET","/api/projects/:id/lineage"):"ANY",
  ("PATCH","/api/projects/:id/review"):"STAFF", ("POST","/api/projects/:id/branch"):"ANY",
+ ("GET","/api/projects/dashboard"):"ANY", ("GET","/api/projects/mine/summary"):"ANY", ("GET","/api/projects/past/tags"):"ANY",
  ("GET","/api/users/students"):"STAFF", ("PATCH","/api/users/:id/admin"):"ADMIN",
  ("GET","/api/assignments"):"ADMIN", ("GET","/api/assignments/mine"):"STAFF", ("PUT","/api/assignments"):"ADMIN",
  ("POST","/api/skills"):"ANY", ("GET","/api/skills"):"ANY", ("GET","/api/skills/:id"):"ANY",

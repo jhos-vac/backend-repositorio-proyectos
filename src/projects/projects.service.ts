@@ -198,6 +198,46 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     return { total, pending, approved, rejected, completed, inProgress: approved - completed };
   }
 
+  /**
+   * Panel de inicio de docentes y admin, calculado en la base de datos (antes el
+   * navegador descargaba hasta 1000 proyectos). Solo cuenta lo visible para el
+   * usuario y, si se indica, del período. El estado se interpreta como en el
+   * frontend (normalizeStatus): completado, por iniciar o, si no, en progreso.
+   */
+  async dashboard(q: ProjectQueryDto, user: AuthUser) {
+    const base = { AND: [await this.visibleWhere(user), q.period ? { academic_period: q.period } : {}] };
+    const has = (text: string) => ({ status: { contains: text, mode: 'insensitive' as const } });
+    const done = { OR: [has('complet'), has('finaliz')] };
+    const notStarted = { NOT: done, OR: [has('inici'), has('pend')] };
+    const inProgress = { NOT: [done, notStarted] };
+    const count = (extra: any = {}) => this.prismaService.project.count({ where: { AND: [base, extra] } });
+    const latest = (extra: any, take: number) =>
+      this.prismaService.project.findMany({ where: { AND: [base, extra] }, include: LIST_INCLUDE, orderBy: { createdAt: 'desc' }, take });
+
+    const [total, active, completed, featured, recent, grouped] = await Promise.all([
+      count(),
+      count(inProgress),
+      count(done),
+      latest(inProgress, 2),
+      latest({}, 6),
+      this.prismaService.projectSkills.groupBy({
+        by: ['skillId'],
+        where: { project: base },
+        _count: { skillId: true },
+        orderBy: { _count: { skillId: 'desc' } },
+        take: 6,
+      }),
+    ]);
+    const skills = await this.prismaService.skills.findMany({
+      where: { id: { in: grouped.map((g) => g.skillId) } },
+      select: { id: true, name: true },
+    });
+    const name = new Map(skills.map((s) => [s.id, s.name]));
+    const topSkills = grouped.map((g) => ({ name: name.get(g.skillId) ?? '', n: g._count.skillId }));
+
+    return { total, active, done: completed, featured, recent, topSkills };
+  }
+
   /** Cola de revisión (docente/admin). Por defecto solo los pendientes. */
   async findForReview(q: ProjectQueryDto, user: AuthUser) {
     const filters = this.buildFilters({ ...q, reviewStatus: q.reviewStatus ?? 'pending' } as ProjectQueryDto, user);
