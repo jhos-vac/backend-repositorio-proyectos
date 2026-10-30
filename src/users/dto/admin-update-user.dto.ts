@@ -2,6 +2,7 @@ import { Type } from 'class-transformer';
 import {
   IsBoolean, IsEmail, IsInt, IsOptional, IsString, IsStrongPassword, IsUUID, Max, MaxLength, Min, ValidateIf,
 } from 'class-validator';
+import { STRONG_PASSWORD, STRONG_PASSWORD_MESSAGE } from 'src/common/password';
 
 /** Edición completa de un usuario por el ADMIN (incluye rol, carrera, nivel y reinicio de clave). */
 export class AdminUpdateUserDto {
@@ -24,7 +25,7 @@ export class AdminUpdateUserDto {
 
   /** Si se envía, reinicia la contraseña y cierra las sesiones del usuario */
   @IsOptional() @IsString() @MaxLength(72)
-  @IsStrongPassword({ minLength: 6 }, { message: 'La contraseña no es lo suficientemente fuerte (mínimo 6 caracteres, letras y números)' })
+  @IsStrongPassword(STRONG_PASSWORD, { message: STRONG_PASSWORD_MESSAGE })
   password?: string;
 
   @IsOptional() @IsBoolean()

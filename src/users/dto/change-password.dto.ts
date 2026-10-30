@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsString, IsStrongPassword, MaxLength } from "class-validator";
+import { STRONG_PASSWORD, STRONG_PASSWORD_MESSAGE } from "src/common/password";
 
 export class ChangePasswordDto {
 	@IsString()
@@ -8,9 +9,6 @@ export class ChangePasswordDto {
 
 	@IsString()
 	@MaxLength(72)
-	@IsStrongPassword(
-		{ minLength: 6 },
-		{ message: "La contraseña no es lo suficientemente fuerte (mínimo 6 caracteres, letras y números)" },
-	)
+	@IsStrongPassword(STRONG_PASSWORD, { message: STRONG_PASSWORD_MESSAGE })
 	newPassword: string;
 }

@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from 'class-transformer';
 import { IsInt, Max, Min, IsEmail, IsOptional, IsString, IsStrongPassword, IsUUID, MaxLength } from "class-validator";
+import { STRONG_PASSWORD, STRONG_PASSWORD_MESSAGE } from "src/common/password";
 
 /**
  * Data Transfer Object para la creación de usuarios y docentes.
@@ -13,10 +14,7 @@ export class CreateUserDto {
 
     @ApiProperty({ description: 'Contraseña segura del usuario' })
     @MaxLength(72) // límite real de bcrypt
-    @IsStrongPassword(
-        { minLength: 6 }, 
-        { message: 'La contraseña no es lo suficientemente fuerte (mínimo 6 caracteres, letras y números)' }
-    )
+    @IsStrongPassword(STRONG_PASSWORD, { message: STRONG_PASSWORD_MESSAGE })
     password: string;
 
     @ApiProperty({ description: 'Nombre completo del usuario' })
