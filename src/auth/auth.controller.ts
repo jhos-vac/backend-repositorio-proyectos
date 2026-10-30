@@ -4,7 +4,7 @@ import { Throttle } from "@nestjs/throttler";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { UserModel as User } from "src/prisma/generated/models/User";
 import { AuthService } from "./auth.service";
-import { Auth, GetUser, Public } from "./decorators";
+import { AllowPendingPassword, Auth, GetUser, Public } from "./decorators";
 import { ForgotPasswordDto } from "./dto/forgot-password.dto";
 import { LoginDto } from "./dto/loginDto";
 import { RefreshDto } from "./dto/refreshDto";
@@ -53,6 +53,7 @@ export class AuthController {
 
     /** Cierra todas las sesiones del usuario autenticado. */
     @Auth()
+    @AllowPendingPassword()
     @HttpCode(HttpStatus.OK)
     @Post("logout")
     logout(@GetUser() user: User) {

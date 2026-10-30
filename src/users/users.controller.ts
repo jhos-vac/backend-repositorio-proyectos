@@ -20,11 +20,12 @@ import { diskStorage } from 'multer';
 import { randomBytes } from 'crypto';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { CreateTeachersDto } from './dto/create-teachers.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import { UserQueryDto } from './dto/user-query.dto';
-import { Auth, GetUser } from 'src/auth/decorators';
+import { AllowPendingPassword, Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 import { UserModel as User } from 'src/prisma/generated/models/User';
 import { assertSelfOrAdmin } from 'src/common/access';
@@ -47,6 +48,13 @@ export class UsersController {
   @Auth(ValidRoles.ADMIN)
   createTeacher(@Body() createUserDto: CreateUserDto) {
     return this.usersService.createTeacher(createUserDto);
+  }
+
+  /** Carga masiva de docentes (ADMIN): valida todas las filas y crea todas o ninguna. */
+  @Post('create-teachers')
+  @Auth(ValidRoles.ADMIN)
+  createTeachers(@Body() dto: CreateTeachersDto) {
+    return this.usersService.createTeachers(dto.teachers);
   }
 
   /** Alta directa de usuario (rol USER): solo ADMIN. El registro público es /auth/register. */
@@ -80,6 +88,7 @@ export class UsersController {
   /** Un usuario: el propio o ADMIN. */
   @Get(':id')
   @Auth()
+  @AllowPendingPassword()
   findOne(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
     assertSelfOrAdmin(user, id);
     return this.usersService.findOne(id);
@@ -134,6 +143,7 @@ export class UsersController {
   /** Cambia la contraseña: SOLO la propia (exige la contraseña actual). */
   @Patch(':id/change-password')
   @Auth()
+  @AllowPendingPassword()
   @Throttle({ default: { limit: 5, ttl: 60_000 } })
   changePassword(
     @Param('id', ParseUUIDPipe) id: string,

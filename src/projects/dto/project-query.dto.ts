@@ -3,12 +3,18 @@ import { IsArray, IsBoolean, IsIn, IsInt, IsOptional, IsString, IsUUID, Max, Max
 import { PaginationDto } from 'src/Libs/common';
 
 export const REVIEW_STATUSES = ['pending', 'approved', 'rejected'] as const;
+export const PROGRESS_STATUSES = ['en progreso', 'completado'] as const;
 
 /** Filtros del listado de proyectos (todos opcionales). */
 export class ProjectQueryDto extends PaginationDto {
   @IsOptional()
   @IsIn(REVIEW_STATUSES)
   reviewStatus?: (typeof REVIEW_STATUSES)[number];
+
+  /** Estado de avance; si el proyecto tiene fechas, se calcula con ellas (igual que en el listado). */
+  @IsOptional()
+  @IsIn(PROGRESS_STATUSES)
+  status?: (typeof PROGRESS_STATUSES)[number];
 
   @IsOptional()
   @IsUUID()

@@ -70,17 +70,48 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
 
   private buildFilters(q: ProjectQueryDto, user: AuthUser) {
     const f: any = {};
+    const and: any[] = [];
     if (q.reviewStatus) f.reviewStatus = q.reviewStatus;
     if (q.careerId) f.careerId = q.careerId;
     if (q.level) f.level = q.level;
     // "Mío" = lo creó o es integrante (cualquier ciclo)
-    if (q.mine) f.OR = [{ createdBy: user.id }, { userProjects: { some: { userId: user.id } } }];
+    if (q.mine) and.push({ OR: [{ createdBy: user.id }, { userProjects: { some: { userId: user.id } } }] });
     if (q.period) f.academic_period = q.period;
-    if (q.skillIds?.length) f.AND = q.skillIds.map((skillId) => ({ projectSkills: { some: { skillId } } }));
+    if (q.skillIds?.length) and.push(...q.skillIds.map((skillId) => ({ projectSkills: { some: { skillId } } })));
     if (q.continuity === 'continuations') f.parentId = { not: null };
     if (q.continuity === 'origins') f.branches = { some: {} };
-    if (q.search) f.name = { contains: q.search, mode: 'insensitive' };
+    if (q.status) and.push(this.statusWhere(q.status));
+    if (q.search) {
+      const term = { contains: q.search, mode: 'insensitive' as const };
+      and.push({
+        OR: [
+          { name: term },
+          { description: term },
+          { career: { name: term } },
+          { projectSkills: { some: { skill: { name: term } } } },
+        ],
+      });
+    }
+    if (and.length) f.AND = and;
     return f;
+  }
+
+  /**
+   * Estado de avance como lo muestra el listado: sin fechas vale `status`;
+   * con fechas, terminado = completado y en curso = en progreso; si aún no
+   * empieza, vuelve a valer `status`.
+   */
+  private statusWhere(status: string) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const or: any[] = [
+      { startDate: null, status },
+      { endDate: null, status },
+      { startDate: { gt: today }, endDate: { gte: today }, status },
+    ];
+    if (status === 'completado') or.push({ startDate: { not: null }, endDate: { lt: today } });
+    if (status === 'en progreso') or.push({ startDate: { lte: today }, endDate: { gte: today } });
+    return { OR: or };
   }
 
   private async page(where: any, q: ProjectQueryDto) {

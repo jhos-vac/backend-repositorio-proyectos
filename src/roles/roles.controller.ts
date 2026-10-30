@@ -4,7 +4,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { PaginationDto } from 'src/Libs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Auth } from 'src/auth/decorators';
+import { AllowPendingPassword, Auth } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
 
 @ApiTags('Roles')
@@ -19,6 +19,7 @@ export class RolesController {
   }
 
   @Auth()
+  @AllowPendingPassword()
   @Get()
   findAll(@Query() paginationDto?: PaginationDto) {
     return this.rolesService.findAll(paginationDto);
