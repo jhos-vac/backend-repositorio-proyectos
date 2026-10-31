@@ -3,6 +3,7 @@ import { IsArray, IsBoolean, IsIn, IsInt, IsOptional, IsString, IsUUID, Max, Max
 import { PaginationDto } from 'src/Libs/common';
 
 export const REVIEW_STATUSES = ['pending', 'approved', 'rejected'] as const;
+/** Únicos estados de avance que se guardan en Project.status. */
 export const PROGRESS_STATUSES = ['en progreso', 'completado'] as const;
 
 /** Filtros del listado de proyectos (todos opcionales). */
