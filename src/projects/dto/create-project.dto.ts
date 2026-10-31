@@ -5,11 +5,13 @@ import {
   Max,
   Min,
   IsArray,
+  IsIn,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
 } from 'class-validator';
+import { PROGRESS_STATUSES } from './project-query.dto';
 // IMPORTANTE: Asegúrate de que esta ruta coincida con donde creaste el validador
 
 export class CreateProjectDto {
@@ -23,10 +25,11 @@ export class CreateProjectDto {
   @IsNotEmpty() 
   description: string;
 
-  @ApiProperty({ required: false, default: 'in-progress' })
-  @IsOptional() 
-  @IsString()
-  status?: string;
+  /** Solo 'en progreso' o 'completado'. Al crear se ignora: todo proyecto nace en progreso. */
+  @ApiProperty({ required: false, enum: PROGRESS_STATUSES, default: 'en progreso' })
+  @IsOptional()
+  @IsIn(PROGRESS_STATUSES, { message: `El estado debe ser uno de: ${PROGRESS_STATUSES.join(', ')}` })
+  status?: (typeof PROGRESS_STATUSES)[number];
 
   @ApiProperty({ required: false })
   @IsOptional() 

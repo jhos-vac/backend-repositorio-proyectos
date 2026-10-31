@@ -301,7 +301,7 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     return this.prismaService.project.create({
       data: {
         ...rest,
-        status: 'in-progress',
+        status: 'en progreso',
         ...auth,
         createdBy: user.id,
         userProjects: { create: { userId: user.id } },
@@ -485,7 +485,7 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
         objectives: src.objectives,
         cycle: src.cycle,
         academic_period,
-        status: 'in-progress',
+        status: 'en progreso',
         ...auth,
         parentId: src.id,
         rootId,
