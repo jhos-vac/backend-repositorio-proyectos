@@ -3,6 +3,7 @@ import { ProjectsService } from './projects.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectQueryDto } from './dto/project-query.dto';
+import { SimilarQueryDto } from './dto/similar-query.dto';
 import { ReviewProjectDto } from './dto/review-project.dto';
 import { BranchProjectDto } from './dto/branch-project.dto';
 import { MembersProjectDto } from './dto/members-project.dto';
@@ -34,6 +35,13 @@ export class ProjectsController {
   @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
   forReview(@Query() q: ProjectQueryDto, @GetUser() user: User) {
     return this.projectsService.findForReview(q, user as any);
+  }
+
+  /** RN-04: proyectos visibles parecidos al que se está registrando (aviso, no bloquea). */
+  @Get('similar')
+  @Auth()
+  similar(@Query() q: SimilarQueryDto, @GetUser() user: User) {
+    return this.projectsService.similar(q, user as any);
   }
 
   /** Panel de inicio (docentes y admin): totales, en curso, recientes y tecnologías más usadas. */

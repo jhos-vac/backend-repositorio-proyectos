@@ -16,6 +16,11 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { USER_OMIT } from 'src/common/sanitize';
 import { isAdmin, isStudent, isTeacher } from 'src/common/access';
 import { unlinkQuiet } from './files/storage';
+import { SimilarQueryDto } from './dto/similar-query.dto';
+import { keywords, similarityScore } from './similarity';
+
+/** Parecido mínimo (0 a 1) para avisar de un proyecto similar. */
+const SIMILAR_MIN_SCORE = 0.25;
 
 type AuthUser = { id: string; careerId: string; level?: number | null; role?: { name?: string } };
 
@@ -196,6 +201,45 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
       count({ reviewStatus: 'approved', ...done }),
     ]);
     return { total, pending, approved, rejected, completed, inProgress: approved - completed };
+  }
+
+  /**
+   * RN-04: proyectos visibles parecidos al que se está registrando. Se buscan
+   * candidatos que compartan alguna palabra clave y se ordenan por parecido;
+   * solo se devuelven los que superan el umbral (máximo 5).
+   */
+  async similar(q: SimilarQueryDto, user: AuthUser) {
+    const words = keywords(`${q.name} ${q.description ?? ''}`);
+    if (!words.length) return [];
+    // Candidatos que comparten alguna palabra, sin distinguir tildes (las palabras clave ya vienen sin ellas
+    // y solo tienen letras y números, así que no hay comodines que escapar)
+    const patterns = words.map((w) => `%${w}%`);
+    const matches = await this.prismaService.$queryRaw<{ id: string }[]>`
+      SELECT id FROM "Project"
+      WHERE translate(lower(name || ' ' || coalesce(description, '')), 'áéíóúüñ', 'aeiouun') LIKE ANY (${patterns})
+      ORDER BY "createdAt" DESC
+      LIMIT 500`;
+    if (!matches.length) return [];
+    const candidates = await this.prismaService.project.findMany({
+      where: {
+        AND: [
+          await this.visibleWhere(user),
+          q.excludeId ? { NOT: { id: q.excludeId } } : {},
+          { id: { in: matches.map((m) => m.id) } },
+        ],
+      },
+      select: {
+        id: true, name: true, description: true, academic_period: true, reviewStatus: true,
+        career: { select: { name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 200,
+    });
+    return candidates
+      .map((p) => ({ ...p, score: Math.round(similarityScore(q, p) * 100) / 100 }))
+      .filter((p) => p.score >= SIMILAR_MIN_SCORE)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 5);
   }
 
   /**
