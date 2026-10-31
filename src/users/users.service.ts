@@ -20,6 +20,9 @@ import { isAdmin } from 'src/common/access';
 import { Prisma } from 'src/prisma/generated/client'; 
 import { USER_OMIT } from 'src/common/sanitize';
 import * as deepEmailValidator from 'deep-email-validator';
+import { promises as fs } from 'fs';
+import { join } from 'path';
+import { matchesImageSignature } from 'src/common/image-signature';
 
 @Injectable()
 export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto> {
@@ -297,15 +300,29 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
   }
 
   async updateImage(id: string, file: Express.Multer.File) {
+    // El archivo ya está en disco: si no es una imagen real (magic bytes) o el usuario no existe, se borra
+    if (!(await matchesImageSignature(file.path, file.mimetype))) {
+      await fs.unlink(file.path).catch(() => undefined);
+      throw new BadRequestException('El archivo no es una imagen JPG, PNG, WEBP o GIF válida.');
+    }
     const user = await this.prismaService.user.findUnique({ where: { id } });
-    if (!user) throw new NotFoundException(`Usuario no encontrado`);
+    if (!user) {
+      await fs.unlink(file.path).catch(() => undefined);
+      throw new NotFoundException(`Usuario no encontrado`);
+    }
 
-    return this.prismaService.user.update({ 
-      where: { id }, 
+    const updated = await this.prismaService.user.update({
+      where: { id },
       data: { image: `/uploads/${file.filename}` },
       include: { role: true, career: true },
-        omit: USER_OMIT 
+        omit: USER_OMIT
     });
+
+    // La foto anterior subida por el usuario ya no se usa: se elimina del disco
+    const old = user.image?.match(/^\/uploads\/(user-[\w-]+\.(?:jpg|png|webp|gif))$/);
+    if (old) await fs.unlink(join('./uploads', old[1])).catch(() => undefined);
+
+    return updated;
   }
 
   // === NUEVO MÉTODO PARA CAMBIAR CONTRASEÑA ===

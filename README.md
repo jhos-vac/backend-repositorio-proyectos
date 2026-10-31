@@ -1,98 +1,112 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# RepoDigital – Backend
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API del **Sistema Semillero (RepoDigital)**: el repositorio de proyectos del instituto. Los proyectos se registran, los revisa un docente y se pueden continuar en ciclos siguientes mediante "ramas" (continuaciones).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+- **Stack:** NestJS 11, Prisma 7, PostgreSQL 16.
+- **Base de la API:** `/api` (por ejemplo `GET /api/projects`).
+- **Frontend:** [frontend-repositorio-proyectos](https://github.com/jhos-vac/frontend-repositorio-proyectos).
+- **Despliegue (compose y scripts del servidor):** repositorio privado `semillero-deploy`.
 
-## Description
+## Roles
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+| Rol | Nombre en la BD | Puede |
+|---|---|---|
+| Administrador | `ADMIN` | Todo: usuarios, asignaciones, períodos y proyectos. |
+| Docente | `TEACHER` | Revisar (aprobar o rechazar) los proyectos de su carrera y nivel. |
+| Estudiante | `USER` | Registrar proyectos, editarlos mientras no estén aprobados y continuar proyectos aprobados. |
 
-## Project setup
+Todo endpoint exige un JWT de acceso salvo los marcados con `@Public()` (política de denegar por defecto). Si un usuario tiene una clave temporal (`needsPasswordChange`), solo puede usar los endpoints marcados con `@AllowPendingPassword()` hasta que la cambie.
+
+## Desarrollo local
+
+Lo más simple es levantar todo con Docker desde la carpeta raíz del proyecto (la que contiene este repo y el del frontend), con los scripts `iniciar.ps1` / `iniciar.sh` de `semillero-deploy`.
+
+Para correr solo el backend con Node:
+
+1. Requisitos: Node 22 y un PostgreSQL 16 accesible.
+2. Crea un archivo `.env` con al menos `DATABASE_URL`, `JWT_SECRET` y `JWT_REFRESH_SECRET` (ver la tabla de variables).
+3. Instala dependencias y genera el cliente de Prisma:
+
+   ```bash
+   npm install
+   ```
+
+   ```bash
+   npx prisma generate
+   ```
+
+4. Aplica las migraciones y carga los datos iniciales (el seed **borra** la base antes de insertar; úsalo solo en una base vacía o de pruebas):
+
+   ```bash
+   npx prisma migrate deploy
+   ```
+
+   ```bash
+   npx ts-node prisma/seed.ts
+   ```
+
+5. Inicia la API en modo desarrollo (puerto 8000 por defecto):
+
+   ```bash
+   npm run start:dev
+   ```
+
+## Variables de entorno
+
+| Variable | Obligatoria | Uso |
+|---|---|---|
+| `DATABASE_URL` | Sí | Conexión a PostgreSQL. |
+| `JWT_SECRET` | Sí | Secreto de los tokens de acceso (mínimo 32 caracteres). |
+| `JWT_REFRESH_SECRET` | Sí | Secreto de los tokens de renovación (mínimo 32 caracteres y distinto del anterior). |
+| `PORT` | No | Puerto de la API (por defecto `8000`). |
+| `NODE_ENV` | No | Con `production` se desactivan los orígenes CORS de desarrollo y se valida el dominio del correo por DNS (MX). |
+| `FRONTEND_URL` | No | Origen del frontend; se permite en CORS y se usa en los enlaces de los correos. |
+| `CORS_ORIGINS` | No | Orígenes extra permitidos, separados por coma (sin comodines). |
+| `DOCS_DIR` | No | Carpeta privada de los PDF (por defecto `storage/documents`). |
+| `MAX_PDF_MB` | No | Tamaño máximo por PDF en MB (por defecto `20`). |
+| `CLAMAV_HOST`, `CLAMAV_PORT` | No | Antivirus ClamAV opcional para los PDF. Si está configurado y no responde, la subida se rechaza. |
+| `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | No | Admin que crea el seed (si falta la clave, se genera una aleatoria). |
+| `SEED_DEMO_PASSWORD` | No | Clave de las cuentas demo del seed (si falta, aleatoria). |
+| `MAIL_CLIENT_ID`, `MAIL_CLIENT_SECRET`, `MAIL_REFRESH_TOKEN`, `MAIL_USER` | No | Gmail API para "recuperar contraseña". |
+| `DEV_RESET` | No | **Solo desarrollo.** Con `true`, el script de arranque de Docker (`docker/backend-start.sh`) borra y vuelve a sembrar la base en cada inicio, y el seed muestra las credenciales de prueba. Nunca en producción. |
+| `THROTTLE_DISABLED` | No | **Solo pruebas.** Desactiva el límite de peticiones. |
+
+## Base de datos y migraciones
+
+El esquema vive en `prisma/schema.prisma` y los cambios se aplican con **migraciones** (ya no con `db push`). Para cambiar el esquema:
+
+1. Edita `prisma/schema.prisma`.
+2. Genera la migración contra tu base local:
+
+   ```bash
+   npx prisma migrate dev --name describe_el_cambio
+   ```
+
+3. Haz commit de la carpeta nueva en `prisma/migrations/`. En el servidor se aplica sola al arrancar (`prisma migrate deploy`).
+
+Un cambio que borra o renombra columnas puede perder datos: revísalo en el SQL generado antes de subirlo.
+
+## Archivos
+
+- **Fotos de perfil:** en `uploads/` (público, servido en `/uploads/...`). Solo JPG, PNG, WEBP o GIF de hasta 5 MB, validados por su contenido real.
+- **PDF de los proyectos:** en `DOCS_DIR`, fuera de la carpeta pública; se descargan por la API según los permisos del proyecto.
+
+## Pruebas
 
 ```bash
-$ npm install
+npm test
 ```
 
-## Compile and run the project
+En `test-security/` hay pruebas de seguridad en Python que se corren contra una API levantada en `localhost:8000`:
 
-```bash
-# development
-$ npm run start
+- `matrix.py`: matriz endpoint × rol. Lee las rutas que Nest registra al arrancar y **falla si alguna ruta no tiene política declarada**; al agregar un endpoint, añádelo ahí.
+- `jwt_and_logic.py`, `workflow.py`, `files.py`: tokens, flujo de revisión y subida de archivos.
 
-# watch mode
-$ npm run start:dev
+## Flujo de trabajo (Gitflow)
 
-# production mode
-$ npm run start:prod
-```
+- `main`: lo que está en producción. **Cada push a `main` se despliega solo** en el servidor (runner autoalojado).
+- `develop`: integración.
+- `feature/<nombre>`: se crea desde `develop` y vuelve a `develop` con un PR.
+- Publicar = PR de `develop` a `main`.
 
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
-
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+La CI (`.github/workflows/ci-cd.yml`) compila en cada push a `develop`, `feature/**`, `release/**`, `hotfix/**` y en los PR. El lint y las pruebas aún no bloquean.

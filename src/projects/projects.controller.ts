@@ -36,6 +36,13 @@ export class ProjectsController {
     return this.projectsService.findForReview(q, user as any);
   }
 
+  /** Panel de inicio (docentes y admin): totales, en curso, recientes y tecnologías más usadas. */
+  @Get('dashboard')
+  @Auth()
+  dashboard(@Query() q: ProjectQueryDto, @GetUser() user: User) {
+    return this.projectsService.dashboard(q, user as any);
+  }
+
   /** Resumen de los proyectos del propio usuario (todos los ciclos). */
   @Get('mine/summary')
   @Auth()
