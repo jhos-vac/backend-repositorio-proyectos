@@ -104,6 +104,8 @@ En `test-security/` hay pruebas de seguridad en Python que se corren contra una 
 
 ## Flujo de trabajo (Gitflow)
 
+Antes de programar, lee las [reglas de programación del equipo](CONTRIBUTING.md).
+
 - `main`: lo que está en producción. **Cada push a `main` se despliega solo** en el servidor (runner autoalojado).
 - `develop`: integración.
 - `feature/<nombre>`: se crea desde `develop` y vuelve a `develop` con un PR.
