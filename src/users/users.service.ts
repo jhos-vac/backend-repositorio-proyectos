@@ -23,6 +23,7 @@ import * as deepEmailValidator from 'deep-email-validator';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { matchesImageSignature } from 'src/common/image-signature';
+import { institutionalEmailMessage, isInstitutionalEmail } from 'src/common/institutional-email';
 
 @Injectable()
 export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto> {
@@ -118,7 +119,8 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
   async createTeacher(createUserDto: CreateUserDto) {
     const { password, email, name, careerId } = createUserDto as any; 
 
-    if (!this.isDomainAllowed(email)) throw new BadRequestException('Dominio de correo no permitido.');
+    // RN-01: las cuentas de docentes solo con correo institucional
+    if (!isInstitutionalEmail(email)) throw new BadRequestException(institutionalEmailMessage());
     await this.validateEmailDeep(email);
 
     if (!careerId) throw new BadRequestException('El ID de la carrera es obligatorio.');
@@ -172,8 +174,8 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
     for (const [i, row] of rows.entries()) {
       const email = emails[i];
       const label = `Fila ${i + 1} (${email})`;
-      if (!this.isDomainAllowed(email)) {
-        errors.push(`${label}: dominio de correo no permitido.`);
+      if (!isInstitutionalEmail(email)) {
+        errors.push(`${label}: ${institutionalEmailMessage()}`);
       } else {
         try {
           await this.validateEmailDeep(email);

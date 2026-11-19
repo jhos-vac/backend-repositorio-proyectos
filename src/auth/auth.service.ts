@@ -39,13 +39,6 @@ export class AuthService {
     });
   }
 
-  private isDomainAllowed(email: string): boolean {
-    const domain = (email.split('@')[1] ?? '').toLowerCase();
-    const allowedDomains = ['sudamericano.edu.ec', 'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'icloud.com'];
-    const allowedExtensions = ['.edu.ec', '.gob.ec', '.org.ec', '.com.ec', '.net.ec', '.ec', '.com', '.edu'];
-    return allowedDomains.includes(domain) || allowedExtensions.some(ext => domain.endsWith(ext));
-  }
-
   private readonly logger = new Logger(AuthService.name);
   // Hash de descarte: se compara siempre para que el tiempo de respuesta no
   // revele si el correo existe.
@@ -74,25 +67,6 @@ export class AuthService {
       where: { id: userId },
       data: { tokenVersion: { increment: 1 } },
     });
-  }
-
-  async register(createUserDto: CreateUserDto) {
-    try {
-      const { password, email, roleId: _, ...userDto } = createUserDto;
-      if (!userDto.level) throw new BadRequestException('El nivel (1 a 4) es obligatorio.');
-      if (!this.isDomainAllowed(email)) throw new BadRequestException('Dominio de correo no permitido.');
-
-      const role = await this.prisma.role.findFirst({ where: { name: 'USER' } });
-      if (!role) throw new InternalServerErrorException("Error: El rol 'USER' no existe.");
-
-      const hashedPassword = await bcrypt.hash(password, 12);
-      const user = await this.prisma.user.create({
-        data: { ...userDto, email: email.toLowerCase(), password: hashedPassword, roleId: role.id },
-        omit: USER_OMIT,
-      });
-      const tokens = this.signTokens({ id: user.id, tokenVersion: 0 });
-      return { user, token: tokens.accessToken, ...tokens };
-    } catch (error) { this.handleDBErrors(error); }
   }
 
   async registerAdmin(createUserDto: CreateUserDto) {

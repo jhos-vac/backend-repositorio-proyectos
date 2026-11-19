@@ -11,7 +11,7 @@ ANSI = re.compile(r"\x1b\[[0-9;]*m")
 # política esperada: PUBLIC | ANY (autenticado) | ADMIN | SELF (propio o admin)
 P = {
  ("GET","/api"):"PUBLIC",
- ("POST","/api/auth/login"):"PUBLIC", ("POST","/api/auth/register"):"PUBLIC",
+ ("POST","/api/auth/login"):"PUBLIC",
  ("POST","/api/auth/refresh-token"):"PUBLIC", ("POST","/api/auth/forgot-password"):"PUBLIC",
  ("POST","/api/auth/reset-password/:token"):"PUBLIC",
  ("POST","/api/auth/register-admin"):"ADMIN", ("POST","/api/auth/logout"):"ANY",
@@ -63,9 +63,10 @@ def login(email,pw):
 
 tok={"ADMIN":login("luis@gmail.com","Admin#Test2026x"),"TEACHER":login("teacher1@sudamericano.edu.ec","Demo#Test2026x")}
 s,b=call("GET","/api/careers"); career=json.loads(b)["data"][0]["id"]
-s,b=call("POST","/api/auth/register",body={"email":"alumno.test@gmail.com","password":"Alumno#2026x","name":"Alumno Test","careerId":career,"level":1})
-if s not in(200,201): tok["USER"]=login("alumno.test@gmail.com","Alumno#2026x")
-else: tok["USER"]=json.loads(b)["accessToken"]
+# Sin registro público (RN-01): el estudiante de prueba lo crea el ADMIN
+s,b=call("GET","/api/roles?limit=50",tok["ADMIN"]); userRole=[r for r in json.loads(b)["data"] if r["name"]=="USER"][0]["id"]
+call("POST","/api/auth/register-admin",tok["ADMIN"],body={"email":"alumno.test@gmail.com","password":"Alumno#2026x","name":"Alumno Test","careerId":career,"roleId":userRole,"level":1})
+tok["USER"]=login("alumno.test@gmail.com","Alumno#2026x")
 
 fail=0; rows=[]
 def check(cond,msg):

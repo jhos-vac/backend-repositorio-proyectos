@@ -69,18 +69,22 @@ s,b,_=call("GET",f"/api/projects/{pid}",tt); ok('"password"' not in b.decode() a
 print("== Registro, mass-assignment")
 s,b,_=call("GET","/api/careers"); car=J(b)["data"][0]["id"]
 roles=J(call("GET","/api/roles?limit=50",acc)[1])["data"]; adminRole=[r for r in roles if r["name"]=="ADMIN"][0]["id"]
+userRole=[r for r in roles if r["name"]=="USER"][0]["id"]
 email=f"t{uuid.uuid4().hex[:6]}@gmail.com"
-s,b,_=call("POST","/api/auth/register",body={"email":email,"password":"Alumno#2026x","name":"Malo","careerId":car,"roleId":adminRole,"level":1})
-ok(s==201,"register ok"); u=J(b)
-s,b,_=call("GET",f"/api/users/{u['user']['id']}",u["accessToken"]); ok(J(b)["role"]["name"]=="USER","register ignora roleId=ADMIN (queda USER)")
-ut=u["accessToken"]; uid2=u["user"]["id"]
+# RN-01: no hay registro público; las cuentas las crea el ADMIN
+ok(call("POST","/api/auth/register",body={"email":email,"password":"Alumno#2026x","name":"Malo","careerId":car,"roleId":adminRole,"level":1})[0]==404,"registro público cerrado (404)")
+ok(call("POST","/api/auth/register-admin",body={"email":email,"password":"Alumno#2026x","name":"Malo","careerId":car,"roleId":adminRole,"level":1})[0]==401,"register-admin sin sesión -> 401")
+s,b,_=call("POST","/api/auth/register-admin",acc,body={"email":email,"password":"Alumno#2026x","name":"Malo","careerId":car,"roleId":userRole,"level":1})
+ok(s==201,"ADMIN crea estudiante"); uid2=J(b)["id"]
+s,u=login(email,"Alumno#2026x"); ut=u["accessToken"]
+s,b,_=call("GET",f"/api/users/{uid2}",ut); ok(J(b)["role"]["name"]=="USER","el estudiante creado queda con rol USER")
 s,b,_=call("PATCH",f"/api/users/{uid2}",ut,body={"name":"Nuevo","roleId":adminRole,"password":"Hack#1234x","image":"http://evil/x.png"})
 d=J(b); ok(s==200 and d["role"]["name"]=="USER","PATCH propio ignora roleId")
 ok(login(email,"Alumno#2026x")[0]==200 and login(email,"Hack#1234x")[0]==401,"PATCH no permite cambiar password sin la anterior")
 ok(d.get("image") in (None,"") or "evil" not in d["image"],"PATCH no permite fijar image arbitraria")
 ok(call("PATCH",f"/api/users/{tid}",ut,body={"name":"x"})[0]==403,"USER no edita a otro usuario")
 ok(call("GET",f"/api/users/{tid}",ut)[0]==403,"USER no lee a otro usuario")
-ok(call("POST","/api/auth/register",body={"email":email,"password":"Alumno#2026x","name":"Dup","careerId":car,"level":1})[0]==400,"correo duplicado -> 400")
+ok(call("POST","/api/auth/register-admin",acc,body={"email":email,"password":"Alumno#2026x","name":"Dup","careerId":car,"roleId":userRole,"level":1})[0] in (400,409),"correo duplicado -> rechazado")
 
 print("== Ownership")
 s,b,_=call("POST","/api/projects",ut,body={"name":"P prueba","description":"d","academic_period":"Septiembre-2026 – Enero-2027","careerId":car,"createdBy":tid})
