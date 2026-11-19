@@ -64,6 +64,7 @@ Para correr solo el backend con Node:
 | `CORS_ORIGINS` | No | Orígenes extra permitidos, separados por coma (sin comodines). |
 | `DOCS_DIR` | No | Carpeta privada de los PDF (por defecto `storage/documents`). |
 | `MAX_PDF_MB` | No | Tamaño máximo por PDF en MB (por defecto `20`). |
+| `INSTITUTIONAL_EMAIL_DOMAIN` | No | Dominios de correo institucional para las cuentas de docentes, separados por coma (por defecto `sudamericano.edu.ec`). |
 | `CLAMAV_HOST`, `CLAMAV_PORT` | No | Antivirus ClamAV opcional para los PDF. Si está configurado y no responde, la subida se rechaza. |
 | `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | No | Admin que crea el seed (si falta la clave, se genera una aleatoria). |
 | `SEED_DEMO_PASSWORD` | No | Clave de las cuentas demo del seed (si falta, aleatoria). |

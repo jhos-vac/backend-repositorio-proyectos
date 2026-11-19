@@ -27,15 +27,7 @@ export class AuthController {
         return this.authService.login(loginDto);
     }
 
-    /** Registro público (pendiente de reemplazar por invitaciones, RN-01). */
-    @Public()
-    @Throttle({ default: { limit: 5, ttl: MINUTE } })
-    @Post("register")
-    register(@Body() createUserDto: CreateUserDto) {
-        return this.authService.register(createUserDto);
-    }
-
-    /** Crea usuarios con cualquier rol: solo ADMIN. */
+    /** Crea usuarios con cualquier rol: solo ADMIN. No hay registro público (RN-01). */
     @Auth(ValidRoles.ADMIN)
     @Post("register-admin")
     registeradmin(@Body() createUserDto: CreateUserDto) {
