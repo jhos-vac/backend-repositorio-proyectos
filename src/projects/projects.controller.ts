@@ -5,6 +5,7 @@ import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectQueryDto } from './dto/project-query.dto';
 import { SimilarQueryDto } from './dto/similar-query.dto';
 import { ReviewProjectDto } from './dto/review-project.dto';
+import { SetStatusDto } from './dto/set-status.dto';
 import { BranchProjectDto } from './dto/branch-project.dto';
 import { MembersProjectDto } from './dto/members-project.dto';
 import { ApiTags } from '@nestjs/swagger';
@@ -89,6 +90,13 @@ export class ProjectsController {
   @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
   review(@Param('id', ParseUUIDPipe) id: string, @Body() dto: ReviewProjectDto, @GetUser() user: User) {
     return this.projectsService.review(id, dto, user as any);
+  }
+
+  /** Marcar como completado o reabrir (docente a cargo o admin). */
+  @Patch(':id/status')
+  @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
+  setStatus(@Param('id', ParseUUIDPipe) id: string, @Body() dto: SetStatusDto, @GetUser() user: User) {
+    return this.projectsService.setStatus(id, dto, user as any);
   }
 
   /** "Continuar proyecto": crea una rama nueva enlazada al proyecto aprobado. */
