@@ -17,6 +17,7 @@ import { USER_OMIT } from 'src/common/sanitize';
 import { isAdmin, isStudent, isTeacher } from 'src/common/access';
 import { unlinkQuiet } from './files/storage';
 import { SimilarQueryDto } from './dto/similar-query.dto';
+import { SetStatusDto } from './dto/set-status.dto';
 import { keywords, similarityScore } from './similarity';
 
 /** Parecido mínimo (0 a 1) para avisar de un proyecto similar. */
@@ -405,8 +406,8 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
     this.assertCanModify(project, user, 'editar');
 
-    // El cliente nunca cambia propietario ni flujo de revisión
-    const { createdBy: _cb, level, careerId, ...rest } = dto as any;
+    // El cliente nunca cambia propietario ni flujo de revisión; el estado de avance solo cambia con setStatus
+    const { createdBy: _cb, level, careerId, status: _st, ...rest } = dto as any;
     const data: any = { ...rest };
     if (rest.academic_period !== undefined && rest.academic_period !== project.academic_period) {
       await this.assertPeriod(rest.academic_period, true);
@@ -486,6 +487,31 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
       },
       include: LIST_INCLUDE,
     });
+  }
+
+  /**
+   * Marcar un proyecto como completado o reabrirlo. Lo decide el docente: el asignado a la
+   * carrera y nivel del proyecto o el que lo registró; ADMIN siempre. Solo proyectos aprobados.
+   */
+  async setStatus(id: string, dto: SetStatusDto, user: AuthUser) {
+    const project = await this.prismaService.project.findUnique({ where: { id } });
+    if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
+
+    if (!isAdmin(user)) {
+      const assigned = project.level
+        ? await this.prismaService.teacherAssignment.findFirst({
+            where: { teacherId: user.id, careerId: project.careerId, level: project.level },
+          })
+        : null;
+      if (!assigned && project.createdBy !== user.id) {
+        throw new ForbiddenException('Solo el docente a cargo de este proyecto puede cambiar su estado.');
+      }
+    }
+    if (dto.status === 'completado' && project.reviewStatus !== 'approved') {
+      throw new BadRequestException('Solo se pueden marcar como completados los proyectos aprobados.');
+    }
+
+    return this.prismaService.project.update({ where: { id }, data: { status: dto.status }, include: LIST_INCLUDE });
   }
 
   // ---------------------------------------------------------------- continuidad (ramas)
