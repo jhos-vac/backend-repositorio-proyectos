@@ -85,12 +85,11 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
 
     await this.validateEmailDeep(email);
 
-    // El ADMIN puede elegir cualquier rol; por defecto USER (estudiante)
-    const role = roleId
-      ? await this.prismaService.role.findUnique({ where: { id: roleId } })
-      : await this.prismaService.role.findFirst({ where: { name: 'USER' } });
+    // El ADMIN elige el rol (ADMIN o TEACHER). Los estudiantes no tienen cuenta (BE-08)
+    if (!roleId) throw new BadRequestException('El rol es obligatorio.');
+    const role = await this.prismaService.role.findUnique({ where: { id: roleId } });
     if (!role) throw new BadRequestException('El rol indicado no existe.');
-    if (role.name === 'USER' && !rest.level) throw new BadRequestException('El nivel (1 a 4) es obligatorio para estudiantes.');
+    if (role.name === 'USER') throw new BadRequestException('Los estudiantes no tienen cuenta: regístralos en Estudiantes.');
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -383,6 +382,7 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
     if (roleId && roleId !== user.roleId) {
       const role = await this.prismaService.role.findUnique({ where: { id: roleId } });
       if (!role) throw new BadRequestException('El rol indicado no existe.');
+      if (role.name === 'USER') throw new BadRequestException('Los estudiantes no tienen cuenta: regístralos en Estudiantes.');
       if (user.role.name === 'ADMIN' && (id === actor.id || (await this.countAdmins()) <= 1)) {
         throw new ConflictException('No puedes quitar el rol ADMIN al único administrador ni a tu propia cuenta.');
       }
