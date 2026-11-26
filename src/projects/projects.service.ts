@@ -16,6 +16,8 @@ import { isAdmin } from 'src/common/access';
 import { unlinkQuiet } from './files/storage';
 import { DriveService } from './files/drive.service';
 import { SimilarQueryDto } from './dto/similar-query.dto';
+import { BulkProjectRowDto } from './dto/bulk-projects.dto';
+import { MAX_STUDENTS } from './dto/create-project.dto';
 import { SetStatusDto } from './dto/set-status.dto';
 import { keywords, similarityScore } from './similarity';
 
@@ -371,6 +373,70 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
       } as any,
       include: LIST_INCLUDE,
     });
+  }
+
+  /**
+   * BE-11: carga masiva desde la plantilla del docente. Todo o nada: si una fila
+   * tiene un error, no se crea ningún proyecto y se devuelven todos los errores
+   * ("Fila N: ..."). Mismas reglas que el alta individual: carrera y nivel asignados,
+   * período existente, modalidad y estudiantes (por correo) de esa carrera y nivel.
+   */
+  async createMany(rows: BulkProjectRowDto[], user: AuthUser) {
+    const emails = Array.from(new Set(rows.flatMap((r) => r.studentEmails)));
+    const [cohorts, careers, periods, students] = await Promise.all([
+      isAdmin(user) ? Promise.resolve(null) : this.cohortsOf(user.id),
+      this.prismaService.career.findMany({ where: { id: { in: rows.map((r) => r.careerId) } }, select: { id: true } }),
+      this.prismaService.period.findMany({ where: { name: { in: rows.map((r) => r.academic_period) } }, select: { name: true } }),
+      this.prismaService.student.findMany({ where: { email: { in: emails } }, select: { id: true, email: true, careerId: true, level: true } }),
+    ]);
+    const careerIds = new Set(careers.map((c) => c.id));
+    const periodNames = new Set(periods.map((p) => p.name));
+    const byEmail = new Map(students.map((s) => [s.email, s]));
+
+    const errors: string[] = [];
+    const resolved: string[][] = [];
+    for (const [i, row] of rows.entries()) {
+      const label = `Fila ${i + 1} («${row.name}»)`;
+      const err = (m: string) => errors.push(`${label}: ${m}`);
+      if (!careerIds.has(row.careerId)) err('la carrera no existe.');
+      else if (cohorts && !cohorts.some((c) => c.careerId === row.careerId && c.level === row.level)) {
+        err('la carrera y el nivel no están entre tus asignaciones.');
+      }
+      if (!periodNames.has(row.academic_period)) err(`el período «${row.academic_period}» no existe.`);
+
+      const unique = Array.from(new Set(row.studentEmails));
+      if (unique.length !== row.studentEmails.length) err('hay un correo de estudiante repetido.');
+      if (row.modality === 'individual' && unique.length !== 1) err('un proyecto individual debe tener exactamente un estudiante.');
+      if (row.modality === 'grupal' && unique.length < 2) err('un proyecto grupal debe tener al menos dos estudiantes.');
+      if (unique.length > MAX_STUDENTS) err(`un proyecto admite hasta ${MAX_STUDENTS} estudiantes.`);
+      const ids: string[] = [];
+      for (const email of unique) {
+        const s = byEmail.get(email);
+        if (!s) err(`el estudiante ${email} no está registrado (regístralo primero en Estudiantes).`);
+        else if (s.careerId !== row.careerId || s.level !== row.level) err(`el estudiante ${email} no es de la carrera y el nivel del proyecto.`);
+        else ids.push(s.id);
+      }
+      resolved.push(ids);
+    }
+    if (errors.length) throw new BadRequestException(errors);
+
+    const created = await this.prismaService.$transaction(
+      rows.map((row, i) => {
+        const { studentEmails: _e, modality, careerId, level, ...rest } = row;
+        return this.prismaService.project.create({
+          data: {
+            ...rest,
+            careerId, level, modality,
+            status: 'en progreso',
+            reviewStatus: 'approved',
+            createdBy: user.id,
+            students: { create: resolved[i].map((studentId) => ({ studentId })) },
+          } as any,
+          select: { id: true, name: true },
+        });
+      }),
+    );
+    return { created: created.length, projects: created };
   }
 
   /** El período académico debe existir (lo configura el ADMIN). */

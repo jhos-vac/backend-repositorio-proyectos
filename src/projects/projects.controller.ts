@@ -6,6 +6,7 @@ import { ProjectQueryDto } from './dto/project-query.dto';
 import { SimilarQueryDto } from './dto/similar-query.dto';
 import { SetStatusDto } from './dto/set-status.dto';
 import { BranchProjectDto } from './dto/branch-project.dto';
+import { CreateProjectsDto } from './dto/bulk-projects.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
@@ -21,6 +22,13 @@ export class ProjectsController {
   @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
   create(@Body() dto: CreateProjectDto, @GetUser() user: User) {
     return this.projectsService.createWithUser(dto, user as any);
+  }
+
+  /** BE-11: carga masiva desde la plantilla (todo o nada). */
+  @Post('bulk')
+  @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
+  createMany(@Body() dto: CreateProjectsDto, @GetUser() user: User) {
+    return this.projectsService.createMany(dto.projects, user as any);
   }
 
   @Get()
