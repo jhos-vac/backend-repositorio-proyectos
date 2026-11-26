@@ -1,4 +1,3 @@
-import { isStudent } from 'src/common/access';
 import { 
   Injectable, 
   NotFoundException, 
@@ -16,7 +15,6 @@ import * as bcrypt from 'bcrypt';
 import { PaginationDto } from 'src/Libs/common';
 import { UserQueryDto } from './dto/user-query.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
-import { isAdmin } from 'src/common/access';
 import { Prisma } from 'src/prisma/generated/client'; 
 import { USER_OMIT } from 'src/common/sanitize';
 import * as deepEmailValidator from 'deep-email-validator';
@@ -244,29 +242,6 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
 
   async findAll(q?: UserQueryDto) {
     return this.pageUsers(this.userWhere(q || ({} as UserQueryDto)), q as PaginationDto);
-  }
-
-  async candidates(careerId: string | undefined, user: any) {
-    const career = isStudent(user) ? user.careerId : careerId;
-    if (!career) throw new BadRequestException('Indica la carrera (careerId).');
-    return this.prismaService.user.findMany({
-      where: { careerId: career, role: { name: 'USER' } },
-      select: { id: true, name: true, level: true },
-      orderBy: { name: 'asc' },
-      take: 500,
-    });
-  }
-
-  /** Estudiantes de las carrera+nivel del docente (ADMIN: todos). */
-  async findStudents(q: UserQueryDto, user: any) {
-    const where: any = { ...this.userWhere(q), role: { name: 'USER' } };
-    if (!isAdmin(user)) {
-      const cohorts = await this.prismaService.teacherAssignment.findMany({
-        where: { teacherId: user.id }, select: { careerId: true, level: true },
-      });
-      where.AND = [{ OR: cohorts.length ? cohorts.map((c) => ({ careerId: c.careerId, level: c.level })) : [{ id: { in: [] } }] }];
-    }
-    return this.pageUsers(where, q);
   }
 
   async findOne(id: string) {

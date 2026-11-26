@@ -92,7 +92,15 @@ ok(call("GET",f"/api/users/{tid}",ut)[0]==403,"docente no lee a otro usuario")
 ok(call("POST","/api/auth/register-admin",acc,body={"email":email,"password":"Alumno#2026x","name":"Dup","careerId":car,"roleId":teacherRole,"level":1})[0] in (400,409),"correo duplicado -> rechazado")
 
 print("== Ownership")
-s,b,_=call("POST","/api/projects",ut,body={"name":"P prueba","description":"d","academic_period":"Septiembre-2026 – Enero-2027","careerId":car,"createdBy":tid})
+# BE-08: el docente registra proyectos de su carrera+nivel con estudiantes. Se le asigna una cohorte libre.
+taken={(a["careerId"],a["level"]) for a in J(call("GET","/api/assignments",acc)[1])}
+allc=[c["id"] for c in J(call("GET","/api/careers?limit=50")[1])["data"]]
+fc,fl=next((c,l) for c in allc for l in (1,2,3,4) if (c,l) not in taken)
+ok(call("PUT","/api/assignments",acc,body={"careerId":fc,"level":fl,"teacherId":uid2})[0]==200,"ADMIN asigna cohorte al docente de prueba")
+s,b,_=call("POST","/api/students",ut,body={"name":"Est Prueba","email":f"e{uuid.uuid4().hex[:6]}@sudamericano.edu.ec","careerId":fc,"level":fl})
+ok(s==201,"docente registra un estudiante de su cohorte"); est=J(b)["id"]
+ok(call("GET",f"/api/students/{est}",tt)[0] in (403,404),"otro docente no ve el estudiante ajeno")
+s,b,_=call("POST","/api/projects",ut,body={"name":"P prueba","description":"d","academic_period":"Septiembre-2026 – Enero-2027","careerId":fc,"level":fl,"modality":"individual","studentIds":[est],"createdBy":tid})
 ok(s==201,"docente crea proyecto"); proj=J(b); pid2=proj["id"]
 ok(proj["createdBy"]==uid2,"createdBy no se puede falsificar en POST")
 ok(call("PATCH",f"/api/projects/{pid2}",tt,body={"name":"hack"})[0]==403,"TEACHER no edita proyecto ajeno")
@@ -109,6 +117,7 @@ ok(call("DELETE",f"/api/skills/{sid}",tt)[0]==403,"TEACHER no elimina skill ajen
 ok(call("PATCH",f"/api/skills/{sid}",tt,body={"description":"h"})[0]==403,"TEACHER no edita skill ajena")
 ok(call("DELETE",f"/api/skills/{sid}",ut)[0]==200,"dueño elimina su skill")
 ok(call("DELETE",f"/api/projects/{pid2}",acc)[0]==200,"ADMIN elimina proyecto")
+call("DELETE",f"/api/students/{est}",acc); call("PUT","/api/assignments",acc,body={"careerId":fc,"level":fl,"teacherId":None})
 
 print("== Uploads")
 def multipart(name,ctype,content):
@@ -119,7 +128,7 @@ png=base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42m
 for nm,ct,cont,exp in [("x.html","text/html",b"<script>alert(1)</script>",400),("x.svg","image/svg+xml",b"<svg onload=alert(1)/>",400),("x.php.png","application/x-php",b"<?php ?>",400),("a.png","image/png",png,200)]:
     b,c=multipart(nm,ct,cont); s,r,_=call("PATCH",f"/api/users/{uid2}/image",ut,raw=b,ctype=c)
     ok(s==exp,f"upload {nm} ({ct}) -> {s}")
-    if s==200: img=J(r)["image"]; ok(img.endswith(".png") and "a.png" not in img,"nombre generado aleatorio, extensión por mimetype")
+    if s==200: img=J(r)["image"]; ok(img.endswith(".png") and img.rsplit("/",1)[-1]!="a.png","nombre generado aleatorio, extensión por mimetype")
 big=b"\x89PNG"+b"0"*(6*1024*1024); b,c=multipart("big.png","image/png",big); ok(call("PATCH",f"/api/users/{uid2}/image",ut,raw=b,ctype=c)[0]==413,"archivo >5MB -> 413")
 ok(call("PATCH",f"/api/users/{uid2}/image",ut,body={})[0]==400,"sin archivo -> 400 (antes crasheaba)")
 

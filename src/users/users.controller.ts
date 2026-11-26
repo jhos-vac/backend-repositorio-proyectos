@@ -57,7 +57,7 @@ export class UsersController {
     return this.usersService.createTeachers(dto.teachers);
   }
 
-  /** Alta directa de usuario (rol USER): solo ADMIN. El registro público es /auth/register. */
+  /** Alta directa de usuario (docente o ADMIN): solo ADMIN. Los estudiantes van en /api/students. */
   @Post()
   @Auth(ValidRoles.ADMIN)
   create(@Body() createUserDto: CreateUserDto) {
@@ -69,20 +69,6 @@ export class UsersController {
   @Auth(ValidRoles.ADMIN)
   findAll(@Query() query: UserQueryDto) {
     return this.usersService.findAll(query);
-  }
-
-  /** Estudiantes que se pueden sumar como integrantes: misma carrera (el estudiante solo ve la suya). */
-  @Get('candidates')
-  @Auth()
-  candidates(@Query('careerId') careerId: string | undefined, @GetUser() user: User) {
-    return this.usersService.candidates(careerId, user);
-  }
-
-  /** Estudiantes de las carrera+nivel del docente (ADMIN: todos). */
-  @Get('students')
-  @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
-  findStudents(@Query() query: UserQueryDto, @GetUser() user: User) {
-    return this.usersService.findStudents(query, user);
   }
 
   /** Un usuario: el propio o ADMIN. */

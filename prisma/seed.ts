@@ -42,6 +42,8 @@ async function main() {
     console.log("🧹 Cleaning database...");
     try {
         await prisma.teacherAssignment.deleteMany();
+        await prisma.projectStudent.deleteMany();
+        await prisma.student.deleteMany();
         await prisma.userProject.deleteMany();
         await prisma.projectSkills.deleteMany();
         await prisma.project.deleteMany();
@@ -280,8 +282,8 @@ async function main() {
         console.log("==================================================");
         console.log(" CREDENCIALES DE PRUEBA (DEV_RESET=true, NO USAR EN PRODUCCION)");
         console.log(`  ADMIN     ${adminEmail}  /  ${adminPlain}`);
-        for (const e of ["teacher1", "teacher2", "teacher3", "student1", "student2"]) {
-            console.log(`  ${e.startsWith("t") ? "DOCENTE   " : "ESTUDIANTE"} ${e}@sudamericano.edu.ec  /  ${demoPlain}`);
+        for (const e of ["teacher1", "teacher2", "teacher3"]) {
+            console.log(`  DOCENTE    ${e}@sudamericano.edu.ec  /  ${demoPlain}`);
         }
         console.log("==================================================");
     } else if (!process.env.SEED_ADMIN_PASSWORD) {
@@ -332,15 +334,18 @@ async function main() {
         },
     });
 
-    // Estudiantes de demo (rol USER): carrera + nivel (1-4)
-    const student1 = await prisma.user.create({
-        data: { email: "student1@sudamericano.edu.ec", password: hashedPassword, name: "Ana Torres", roleId: userRole.id, careerId: careers[0].id, level: 1 },
+    // Estudiantes de demo (BE-08: registros sin cuenta, los administra el docente)
+    const student1 = await prisma.student.create({
+        data: { email: "student1@sudamericano.edu.ec", name: "Ana Torres", careerId: careers[0].id, level: 1, group: "A", createdById: teacher1.id },
     });
-    const student2 = await prisma.user.create({
-        data: { email: "student2@sudamericano.edu.ec", password: hashedPassword, name: "Luis Mora", roleId: userRole.id, careerId: careers[0].id, level: 2 },
+    const student2 = await prisma.student.create({
+        data: { email: "student2@sudamericano.edu.ec", name: "Luis Mora", careerId: careers[0].id, level: 2, group: "A", createdById: teacher1.id },
+    });
+    const student3 = await prisma.student.create({
+        data: { email: "student3@sudamericano.edu.ec", name: "María Vega", careerId: careers[0].id, level: 1, group: "A", createdById: teacher1.id },
     });
 
-    // Docente encargado por carrera + nivel (acepta y revisa los proyectos de esos estudiantes)
+    // Docente encargado por carrera + nivel (registra los proyectos de esos estudiantes)
     await prisma.teacherAssignment.createMany({
         data: [
             { careerId: careers[0].id, level: 1, teacherId: teacher1.id },
@@ -373,6 +378,9 @@ async function main() {
                 status: "en progreso",
                 academic_period: "Septiembre-2026 – Enero-2027",
                 careerId: careers[0].id,
+                level: 1,
+                modality: "individual",
+                students: { create: [{ studentId: student1.id }] },
                 objectives: [
                     "Implementar módulo de gestión de estudiantes",
                     "Desarrollar sistema de calificaciones",
@@ -438,6 +446,9 @@ async function main() {
                 status: "en progreso",
                 academic_period: "Septiembre-2026 – Enero-2027",
                 careerId: careers[0].id,
+                level: 1,
+                modality: "grupal",
+                students: { create: [{ studentId: student1.id }, { studentId: student3.id }] },
                 objectives: [
                     "Entrenar modelo",
                     "Validar precisión",
