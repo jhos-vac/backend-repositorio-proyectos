@@ -88,6 +88,16 @@ export type projectSkills = Prisma.projectSkillsModel
  */
 export type Period = Prisma.PeriodModel
 /**
+ * Model Student
+ * Estudiante sin cuenta (no inicia sesión): lo administra el docente de su carrera y nivel, o el ADMIN.
+ */
+export type Student = Prisma.StudentModel
+/**
+ * Model ProjectStudent
+ * Estudiantes a los que pertenece un proyecto (uno si es individual, varios si es grupal).
+ */
+export type ProjectStudent = Prisma.ProjectStudentModel
+/**
  * Model TeacherAssignment
  * Docente encargado de una carrera + nivel: acepta y revisa los proyectos de esos estudiantes.
  */

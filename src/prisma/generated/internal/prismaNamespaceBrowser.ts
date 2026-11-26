@@ -61,6 +61,8 @@ export const ModelName = {
   Skills: 'Skills',
   projectSkills: 'projectSkills',
   Period: 'Period',
+  Student: 'Student',
+  ProjectStudent: 'ProjectStudent',
   TeacherAssignment: 'TeacherAssignment',
   ProjectDocument: 'ProjectDocument',
   ProjectLink: 'ProjectLink'
@@ -152,6 +154,7 @@ export const ProjectScalarFieldEnum = {
   name: 'name',
   description: 'description',
   status: 'status',
+  modality: 'modality',
   problems: 'problems',
   summary: 'summary',
   objectives: 'objectives',
@@ -223,6 +226,32 @@ export const PeriodScalarFieldEnum = {
 } as const
 
 export type PeriodScalarFieldEnum = (typeof PeriodScalarFieldEnum)[keyof typeof PeriodScalarFieldEnum]
+
+
+export const StudentScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  careerId: 'careerId',
+  level: 'level',
+  group: 'group',
+  academicPeriod: 'academicPeriod',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type StudentScalarFieldEnum = (typeof StudentScalarFieldEnum)[keyof typeof StudentScalarFieldEnum]
+
+
+export const ProjectStudentScalarFieldEnum = {
+  id: 'id',
+  projectId: 'projectId',
+  studentId: 'studentId',
+  createdAt: 'createdAt'
+} as const
+
+export type ProjectStudentScalarFieldEnum = (typeof ProjectStudentScalarFieldEnum)[keyof typeof ProjectStudentScalarFieldEnum]
 
 
 export const TeacherAssignmentScalarFieldEnum = {

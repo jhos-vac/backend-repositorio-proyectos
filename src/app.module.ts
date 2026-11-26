@@ -21,6 +21,7 @@ import { RolesGuard } from './auth/guards/roles.guard';
 import { PrismaExceptionFilter } from './common/prisma-exception.filter';
 import { SanitizeInterceptor } from './common/sanitize.interceptor';
 import { AssignmentsModule } from './assignments/assignments.module';
+import { StudentsModule } from './students/students.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -52,6 +53,7 @@ import { AppService } from './app.service';
     PeriodModule, 
     PorjectsSkillsModule, 
     AssignmentsModule,
+    StudentsModule,
   ],
   controllers: [AppController],
   providers: [

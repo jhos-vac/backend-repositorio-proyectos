@@ -70,25 +70,30 @@ print("== Registro, mass-assignment")
 s,b,_=call("GET","/api/careers"); car=J(b)["data"][0]["id"]
 roles=J(call("GET","/api/roles?limit=50",acc)[1])["data"]; adminRole=[r for r in roles if r["name"]=="ADMIN"][0]["id"]
 userRole=[r for r in roles if r["name"]=="USER"][0]["id"]
-email=f"t{uuid.uuid4().hex[:6]}@gmail.com"
+teacherRole=[r for r in roles if r["name"]=="TEACHER"][0]["id"]
+email=f"t{uuid.uuid4().hex[:6]}@sudamericano.edu.ec"
 # RN-01: no hay registro público; las cuentas las crea el ADMIN
 ok(call("POST","/api/auth/register",body={"email":email,"password":"Alumno#2026x","name":"Malo","careerId":car,"roleId":adminRole,"level":1})[0]==404,"registro público cerrado (404)")
 ok(call("POST","/api/auth/register-admin",body={"email":email,"password":"Alumno#2026x","name":"Malo","careerId":car,"roleId":adminRole,"level":1})[0]==401,"register-admin sin sesión -> 401")
-s,b,_=call("POST","/api/auth/register-admin",acc,body={"email":email,"password":"Alumno#2026x","name":"Malo","careerId":car,"roleId":userRole,"level":1})
-ok(s==201,"ADMIN crea estudiante"); uid2=J(b)["id"]
+# BE-08: los estudiantes no tienen cuenta (ni por register-admin ni por /users)
+ok(call("POST","/api/auth/register-admin",acc,body={"email":email,"password":"Alumno#2026x","name":"Malo","careerId":car,"roleId":userRole,"level":1})[0]==400,"register-admin con rol USER -> 400")
+ok(call("POST","/api/users",acc,body={"email":email,"password":"Alumno#2026x","name":"Malo","careerId":car,"roleId":userRole,"level":1})[0]==400,"POST /users con rol USER -> 400")
+# Actor de bajo privilegio: un docente nuevo, sin asignaciones
+s,b,_=call("POST","/api/auth/register-admin",acc,body={"email":email,"password":"Alumno#2026x","name":"Malo","careerId":car,"roleId":teacherRole,"level":1})
+ok(s==201,"ADMIN crea docente de prueba"); uid2=J(b)["id"]
 s,u=login(email,"Alumno#2026x"); ut=u["accessToken"]
-s,b,_=call("GET",f"/api/users/{uid2}",ut); ok(J(b)["role"]["name"]=="USER","el estudiante creado queda con rol USER")
+s,b,_=call("GET",f"/api/users/{uid2}",ut); ok(J(b)["role"]["name"]=="TEACHER","el docente creado queda con rol TEACHER")
 s,b,_=call("PATCH",f"/api/users/{uid2}",ut,body={"name":"Nuevo","roleId":adminRole,"password":"Hack#1234x","image":"http://evil/x.png"})
-d=J(b); ok(s==200 and d["role"]["name"]=="USER","PATCH propio ignora roleId")
+d=J(b); ok(s==200 and d["role"]["name"]=="TEACHER","PATCH propio ignora roleId")
 ok(login(email,"Alumno#2026x")[0]==200 and login(email,"Hack#1234x")[0]==401,"PATCH no permite cambiar password sin la anterior")
 ok(d.get("image") in (None,"") or "evil" not in d["image"],"PATCH no permite fijar image arbitraria")
-ok(call("PATCH",f"/api/users/{tid}",ut,body={"name":"x"})[0]==403,"USER no edita a otro usuario")
-ok(call("GET",f"/api/users/{tid}",ut)[0]==403,"USER no lee a otro usuario")
-ok(call("POST","/api/auth/register-admin",acc,body={"email":email,"password":"Alumno#2026x","name":"Dup","careerId":car,"roleId":userRole,"level":1})[0] in (400,409),"correo duplicado -> rechazado")
+ok(call("PATCH",f"/api/users/{tid}",ut,body={"name":"x"})[0]==403,"docente no edita a otro usuario")
+ok(call("GET",f"/api/users/{tid}",ut)[0]==403,"docente no lee a otro usuario")
+ok(call("POST","/api/auth/register-admin",acc,body={"email":email,"password":"Alumno#2026x","name":"Dup","careerId":car,"roleId":teacherRole,"level":1})[0] in (400,409),"correo duplicado -> rechazado")
 
 print("== Ownership")
 s,b,_=call("POST","/api/projects",ut,body={"name":"P prueba","description":"d","academic_period":"Septiembre-2026 – Enero-2027","careerId":car,"createdBy":tid})
-ok(s==201,"USER crea proyecto"); proj=J(b); pid2=proj["id"]
+ok(s==201,"docente crea proyecto"); proj=J(b); pid2=proj["id"]
 ok(proj["createdBy"]==uid2,"createdBy no se puede falsificar en POST")
 ok(call("PATCH",f"/api/projects/{pid2}",tt,body={"name":"hack"})[0]==403,"TEACHER no edita proyecto ajeno")
 ok(call("PATCH",f"/api/projects/{pid2}",ut,body={"name":"mio","createdBy":tid})[0]==200,"dueño edita su proyecto")

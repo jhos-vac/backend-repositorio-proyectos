@@ -41,6 +41,7 @@ export type ProjectMinAggregateOutputType = {
   name: string | null
   description: string | null
   status: string | null
+  modality: string | null
   problems: string | null
   summary: string | null
   cycle: string | null
@@ -66,6 +67,7 @@ export type ProjectMaxAggregateOutputType = {
   name: string | null
   description: string | null
   status: string | null
+  modality: string | null
   problems: string | null
   summary: string | null
   cycle: string | null
@@ -91,6 +93,7 @@ export type ProjectCountAggregateOutputType = {
   name: number
   description: number
   status: number
+  modality: number
   problems: number
   summary: number
   objectives: number
@@ -130,6 +133,7 @@ export type ProjectMinAggregateInputType = {
   name?: true
   description?: true
   status?: true
+  modality?: true
   problems?: true
   summary?: true
   cycle?: true
@@ -155,6 +159,7 @@ export type ProjectMaxAggregateInputType = {
   name?: true
   description?: true
   status?: true
+  modality?: true
   problems?: true
   summary?: true
   cycle?: true
@@ -180,6 +185,7 @@ export type ProjectCountAggregateInputType = {
   name?: true
   description?: true
   status?: true
+  modality?: true
   problems?: true
   summary?: true
   objectives?: true
@@ -294,6 +300,7 @@ export type ProjectGroupByOutputType = {
   name: string
   description: string
   status: string
+  modality: string
   problems: string | null
   summary: string | null
   objectives: string[]
@@ -344,6 +351,7 @@ export type ProjectWhereInput = {
   name?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringFilter<"Project"> | string
   status?: Prisma.StringFilter<"Project"> | string
+  modality?: Prisma.StringFilter<"Project"> | string
   problems?: Prisma.StringNullableFilter<"Project"> | string | null
   summary?: Prisma.StringNullableFilter<"Project"> | string | null
   objectives?: Prisma.StringNullableListFilter<"Project">
@@ -370,6 +378,7 @@ export type ProjectWhereInput = {
   parent?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   branches?: Prisma.ProjectListRelationFilter
   userProjects?: Prisma.UserProjectListRelationFilter
+  students?: Prisma.ProjectStudentListRelationFilter
   projectSkills?: Prisma.ProjectSkillsListRelationFilter
   documents?: Prisma.ProjectDocumentListRelationFilter
   links?: Prisma.ProjectLinkListRelationFilter
@@ -380,6 +389,7 @@ export type ProjectOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  modality?: Prisma.SortOrder
   problems?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   objectives?: Prisma.SortOrder
@@ -406,6 +416,7 @@ export type ProjectOrderByWithRelationInput = {
   parent?: Prisma.ProjectOrderByWithRelationInput
   branches?: Prisma.ProjectOrderByRelationAggregateInput
   userProjects?: Prisma.UserProjectOrderByRelationAggregateInput
+  students?: Prisma.ProjectStudentOrderByRelationAggregateInput
   projectSkills?: Prisma.projectSkillsOrderByRelationAggregateInput
   documents?: Prisma.ProjectDocumentOrderByRelationAggregateInput
   links?: Prisma.ProjectLinkOrderByRelationAggregateInput
@@ -419,6 +430,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringFilter<"Project"> | string
   status?: Prisma.StringFilter<"Project"> | string
+  modality?: Prisma.StringFilter<"Project"> | string
   problems?: Prisma.StringNullableFilter<"Project"> | string | null
   summary?: Prisma.StringNullableFilter<"Project"> | string | null
   objectives?: Prisma.StringNullableListFilter<"Project">
@@ -445,6 +457,7 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   parent?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   branches?: Prisma.ProjectListRelationFilter
   userProjects?: Prisma.UserProjectListRelationFilter
+  students?: Prisma.ProjectStudentListRelationFilter
   projectSkills?: Prisma.ProjectSkillsListRelationFilter
   documents?: Prisma.ProjectDocumentListRelationFilter
   links?: Prisma.ProjectLinkListRelationFilter
@@ -455,6 +468,7 @@ export type ProjectOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  modality?: Prisma.SortOrder
   problems?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
   objectives?: Prisma.SortOrder
@@ -490,6 +504,7 @@ export type ProjectScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Project"> | string
   description?: Prisma.StringWithAggregatesFilter<"Project"> | string
   status?: Prisma.StringWithAggregatesFilter<"Project"> | string
+  modality?: Prisma.StringWithAggregatesFilter<"Project"> | string
   problems?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   summary?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   objectives?: Prisma.StringNullableListFilter<"Project">
@@ -517,6 +532,7 @@ export type ProjectCreateInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -539,6 +555,7 @@ export type ProjectCreateInput = {
   parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
@@ -549,6 +566,7 @@ export type ProjectUncheckedCreateInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -571,6 +589,7 @@ export type ProjectUncheckedCreateInput = {
   updatedAt?: Date | string
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
@@ -581,6 +600,7 @@ export type ProjectUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -603,6 +623,7 @@ export type ProjectUpdateInput = {
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
@@ -613,6 +634,7 @@ export type ProjectUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -635,6 +657,7 @@ export type ProjectUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
@@ -645,6 +668,7 @@ export type ProjectCreateManyInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -672,6 +696,7 @@ export type ProjectUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -695,6 +720,7 @@ export type ProjectUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -745,6 +771,7 @@ export type ProjectCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  modality?: Prisma.SortOrder
   problems?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   objectives?: Prisma.SortOrder
@@ -777,6 +804,7 @@ export type ProjectMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  modality?: Prisma.SortOrder
   problems?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   cycle?: Prisma.SortOrder
@@ -802,6 +830,7 @@ export type ProjectMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  modality?: Prisma.SortOrder
   problems?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   cycle?: Prisma.SortOrder
@@ -1062,6 +1091,20 @@ export type ProjectUpdateOneRequiredWithoutProjectSkillsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutProjectSkillsInput, Prisma.ProjectUpdateWithoutProjectSkillsInput>, Prisma.ProjectUncheckedUpdateWithoutProjectSkillsInput>
 }
 
+export type ProjectCreateNestedOneWithoutStudentsInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutStudentsInput, Prisma.ProjectUncheckedCreateWithoutStudentsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutStudentsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+}
+
+export type ProjectUpdateOneRequiredWithoutStudentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ProjectCreateWithoutStudentsInput, Prisma.ProjectUncheckedCreateWithoutStudentsInput>
+  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutStudentsInput
+  upsert?: Prisma.ProjectUpsertWithoutStudentsInput
+  connect?: Prisma.ProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ProjectUpdateToOneWithWhereWithoutStudentsInput, Prisma.ProjectUpdateWithoutStudentsInput>, Prisma.ProjectUncheckedUpdateWithoutStudentsInput>
+}
+
 export type ProjectCreateNestedOneWithoutDocumentsInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutDocumentsInput, Prisma.ProjectUncheckedCreateWithoutDocumentsInput>
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutDocumentsInput
@@ -1095,6 +1138,7 @@ export type ProjectCreateWithoutReviewedByInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1116,6 +1160,7 @@ export type ProjectCreateWithoutReviewedByInput = {
   parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
@@ -1126,6 +1171,7 @@ export type ProjectUncheckedCreateWithoutReviewedByInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1147,6 +1193,7 @@ export type ProjectUncheckedCreateWithoutReviewedByInput = {
   updatedAt?: Date | string
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
@@ -1167,6 +1214,7 @@ export type ProjectCreateWithoutUserInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1188,6 +1236,7 @@ export type ProjectCreateWithoutUserInput = {
   parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
@@ -1198,6 +1247,7 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1219,6 +1269,7 @@ export type ProjectUncheckedCreateWithoutUserInput = {
   updatedAt?: Date | string
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
@@ -1258,6 +1309,7 @@ export type ProjectScalarWhereInput = {
   name?: Prisma.StringFilter<"Project"> | string
   description?: Prisma.StringFilter<"Project"> | string
   status?: Prisma.StringFilter<"Project"> | string
+  modality?: Prisma.StringFilter<"Project"> | string
   problems?: Prisma.StringNullableFilter<"Project"> | string | null
   summary?: Prisma.StringNullableFilter<"Project"> | string | null
   objectives?: Prisma.StringNullableListFilter<"Project">
@@ -1301,6 +1353,7 @@ export type ProjectCreateWithoutCareerInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1322,6 +1375,7 @@ export type ProjectCreateWithoutCareerInput = {
   parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
@@ -1332,6 +1386,7 @@ export type ProjectUncheckedCreateWithoutCareerInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1353,6 +1408,7 @@ export type ProjectUncheckedCreateWithoutCareerInput = {
   updatedAt?: Date | string
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
@@ -1389,6 +1445,7 @@ export type ProjectCreateWithoutBranchesInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1410,6 +1467,7 @@ export type ProjectCreateWithoutBranchesInput = {
   reviewedBy?: Prisma.UserCreateNestedOneWithoutReviewedProjectsInput
   parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
@@ -1420,6 +1478,7 @@ export type ProjectUncheckedCreateWithoutBranchesInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1441,6 +1500,7 @@ export type ProjectUncheckedCreateWithoutBranchesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
@@ -1456,6 +1516,7 @@ export type ProjectCreateWithoutParentInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1477,6 +1538,7 @@ export type ProjectCreateWithoutParentInput = {
   reviewedBy?: Prisma.UserCreateNestedOneWithoutReviewedProjectsInput
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
@@ -1487,6 +1549,7 @@ export type ProjectUncheckedCreateWithoutParentInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1508,6 +1571,7 @@ export type ProjectUncheckedCreateWithoutParentInput = {
   updatedAt?: Date | string
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
@@ -1539,6 +1603,7 @@ export type ProjectUpdateWithoutBranchesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -1560,6 +1625,7 @@ export type ProjectUpdateWithoutBranchesInput = {
   reviewedBy?: Prisma.UserUpdateOneWithoutReviewedProjectsNestedInput
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
@@ -1570,6 +1636,7 @@ export type ProjectUncheckedUpdateWithoutBranchesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -1591,6 +1658,7 @@ export type ProjectUncheckedUpdateWithoutBranchesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
@@ -1617,6 +1685,7 @@ export type ProjectCreateWithoutUserProjectsInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1638,6 +1707,7 @@ export type ProjectCreateWithoutUserProjectsInput = {
   reviewedBy?: Prisma.UserCreateNestedOneWithoutReviewedProjectsInput
   parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
+  students?: Prisma.ProjectStudentCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
@@ -1648,6 +1718,7 @@ export type ProjectUncheckedCreateWithoutUserProjectsInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1669,6 +1740,7 @@ export type ProjectUncheckedCreateWithoutUserProjectsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
+  students?: Prisma.ProjectStudentUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
@@ -1695,6 +1767,7 @@ export type ProjectUpdateWithoutUserProjectsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -1716,6 +1789,7 @@ export type ProjectUpdateWithoutUserProjectsInput = {
   reviewedBy?: Prisma.UserUpdateOneWithoutReviewedProjectsNestedInput
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
+  students?: Prisma.ProjectStudentUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
@@ -1726,6 +1800,7 @@ export type ProjectUncheckedUpdateWithoutUserProjectsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -1747,6 +1822,7 @@ export type ProjectUncheckedUpdateWithoutUserProjectsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
+  students?: Prisma.ProjectStudentUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
@@ -1757,6 +1833,7 @@ export type ProjectCreateWithoutProjectSkillsInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1779,6 +1856,7 @@ export type ProjectCreateWithoutProjectSkillsInput = {
   parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
 }
@@ -1788,6 +1866,7 @@ export type ProjectUncheckedCreateWithoutProjectSkillsInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1810,6 +1889,7 @@ export type ProjectUncheckedCreateWithoutProjectSkillsInput = {
   updatedAt?: Date | string
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentUncheckedCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
 }
@@ -1835,6 +1915,7 @@ export type ProjectUpdateWithoutProjectSkillsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -1857,6 +1938,7 @@ export type ProjectUpdateWithoutProjectSkillsInput = {
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
 }
@@ -1866,6 +1948,7 @@ export type ProjectUncheckedUpdateWithoutProjectSkillsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -1888,15 +1971,17 @@ export type ProjectUncheckedUpdateWithoutProjectSkillsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUncheckedUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
 }
 
-export type ProjectCreateWithoutDocumentsInput = {
+export type ProjectCreateWithoutStudentsInput = {
   id?: string
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1920,14 +2005,16 @@ export type ProjectCreateWithoutDocumentsInput = {
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
 }
 
-export type ProjectUncheckedCreateWithoutDocumentsInput = {
+export type ProjectUncheckedCreateWithoutStudentsInput = {
   id?: string
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -1950,6 +2037,155 @@ export type ProjectUncheckedCreateWithoutDocumentsInput = {
   updatedAt?: Date | string
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
+  documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectCreateOrConnectWithoutStudentsInput = {
+  where: Prisma.ProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutStudentsInput, Prisma.ProjectUncheckedCreateWithoutStudentsInput>
+}
+
+export type ProjectUpsertWithoutStudentsInput = {
+  update: Prisma.XOR<Prisma.ProjectUpdateWithoutStudentsInput, Prisma.ProjectUncheckedUpdateWithoutStudentsInput>
+  create: Prisma.XOR<Prisma.ProjectCreateWithoutStudentsInput, Prisma.ProjectUncheckedCreateWithoutStudentsInput>
+  where?: Prisma.ProjectWhereInput
+}
+
+export type ProjectUpdateToOneWithWhereWithoutStudentsInput = {
+  where?: Prisma.ProjectWhereInput
+  data: Prisma.XOR<Prisma.ProjectUpdateWithoutStudentsInput, Prisma.ProjectUncheckedUpdateWithoutStudentsInput>
+}
+
+export type ProjectUpdateWithoutStudentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
+  problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
+  cycle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  academic_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.ProjectUpdatedeliverablesInput | string[]
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  rootId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneWithoutCreatedProjectsNestedInput
+  career?: Prisma.CareerUpdateOneRequiredWithoutProjectsNestedInput
+  reviewedBy?: Prisma.UserUpdateOneWithoutReviewedProjectsNestedInput
+  parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
+  branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
+  userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectUncheckedUpdateWithoutStudentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
+  problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
+  cycle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  academic_period?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  deliverables?: Prisma.ProjectUpdatedeliverablesInput | string[]
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  careerId?: Prisma.StringFieldUpdateOperationsInput | string
+  level?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  rootId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  branchNumber?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
+  userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
+  documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
+  links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
+}
+
+export type ProjectCreateWithoutDocumentsInput = {
+  id?: string
+  name: string
+  description: string
+  status?: string
+  modality?: string
+  problems?: string | null
+  summary?: string | null
+  objectives?: Prisma.ProjectCreateobjectivesInput | string[]
+  cycle?: string | null
+  academic_period?: string | null
+  deliverables?: Prisma.ProjectCreatedeliverablesInput | string[]
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  level?: number | null
+  reviewStatus?: string
+  reviewNote?: string | null
+  reviewedAt?: Date | string | null
+  rootId?: string | null
+  branchNumber?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user?: Prisma.UserCreateNestedOneWithoutCreatedProjectsInput
+  career: Prisma.CareerCreateNestedOneWithoutProjectsInput
+  reviewedBy?: Prisma.UserCreateNestedOneWithoutReviewedProjectsInput
+  parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
+  branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
+  userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentCreateNestedManyWithoutProjectInput
+  projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
+  links?: Prisma.ProjectLinkCreateNestedManyWithoutProjectInput
+}
+
+export type ProjectUncheckedCreateWithoutDocumentsInput = {
+  id?: string
+  name: string
+  description: string
+  status?: string
+  modality?: string
+  problems?: string | null
+  summary?: string | null
+  objectives?: Prisma.ProjectCreateobjectivesInput | string[]
+  cycle?: string | null
+  academic_period?: string | null
+  deliverables?: Prisma.ProjectCreatedeliverablesInput | string[]
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdBy?: string | null
+  careerId: string
+  level?: number | null
+  reviewStatus?: string
+  reviewNote?: string | null
+  reviewedById?: string | null
+  reviewedAt?: Date | string | null
+  parentId?: string | null
+  rootId?: string | null
+  branchNumber?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
+  userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
   links?: Prisma.ProjectLinkUncheckedCreateNestedManyWithoutProjectInput
 }
@@ -1975,6 +2211,7 @@ export type ProjectUpdateWithoutDocumentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -1997,6 +2234,7 @@ export type ProjectUpdateWithoutDocumentsInput = {
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
 }
@@ -2006,6 +2244,7 @@ export type ProjectUncheckedUpdateWithoutDocumentsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2028,6 +2267,7 @@ export type ProjectUncheckedUpdateWithoutDocumentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
 }
@@ -2037,6 +2277,7 @@ export type ProjectCreateWithoutLinksInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -2059,6 +2300,7 @@ export type ProjectCreateWithoutLinksInput = {
   parent?: Prisma.ProjectCreateNestedOneWithoutBranchesInput
   branches?: Prisma.ProjectCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentCreateNestedManyWithoutProjectInput
 }
@@ -2068,6 +2310,7 @@ export type ProjectUncheckedCreateWithoutLinksInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -2090,6 +2333,7 @@ export type ProjectUncheckedCreateWithoutLinksInput = {
   updatedAt?: Date | string
   branches?: Prisma.ProjectUncheckedCreateNestedManyWithoutParentInput
   userProjects?: Prisma.UserProjectUncheckedCreateNestedManyWithoutProjectInput
+  students?: Prisma.ProjectStudentUncheckedCreateNestedManyWithoutProjectInput
   projectSkills?: Prisma.projectSkillsUncheckedCreateNestedManyWithoutProjectInput
   documents?: Prisma.ProjectDocumentUncheckedCreateNestedManyWithoutProjectInput
 }
@@ -2115,6 +2359,7 @@ export type ProjectUpdateWithoutLinksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2137,6 +2382,7 @@ export type ProjectUpdateWithoutLinksInput = {
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
 }
@@ -2146,6 +2392,7 @@ export type ProjectUncheckedUpdateWithoutLinksInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2168,6 +2415,7 @@ export type ProjectUncheckedUpdateWithoutLinksInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
 }
@@ -2177,6 +2425,7 @@ export type ProjectCreateManyReviewedByInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -2203,6 +2452,7 @@ export type ProjectCreateManyUserInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -2229,6 +2479,7 @@ export type ProjectUpdateWithoutReviewedByInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2250,6 +2501,7 @@ export type ProjectUpdateWithoutReviewedByInput = {
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
@@ -2260,6 +2512,7 @@ export type ProjectUncheckedUpdateWithoutReviewedByInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2281,6 +2534,7 @@ export type ProjectUncheckedUpdateWithoutReviewedByInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
@@ -2291,6 +2545,7 @@ export type ProjectUncheckedUpdateManyWithoutReviewedByInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2317,6 +2572,7 @@ export type ProjectUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2338,6 +2594,7 @@ export type ProjectUpdateWithoutUserInput = {
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
@@ -2348,6 +2605,7 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2369,6 +2627,7 @@ export type ProjectUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
@@ -2379,6 +2638,7 @@ export type ProjectUncheckedUpdateManyWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2405,6 +2665,7 @@ export type ProjectCreateManyCareerInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -2431,6 +2692,7 @@ export type ProjectUpdateWithoutCareerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2452,6 +2714,7 @@ export type ProjectUpdateWithoutCareerInput = {
   parent?: Prisma.ProjectUpdateOneWithoutBranchesNestedInput
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
@@ -2462,6 +2725,7 @@ export type ProjectUncheckedUpdateWithoutCareerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2483,6 +2747,7 @@ export type ProjectUncheckedUpdateWithoutCareerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
@@ -2493,6 +2758,7 @@ export type ProjectUncheckedUpdateManyWithoutCareerInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2519,6 +2785,7 @@ export type ProjectCreateManyParentInput = {
   name: string
   description: string
   status?: string
+  modality?: string
   problems?: string | null
   summary?: string | null
   objectives?: Prisma.ProjectCreateobjectivesInput | string[]
@@ -2545,6 +2812,7 @@ export type ProjectUpdateWithoutParentInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2566,6 +2834,7 @@ export type ProjectUpdateWithoutParentInput = {
   reviewedBy?: Prisma.UserUpdateOneWithoutReviewedProjectsNestedInput
   branches?: Prisma.ProjectUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUpdateManyWithoutProjectNestedInput
@@ -2576,6 +2845,7 @@ export type ProjectUncheckedUpdateWithoutParentInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2597,6 +2867,7 @@ export type ProjectUncheckedUpdateWithoutParentInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   branches?: Prisma.ProjectUncheckedUpdateManyWithoutParentNestedInput
   userProjects?: Prisma.UserProjectUncheckedUpdateManyWithoutProjectNestedInput
+  students?: Prisma.ProjectStudentUncheckedUpdateManyWithoutProjectNestedInput
   projectSkills?: Prisma.projectSkillsUncheckedUpdateManyWithoutProjectNestedInput
   documents?: Prisma.ProjectDocumentUncheckedUpdateManyWithoutProjectNestedInput
   links?: Prisma.ProjectLinkUncheckedUpdateManyWithoutProjectNestedInput
@@ -2607,6 +2878,7 @@ export type ProjectUncheckedUpdateManyWithoutParentInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  modality?: Prisma.StringFieldUpdateOperationsInput | string
   problems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   objectives?: Prisma.ProjectUpdateobjectivesInput | string[]
@@ -2636,6 +2908,7 @@ export type ProjectUncheckedUpdateManyWithoutParentInput = {
 export type ProjectCountOutputType = {
   branches: number
   userProjects: number
+  students: number
   projectSkills: number
   documents: number
   links: number
@@ -2644,6 +2917,7 @@ export type ProjectCountOutputType = {
 export type ProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   branches?: boolean | ProjectCountOutputTypeCountBranchesArgs
   userProjects?: boolean | ProjectCountOutputTypeCountUserProjectsArgs
+  students?: boolean | ProjectCountOutputTypeCountStudentsArgs
   projectSkills?: boolean | ProjectCountOutputTypeCountProjectSkillsArgs
   documents?: boolean | ProjectCountOutputTypeCountDocumentsArgs
   links?: boolean | ProjectCountOutputTypeCountLinksArgs
@@ -2676,6 +2950,13 @@ export type ProjectCountOutputTypeCountUserProjectsArgs<ExtArgs extends runtime.
 /**
  * ProjectCountOutputType without action
  */
+export type ProjectCountOutputTypeCountStudentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProjectStudentWhereInput
+}
+
+/**
+ * ProjectCountOutputType without action
+ */
 export type ProjectCountOutputTypeCountProjectSkillsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.projectSkillsWhereInput
 }
@@ -2700,6 +2981,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name?: boolean
   description?: boolean
   status?: boolean
+  modality?: boolean
   problems?: boolean
   summary?: boolean
   objectives?: boolean
@@ -2726,6 +3008,7 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   parent?: boolean | Prisma.Project$parentArgs<ExtArgs>
   branches?: boolean | Prisma.Project$branchesArgs<ExtArgs>
   userProjects?: boolean | Prisma.Project$userProjectsArgs<ExtArgs>
+  students?: boolean | Prisma.Project$studentsArgs<ExtArgs>
   projectSkills?: boolean | Prisma.Project$projectSkillsArgs<ExtArgs>
   documents?: boolean | Prisma.Project$documentsArgs<ExtArgs>
   links?: boolean | Prisma.Project$linksArgs<ExtArgs>
@@ -2737,6 +3020,7 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   description?: boolean
   status?: boolean
+  modality?: boolean
   problems?: boolean
   summary?: boolean
   objectives?: boolean
@@ -2768,6 +3052,7 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   description?: boolean
   status?: boolean
+  modality?: boolean
   problems?: boolean
   summary?: boolean
   objectives?: boolean
@@ -2799,6 +3084,7 @@ export type ProjectSelectScalar = {
   name?: boolean
   description?: boolean
   status?: boolean
+  modality?: boolean
   problems?: boolean
   summary?: boolean
   objectives?: boolean
@@ -2821,7 +3107,7 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "status" | "problems" | "summary" | "objectives" | "cycle" | "academic_period" | "deliverables" | "startDate" | "endDate" | "createdBy" | "careerId" | "level" | "reviewStatus" | "reviewNote" | "reviewedById" | "reviewedAt" | "parentId" | "rootId" | "branchNumber" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "status" | "modality" | "problems" | "summary" | "objectives" | "cycle" | "academic_period" | "deliverables" | "startDate" | "endDate" | "createdBy" | "careerId" | "level" | "reviewStatus" | "reviewNote" | "reviewedById" | "reviewedAt" | "parentId" | "rootId" | "branchNumber" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.Project$userArgs<ExtArgs>
   career?: boolean | Prisma.CareerDefaultArgs<ExtArgs>
@@ -2829,6 +3115,7 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   parent?: boolean | Prisma.Project$parentArgs<ExtArgs>
   branches?: boolean | Prisma.Project$branchesArgs<ExtArgs>
   userProjects?: boolean | Prisma.Project$userProjectsArgs<ExtArgs>
+  students?: boolean | Prisma.Project$studentsArgs<ExtArgs>
   projectSkills?: boolean | Prisma.Project$projectSkillsArgs<ExtArgs>
   documents?: boolean | Prisma.Project$documentsArgs<ExtArgs>
   links?: boolean | Prisma.Project$linksArgs<ExtArgs>
@@ -2856,6 +3143,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     parent: Prisma.$ProjectPayload<ExtArgs> | null
     branches: Prisma.$ProjectPayload<ExtArgs>[]
     userProjects: Prisma.$UserProjectPayload<ExtArgs>[]
+    students: Prisma.$ProjectStudentPayload<ExtArgs>[]
     projectSkills: Prisma.$projectSkillsPayload<ExtArgs>[]
     documents: Prisma.$ProjectDocumentPayload<ExtArgs>[]
     links: Prisma.$ProjectLinkPayload<ExtArgs>[]
@@ -2865,6 +3153,7 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     name: string
     description: string
     status: string
+    modality: string
     problems: string | null
     summary: string | null
     objectives: string[]
@@ -3285,6 +3574,7 @@ export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.
   parent<T extends Prisma.Project$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$parentArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   branches<T extends Prisma.Project$branchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$branchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   userProjects<T extends Prisma.Project$userProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$userProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  students<T extends Prisma.Project$studentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$studentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectStudentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projectSkills<T extends Prisma.Project$projectSkillsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$projectSkillsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$projectSkillsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   documents<T extends Prisma.Project$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   links<T extends Prisma.Project$linksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$linksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3321,6 +3611,7 @@ export interface ProjectFieldRefs {
   readonly name: Prisma.FieldRef<"Project", 'String'>
   readonly description: Prisma.FieldRef<"Project", 'String'>
   readonly status: Prisma.FieldRef<"Project", 'String'>
+  readonly modality: Prisma.FieldRef<"Project", 'String'>
   readonly problems: Prisma.FieldRef<"Project", 'String'>
   readonly summary: Prisma.FieldRef<"Project", 'String'>
   readonly objectives: Prisma.FieldRef<"Project", 'String[]'>
@@ -3839,6 +4130,30 @@ export type Project$userProjectsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.UserProjectScalarFieldEnum | Prisma.UserProjectScalarFieldEnum[]
+}
+
+/**
+ * Project.students
+ */
+export type Project$studentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectStudent
+   */
+  select?: Prisma.ProjectStudentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectStudent
+   */
+  omit?: Prisma.ProjectStudentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectStudentInclude<ExtArgs> | null
+  where?: Prisma.ProjectStudentWhereInput
+  orderBy?: Prisma.ProjectStudentOrderByWithRelationInput | Prisma.ProjectStudentOrderByWithRelationInput[]
+  cursor?: Prisma.ProjectStudentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProjectStudentScalarFieldEnum | Prisma.ProjectStudentScalarFieldEnum[]
 }
 
 /**
