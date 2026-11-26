@@ -272,6 +272,7 @@ export const ProjectDocumentScalarFieldEnum = {
   kind: 'kind',
   originalName: 'originalName',
   storedName: 'storedName',
+  driveFileId: 'driveFileId',
   size: 'size',
   sha256: 'sha256',
   uploadedById: 'uploadedById',

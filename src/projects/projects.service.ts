@@ -14,6 +14,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { USER_OMIT } from 'src/common/sanitize';
 import { isAdmin } from 'src/common/access';
 import { unlinkQuiet } from './files/storage';
+import { DriveService } from './files/drive.service';
 import { SimilarQueryDto } from './dto/similar-query.dto';
 import { SetStatusDto } from './dto/set-status.dto';
 import { keywords, similarityScore } from './similarity';
@@ -38,7 +39,7 @@ const LIST_INCLUDE = {
 
 @Injectable()
 export class ProjectsService extends BaseService<any, CreateProjectDto, UpdateProjectDto> {
-  constructor(private readonly prismaService: PrismaService) {
+  constructor(private readonly prismaService: PrismaService, private readonly drive: DriveService) {
     super(prismaService, { name: 'project' });
   }
 
@@ -439,11 +440,11 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
   }
 
   async remove(id: string) {
-    const docs = await this.prismaService.projectDocument.findMany({ where: { projectId: id }, select: { storedName: true } });
+    const docs = await this.prismaService.projectDocument.findMany({ where: { projectId: id }, select: { storedName: true, driveFileId: true } });
     await this.prismaService.projectSkills.deleteMany({ where: { projectId: id } });
     await this.prismaService.userProject.deleteMany({ where: { projectId: id } });
     const result = await super.remove(id); // documentos, enlaces y estudiantes del proyecto se borran en cascada
-    await Promise.all(docs.map((d) => unlinkQuiet(d.storedName)));
+    await Promise.all(docs.map((d) => (d.driveFileId ? this.drive.remove(d.driveFileId) : d.storedName ? unlinkQuiet(d.storedName) : undefined)));
     return result;
   }
 

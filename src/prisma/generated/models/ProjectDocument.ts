@@ -40,6 +40,7 @@ export type ProjectDocumentMinAggregateOutputType = {
   kind: string | null
   originalName: string | null
   storedName: string | null
+  driveFileId: string | null
   size: number | null
   sha256: string | null
   uploadedById: string | null
@@ -52,6 +53,7 @@ export type ProjectDocumentMaxAggregateOutputType = {
   kind: string | null
   originalName: string | null
   storedName: string | null
+  driveFileId: string | null
   size: number | null
   sha256: string | null
   uploadedById: string | null
@@ -64,6 +66,7 @@ export type ProjectDocumentCountAggregateOutputType = {
   kind: number
   originalName: number
   storedName: number
+  driveFileId: number
   size: number
   sha256: number
   uploadedById: number
@@ -86,6 +89,7 @@ export type ProjectDocumentMinAggregateInputType = {
   kind?: true
   originalName?: true
   storedName?: true
+  driveFileId?: true
   size?: true
   sha256?: true
   uploadedById?: true
@@ -98,6 +102,7 @@ export type ProjectDocumentMaxAggregateInputType = {
   kind?: true
   originalName?: true
   storedName?: true
+  driveFileId?: true
   size?: true
   sha256?: true
   uploadedById?: true
@@ -110,6 +115,7 @@ export type ProjectDocumentCountAggregateInputType = {
   kind?: true
   originalName?: true
   storedName?: true
+  driveFileId?: true
   size?: true
   sha256?: true
   uploadedById?: true
@@ -208,7 +214,8 @@ export type ProjectDocumentGroupByOutputType = {
   projectId: string
   kind: string
   originalName: string
-  storedName: string
+  storedName: string | null
+  driveFileId: string | null
   size: number
   sha256: string
   uploadedById: string | null
@@ -243,7 +250,8 @@ export type ProjectDocumentWhereInput = {
   projectId?: Prisma.StringFilter<"ProjectDocument"> | string
   kind?: Prisma.StringFilter<"ProjectDocument"> | string
   originalName?: Prisma.StringFilter<"ProjectDocument"> | string
-  storedName?: Prisma.StringFilter<"ProjectDocument"> | string
+  storedName?: Prisma.StringNullableFilter<"ProjectDocument"> | string | null
+  driveFileId?: Prisma.StringNullableFilter<"ProjectDocument"> | string | null
   size?: Prisma.IntFilter<"ProjectDocument"> | number
   sha256?: Prisma.StringFilter<"ProjectDocument"> | string
   uploadedById?: Prisma.StringNullableFilter<"ProjectDocument"> | string | null
@@ -257,7 +265,8 @@ export type ProjectDocumentOrderByWithRelationInput = {
   projectId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   originalName?: Prisma.SortOrder
-  storedName?: Prisma.SortOrder
+  storedName?: Prisma.SortOrderInput | Prisma.SortOrder
+  driveFileId?: Prisma.SortOrderInput | Prisma.SortOrder
   size?: Prisma.SortOrder
   sha256?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -269,6 +278,7 @@ export type ProjectDocumentOrderByWithRelationInput = {
 export type ProjectDocumentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   storedName?: string
+  driveFileId?: string
   projectId_sha256?: Prisma.ProjectDocumentProjectIdSha256CompoundUniqueInput
   AND?: Prisma.ProjectDocumentWhereInput | Prisma.ProjectDocumentWhereInput[]
   OR?: Prisma.ProjectDocumentWhereInput[]
@@ -282,14 +292,15 @@ export type ProjectDocumentWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"ProjectDocument"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   uploadedBy?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
-}, "id" | "storedName" | "projectId_sha256">
+}, "id" | "storedName" | "driveFileId" | "projectId_sha256">
 
 export type ProjectDocumentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   kind?: Prisma.SortOrder
   originalName?: Prisma.SortOrder
-  storedName?: Prisma.SortOrder
+  storedName?: Prisma.SortOrderInput | Prisma.SortOrder
+  driveFileId?: Prisma.SortOrderInput | Prisma.SortOrder
   size?: Prisma.SortOrder
   sha256?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -309,7 +320,8 @@ export type ProjectDocumentScalarWhereWithAggregatesInput = {
   projectId?: Prisma.StringWithAggregatesFilter<"ProjectDocument"> | string
   kind?: Prisma.StringWithAggregatesFilter<"ProjectDocument"> | string
   originalName?: Prisma.StringWithAggregatesFilter<"ProjectDocument"> | string
-  storedName?: Prisma.StringWithAggregatesFilter<"ProjectDocument"> | string
+  storedName?: Prisma.StringNullableWithAggregatesFilter<"ProjectDocument"> | string | null
+  driveFileId?: Prisma.StringNullableWithAggregatesFilter<"ProjectDocument"> | string | null
   size?: Prisma.IntWithAggregatesFilter<"ProjectDocument"> | number
   sha256?: Prisma.StringWithAggregatesFilter<"ProjectDocument"> | string
   uploadedById?: Prisma.StringNullableWithAggregatesFilter<"ProjectDocument"> | string | null
@@ -320,7 +332,8 @@ export type ProjectDocumentCreateInput = {
   id?: string
   kind?: string
   originalName: string
-  storedName: string
+  storedName?: string | null
+  driveFileId?: string | null
   size: number
   sha256: string
   createdAt?: Date | string
@@ -333,7 +346,8 @@ export type ProjectDocumentUncheckedCreateInput = {
   projectId: string
   kind?: string
   originalName: string
-  storedName: string
+  storedName?: string | null
+  driveFileId?: string | null
   size: number
   sha256: string
   uploadedById?: string | null
@@ -344,7 +358,8 @@ export type ProjectDocumentUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
-  storedName?: Prisma.StringFieldUpdateOperationsInput | string
+  storedName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   size?: Prisma.IntFieldUpdateOperationsInput | number
   sha256?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -357,7 +372,8 @@ export type ProjectDocumentUncheckedUpdateInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
-  storedName?: Prisma.StringFieldUpdateOperationsInput | string
+  storedName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   size?: Prisma.IntFieldUpdateOperationsInput | number
   sha256?: Prisma.StringFieldUpdateOperationsInput | string
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -369,7 +385,8 @@ export type ProjectDocumentCreateManyInput = {
   projectId: string
   kind?: string
   originalName: string
-  storedName: string
+  storedName?: string | null
+  driveFileId?: string | null
   size: number
   sha256: string
   uploadedById?: string | null
@@ -380,7 +397,8 @@ export type ProjectDocumentUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
-  storedName?: Prisma.StringFieldUpdateOperationsInput | string
+  storedName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   size?: Prisma.IntFieldUpdateOperationsInput | number
   sha256?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -391,7 +409,8 @@ export type ProjectDocumentUncheckedUpdateManyInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
-  storedName?: Prisma.StringFieldUpdateOperationsInput | string
+  storedName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   size?: Prisma.IntFieldUpdateOperationsInput | number
   sha256?: Prisma.StringFieldUpdateOperationsInput | string
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -419,6 +438,7 @@ export type ProjectDocumentCountOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   originalName?: Prisma.SortOrder
   storedName?: Prisma.SortOrder
+  driveFileId?: Prisma.SortOrder
   size?: Prisma.SortOrder
   sha256?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
@@ -435,6 +455,7 @@ export type ProjectDocumentMaxOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   originalName?: Prisma.SortOrder
   storedName?: Prisma.SortOrder
+  driveFileId?: Prisma.SortOrder
   size?: Prisma.SortOrder
   sha256?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
@@ -447,6 +468,7 @@ export type ProjectDocumentMinOrderByAggregateInput = {
   kind?: Prisma.SortOrder
   originalName?: Prisma.SortOrder
   storedName?: Prisma.SortOrder
+  driveFileId?: Prisma.SortOrder
   size?: Prisma.SortOrder
   sha256?: Prisma.SortOrder
   uploadedById?: Prisma.SortOrder
@@ -545,7 +567,8 @@ export type ProjectDocumentCreateWithoutUploadedByInput = {
   id?: string
   kind?: string
   originalName: string
-  storedName: string
+  storedName?: string | null
+  driveFileId?: string | null
   size: number
   sha256: string
   createdAt?: Date | string
@@ -557,7 +580,8 @@ export type ProjectDocumentUncheckedCreateWithoutUploadedByInput = {
   projectId: string
   kind?: string
   originalName: string
-  storedName: string
+  storedName?: string | null
+  driveFileId?: string | null
   size: number
   sha256: string
   createdAt?: Date | string
@@ -597,7 +621,8 @@ export type ProjectDocumentScalarWhereInput = {
   projectId?: Prisma.StringFilter<"ProjectDocument"> | string
   kind?: Prisma.StringFilter<"ProjectDocument"> | string
   originalName?: Prisma.StringFilter<"ProjectDocument"> | string
-  storedName?: Prisma.StringFilter<"ProjectDocument"> | string
+  storedName?: Prisma.StringNullableFilter<"ProjectDocument"> | string | null
+  driveFileId?: Prisma.StringNullableFilter<"ProjectDocument"> | string | null
   size?: Prisma.IntFilter<"ProjectDocument"> | number
   sha256?: Prisma.StringFilter<"ProjectDocument"> | string
   uploadedById?: Prisma.StringNullableFilter<"ProjectDocument"> | string | null
@@ -608,7 +633,8 @@ export type ProjectDocumentCreateWithoutProjectInput = {
   id?: string
   kind?: string
   originalName: string
-  storedName: string
+  storedName?: string | null
+  driveFileId?: string | null
   size: number
   sha256: string
   createdAt?: Date | string
@@ -619,7 +645,8 @@ export type ProjectDocumentUncheckedCreateWithoutProjectInput = {
   id?: string
   kind?: string
   originalName: string
-  storedName: string
+  storedName?: string | null
+  driveFileId?: string | null
   size: number
   sha256: string
   uploadedById?: string | null
@@ -657,7 +684,8 @@ export type ProjectDocumentCreateManyUploadedByInput = {
   projectId: string
   kind?: string
   originalName: string
-  storedName: string
+  storedName?: string | null
+  driveFileId?: string | null
   size: number
   sha256: string
   createdAt?: Date | string
@@ -667,7 +695,8 @@ export type ProjectDocumentUpdateWithoutUploadedByInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
-  storedName?: Prisma.StringFieldUpdateOperationsInput | string
+  storedName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   size?: Prisma.IntFieldUpdateOperationsInput | number
   sha256?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -679,7 +708,8 @@ export type ProjectDocumentUncheckedUpdateWithoutUploadedByInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
-  storedName?: Prisma.StringFieldUpdateOperationsInput | string
+  storedName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   size?: Prisma.IntFieldUpdateOperationsInput | number
   sha256?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -690,7 +720,8 @@ export type ProjectDocumentUncheckedUpdateManyWithoutUploadedByInput = {
   projectId?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
-  storedName?: Prisma.StringFieldUpdateOperationsInput | string
+  storedName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   size?: Prisma.IntFieldUpdateOperationsInput | number
   sha256?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -700,7 +731,8 @@ export type ProjectDocumentCreateManyProjectInput = {
   id?: string
   kind?: string
   originalName: string
-  storedName: string
+  storedName?: string | null
+  driveFileId?: string | null
   size: number
   sha256: string
   uploadedById?: string | null
@@ -711,7 +743,8 @@ export type ProjectDocumentUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
-  storedName?: Prisma.StringFieldUpdateOperationsInput | string
+  storedName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   size?: Prisma.IntFieldUpdateOperationsInput | number
   sha256?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -722,7 +755,8 @@ export type ProjectDocumentUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
-  storedName?: Prisma.StringFieldUpdateOperationsInput | string
+  storedName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   size?: Prisma.IntFieldUpdateOperationsInput | number
   sha256?: Prisma.StringFieldUpdateOperationsInput | string
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -733,7 +767,8 @@ export type ProjectDocumentUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   kind?: Prisma.StringFieldUpdateOperationsInput | string
   originalName?: Prisma.StringFieldUpdateOperationsInput | string
-  storedName?: Prisma.StringFieldUpdateOperationsInput | string
+  storedName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  driveFileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   size?: Prisma.IntFieldUpdateOperationsInput | number
   sha256?: Prisma.StringFieldUpdateOperationsInput | string
   uploadedById?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -748,6 +783,7 @@ export type ProjectDocumentSelect<ExtArgs extends runtime.Types.Extensions.Inter
   kind?: boolean
   originalName?: boolean
   storedName?: boolean
+  driveFileId?: boolean
   size?: boolean
   sha256?: boolean
   uploadedById?: boolean
@@ -762,6 +798,7 @@ export type ProjectDocumentSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   kind?: boolean
   originalName?: boolean
   storedName?: boolean
+  driveFileId?: boolean
   size?: boolean
   sha256?: boolean
   uploadedById?: boolean
@@ -776,6 +813,7 @@ export type ProjectDocumentSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   kind?: boolean
   originalName?: boolean
   storedName?: boolean
+  driveFileId?: boolean
   size?: boolean
   sha256?: boolean
   uploadedById?: boolean
@@ -790,13 +828,14 @@ export type ProjectDocumentSelectScalar = {
   kind?: boolean
   originalName?: boolean
   storedName?: boolean
+  driveFileId?: boolean
   size?: boolean
   sha256?: boolean
   uploadedById?: boolean
   createdAt?: boolean
 }
 
-export type ProjectDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "kind" | "originalName" | "storedName" | "size" | "sha256" | "uploadedById" | "createdAt", ExtArgs["result"]["projectDocument"]>
+export type ProjectDocumentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "projectId" | "kind" | "originalName" | "storedName" | "driveFileId" | "size" | "sha256" | "uploadedById" | "createdAt", ExtArgs["result"]["projectDocument"]>
 export type ProjectDocumentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   uploadedBy?: boolean | Prisma.ProjectDocument$uploadedByArgs<ExtArgs>
@@ -821,7 +860,8 @@ export type $ProjectDocumentPayload<ExtArgs extends runtime.Types.Extensions.Int
     projectId: string
     kind: string
     originalName: string
-    storedName: string
+    storedName: string | null
+    driveFileId: string | null
     size: number
     sha256: string
     uploadedById: string | null
@@ -1256,6 +1296,7 @@ export interface ProjectDocumentFieldRefs {
   readonly kind: Prisma.FieldRef<"ProjectDocument", 'String'>
   readonly originalName: Prisma.FieldRef<"ProjectDocument", 'String'>
   readonly storedName: Prisma.FieldRef<"ProjectDocument", 'String'>
+  readonly driveFileId: Prisma.FieldRef<"ProjectDocument", 'String'>
   readonly size: Prisma.FieldRef<"ProjectDocument", 'Int'>
   readonly sha256: Prisma.FieldRef<"ProjectDocument", 'String'>
   readonly uploadedById: Prisma.FieldRef<"ProjectDocument", 'String'>
