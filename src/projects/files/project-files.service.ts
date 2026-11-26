@@ -32,7 +32,7 @@ export class ProjectFilesService {
   /** Proyecto visible para el usuario + regla de gestión de archivos/enlaces. */
   private async forManage(id: string, user: AuthUser) {
     const project: any = await this.projects.findOne(id, user);
-    this.projects.assertCanManageFiles(project, user);
+    await this.projects.assertCanManageFiles(project, user);
     return project;
   }
 

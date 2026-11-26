@@ -101,7 +101,7 @@ npm test
 En `test-security/` hay pruebas de seguridad en Python que se corren contra una API levantada en `localhost:8000`:
 
 - `matrix.py`: matriz endpoint × rol. Lee las rutas que Nest registra al arrancar y **falla si alguna ruta no tiene política declarada**; al agregar un endpoint, añádelo ahí.
-- `jwt_and_logic.py`, `workflow.py`, `files.py`: tokens, flujo de revisión y subida de archivos.
+- `jwt_and_logic.py`, `workflow.py`, `files.py`: tokens, flujo del docente (proyectos con estudiantes, sin revisión) y subida de archivos.
 
 ## Flujo de trabajo (Gitflow)
 
