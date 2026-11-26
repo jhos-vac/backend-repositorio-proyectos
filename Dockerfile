@@ -20,6 +20,12 @@ RUN rm -f tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo
 # Compilamos (ahora usará el nuevo tsconfig.build.json)
 RUN npm run build
 
+# BE-07: la API no corre como root, sino como el usuario "node" (uid 1000) de la imagen.
+# Solo necesita escribir en uploads/ y storage/ (en produccion son ./data/uploads y ./data/storage,
+# que el despliegue deja con dueno 1000).
+RUN mkdir -p uploads storage/documents && chown -R node:node uploads storage
+USER node
+
 EXPOSE 8000
 
 CMD ["npm", "run", "start:prod"]
