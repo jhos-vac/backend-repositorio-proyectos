@@ -254,7 +254,8 @@ model ProjectDocument {
   project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   kind         String   @default("otro") // informe | presentacion | otro
   originalName String
-  storedName   String   @unique // nombre aleatorio en disco
+  storedName   String?  @unique // nombre aleatorio en disco (null si está en Drive)
+  driveFileId  String?  @unique // BE-10: id del archivo en Google Drive
   size         Int
   sha256       String
   uploadedById String?

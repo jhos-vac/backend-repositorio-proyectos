@@ -1,12 +1,13 @@
 import {
   BadRequestException, ConflictException, ForbiddenException, Injectable, Logger, NotFoundException,
-  InternalServerErrorException,
+  InternalServerErrorException, ServiceUnavailableException,
 } from '@nestjs/common';
 import { createHash, randomUUID } from 'crypto';
 import { promises as fs } from 'fs';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ProjectsService } from '../projects.service';
 import { ClamavService } from './clamav.service';
+import { DriveService } from './drive.service';
 import { CreateLinkDto } from './project-files.dto';
 import { docPath, docsDir, unlinkQuiet } from './storage';
 
@@ -25,6 +26,7 @@ export class ProjectFilesService {
     private readonly prisma: PrismaService,
     private readonly projects: ProjectsService,
     private readonly clam: ClamavService,
+    private readonly drive: DriveService,
   ) {}
 
   // ------------------------------------------------------------ permisos
@@ -76,38 +78,60 @@ export class ProjectFilesService {
 
     await this.clam.assertClean(buf);
 
-    const storedName = `${randomUUID()}.pdf`;
-    await fs.mkdir(docsDir(), { recursive: true, mode: 0o750 });
-    await fs.writeFile(docPath(storedName), buf, { flag: 'wx', mode: 0o640 });
+    const originalName = this.cleanName(file.originalname);
+    // BE-10: con Drive configurado el PDF va a Drive; si no, al disco del servidor como antes.
+    let storedName: string | null = null;
+    let driveFileId: string | null = null;
+    if (this.drive.enabled) {
+      try {
+        driveFileId = await this.drive.upload(buf, originalName, sha256);
+      } catch (e: any) {
+        this.log.error(`No se pudo subir a Drive: ${e?.message ?? e}`);
+        throw new ServiceUnavailableException('No se pudo guardar el documento en Google Drive. Intenta de nuevo en unos minutos.');
+      }
+    } else {
+      storedName = `${randomUUID()}.pdf`;
+      await fs.mkdir(docsDir(), { recursive: true, mode: 0o750 });
+      await fs.writeFile(docPath(storedName), buf, { flag: 'wx', mode: 0o640 });
+    }
     try {
       const doc = await this.prisma.projectDocument.create({
         data: {
-          projectId: project.id, kind: kind ?? 'otro', originalName: this.cleanName(file.originalname),
-          storedName, size: buf.length, sha256, uploadedById: user.id,
+          projectId: project.id, kind: kind ?? 'otro', originalName,
+          storedName, driveFileId, size: buf.length, sha256, uploadedById: user.id,
         },
         select: { id: true, kind: true, originalName: true, size: true, sha256: true, createdAt: true },
       });
       return doc;
     } catch (e) {
-      await unlinkQuiet(storedName);
+      await this.discard({ storedName, driveFileId });
       throw e;
     }
   }
 
-  /** Devuelve el archivo verificando su huella: si cambió en disco, no se entrega. */
+  /** Borra el archivo guardado (disco o papelera de Drive). */
+  private async discard(doc: { storedName: string | null; driveFileId: string | null }) {
+    if (doc.driveFileId) await this.drive.remove(doc.driveFileId);
+    if (doc.storedName) await unlinkQuiet(doc.storedName);
+  }
+
+  /** Devuelve el archivo verificando su huella: si cambió (en disco o en Drive), no se entrega. */
   async download(id: string, docId: string, user: AuthUser) {
     await this.projects.findOne(id, user);
     const doc = await this.prisma.projectDocument.findFirst({ where: { id: docId, projectId: id } });
     if (!doc) throw new NotFoundException('Documento no encontrado.');
+    const where = doc.driveFileId ? `Drive ${doc.driveFileId}` : `disco ${doc.storedName}`;
     let buf: Buffer;
     try {
-      buf = await fs.readFile(docPath(doc.storedName));
-    } catch {
-      this.log.error(`Archivo faltante en disco: ${doc.storedName}`);
-      throw new NotFoundException('El archivo ya no está disponible en el servidor.');
+      if (doc.driveFileId) buf = await this.drive.download(doc.driveFileId);
+      else if (doc.storedName) buf = await fs.readFile(docPath(doc.storedName));
+      else throw new Error('sin ubicación');
+    } catch (e: any) {
+      this.log.error(`Archivo no disponible (${where}): ${e?.message ?? e}`);
+      throw new NotFoundException('El archivo ya no está disponible.');
     }
     if (createHash('sha256').update(buf).digest('hex') !== doc.sha256) {
-      this.log.error(`INTEGRIDAD: la huella de ${doc.storedName} no coincide`);
+      this.log.error(`INTEGRIDAD: la huella de ${where} no coincide`);
       throw new InternalServerErrorException('El archivo no pasó la verificación de integridad.');
     }
     return { doc, buf };
@@ -118,7 +142,7 @@ export class ProjectFilesService {
     const doc = await this.prisma.projectDocument.findFirst({ where: { id: docId, projectId: id } });
     if (!doc) throw new NotFoundException('Documento no encontrado.');
     await this.prisma.projectDocument.delete({ where: { id: doc.id } });
-    await unlinkQuiet(doc.storedName);
+    await this.discard(doc);
     return { deleted: true };
   }
 
