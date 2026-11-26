@@ -30,6 +30,11 @@ async function bootstrap() {
     const logger = new Logger('Bootstrap');
 
     app.disable('x-powered-by');
+    // Detrás de un proxy (Caddy en el VPS) la IP real llega en X-Forwarded-For.
+    // Sin esto, el límite de peticiones por IP sería uno solo para todos los usuarios.
+    // TRUST_PROXY = número de proxies delante (1 con Caddy); vacío = conexión directa.
+    const trustProxy = process.env.TRUST_PROXY?.trim();
+    if (trustProxy) app.set('trust proxy', /^\d+$/.test(trustProxy) ? Number(trustProxy) : trustProxy);
     // Las imágenes de /uploads las carga el frontend desde otro origen.
     app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 
