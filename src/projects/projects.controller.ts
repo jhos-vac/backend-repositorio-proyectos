@@ -4,9 +4,8 @@ import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectQueryDto } from './dto/project-query.dto';
 import { SimilarQueryDto } from './dto/similar-query.dto';
-import { ReviewProjectDto } from './dto/review-project.dto';
+import { SetStatusDto } from './dto/set-status.dto';
 import { BranchProjectDto } from './dto/branch-project.dto';
-import { MembersProjectDto } from './dto/members-project.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { ValidRoles } from 'src/auth/enums/valid-roles.enum';
@@ -17,9 +16,9 @@ import { UserModel as User } from 'src/prisma/generated/models/User';
 export class ProjectsController {
   constructor(private readonly projectsService: ProjectsService) {}
 
-  /** Estudiante: nace "pendiente". Docente/admin: nace aprobado. */
+  /** BE-08: lo registra el docente (sus carrera y nivel) o el ADMIN, con sus estudiantes. */
   @Post()
-  @Auth()
+  @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
   create(@Body() dto: CreateProjectDto, @GetUser() user: User) {
     return this.projectsService.createWithUser(dto, user as any);
   }
@@ -28,13 +27,6 @@ export class ProjectsController {
   @Auth()
   findAll(@Query() q: ProjectQueryDto, @GetUser() user: User) {
     return this.projectsService.list(q, user as any);
-  }
-
-  /** Cola de revisión: proyectos de las carrera+nivel asignados al docente (admin: todos). */
-  @Get('review')
-  @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
-  forReview(@Query() q: ProjectQueryDto, @GetUser() user: User) {
-    return this.projectsService.findForReview(q, user as any);
   }
 
   /** RN-04: proyectos visibles parecidos al que se está registrando (aviso, no bloquea). */
@@ -84,36 +76,29 @@ export class ProjectsController {
     return this.projectsService.lineage(id, user as any);
   }
 
-  /** Aprobar / rechazar (docente asignado o admin). */
-  @Patch(':id/review')
+  /** Marcar como completado o reabrir (docente a cargo o admin). */
+  @Patch(':id/status')
   @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
-  review(@Param('id', ParseUUIDPipe) id: string, @Body() dto: ReviewProjectDto, @GetUser() user: User) {
-    return this.projectsService.review(id, dto, user as any);
+  setStatus(@Param('id', ParseUUIDPipe) id: string, @Body() dto: SetStatusDto, @GetUser() user: User) {
+    return this.projectsService.setStatus(id, dto, user as any);
   }
 
-  /** "Continuar proyecto": crea una rama nueva enlazada al proyecto aprobado. */
+  /** "Continuar proyecto": crea una rama nueva enlazada al original. */
   @Post(':id/branch')
-  @Auth()
+  @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
   branch(@Param('id', ParseUUIDPipe) id: string, @Body() dto: BranchProjectDto, @GetUser() user: User) {
     return this.projectsService.branch(id, dto, user as any);
   }
 
-  /** Define los integrantes (estudiantes de la carrera del proyecto). */
-  @Put(':id/members')
-  @Auth()
-  setMembers(@Param('id', ParseUUIDPipe) id: string, @Body() dto: MembersProjectDto, @GetUser() user: User) {
-    return this.projectsService.setMembers(id, dto, user as any);
-  }
-
   @Patch(':id')
-  @Auth()
+  @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
   update(@Param('id', ParseUUIDPipe) id: string, @Body() dto: UpdateProjectDto, @GetUser() user: User) {
     return this.projectsService.updateWithPermission(id, dto, user as any);
   }
 
-  /** Dueño (si no está aprobado) o ADMIN. */
+  /** El docente que lo registró, el asignado a su carrera y nivel, o el ADMIN. */
   @Delete(':id')
-  @Auth()
+  @Auth(ValidRoles.TEACHER, ValidRoles.ADMIN)
   remove(@Param('id', ParseUUIDPipe) id: string, @GetUser() user: User) {
     return this.projectsService.removeWithPermission(id, user as any);
   }

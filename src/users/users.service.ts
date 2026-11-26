@@ -1,4 +1,3 @@
-import { isStudent } from 'src/common/access';
 import { 
   Injectable, 
   NotFoundException, 
@@ -16,13 +15,13 @@ import * as bcrypt from 'bcrypt';
 import { PaginationDto } from 'src/Libs/common';
 import { UserQueryDto } from './dto/user-query.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
-import { isAdmin } from 'src/common/access';
 import { Prisma } from 'src/prisma/generated/client'; 
 import { USER_OMIT } from 'src/common/sanitize';
 import * as deepEmailValidator from 'deep-email-validator';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { matchesImageSignature } from 'src/common/image-signature';
+import { institutionalEmailMessage, isInstitutionalEmail } from 'src/common/institutional-email';
 
 @Injectable()
 export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto> {
@@ -84,12 +83,11 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
 
     await this.validateEmailDeep(email);
 
-    // El ADMIN puede elegir cualquier rol; por defecto USER (estudiante)
-    const role = roleId
-      ? await this.prismaService.role.findUnique({ where: { id: roleId } })
-      : await this.prismaService.role.findFirst({ where: { name: 'USER' } });
+    // El ADMIN elige el rol (ADMIN o TEACHER). Los estudiantes no tienen cuenta (BE-08)
+    if (!roleId) throw new BadRequestException('El rol es obligatorio.');
+    const role = await this.prismaService.role.findUnique({ where: { id: roleId } });
     if (!role) throw new BadRequestException('El rol indicado no existe.');
-    if (role.name === 'USER' && !rest.level) throw new BadRequestException('El nivel (1 a 4) es obligatorio para estudiantes.');
+    if (role.name === 'USER') throw new BadRequestException('Los estudiantes no tienen cuenta: regístralos en Estudiantes.');
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -118,7 +116,8 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
   async createTeacher(createUserDto: CreateUserDto) {
     const { password, email, name, careerId } = createUserDto as any; 
 
-    if (!this.isDomainAllowed(email)) throw new BadRequestException('Dominio de correo no permitido.');
+    // RN-01: las cuentas de docentes solo con correo institucional
+    if (!isInstitutionalEmail(email)) throw new BadRequestException(institutionalEmailMessage());
     await this.validateEmailDeep(email);
 
     if (!careerId) throw new BadRequestException('El ID de la carrera es obligatorio.');
@@ -172,8 +171,8 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
     for (const [i, row] of rows.entries()) {
       const email = emails[i];
       const label = `Fila ${i + 1} (${email})`;
-      if (!this.isDomainAllowed(email)) {
-        errors.push(`${label}: dominio de correo no permitido.`);
+      if (!isInstitutionalEmail(email)) {
+        errors.push(`${label}: ${institutionalEmailMessage()}`);
       } else {
         try {
           await this.validateEmailDeep(email);
@@ -243,29 +242,6 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
 
   async findAll(q?: UserQueryDto) {
     return this.pageUsers(this.userWhere(q || ({} as UserQueryDto)), q as PaginationDto);
-  }
-
-  async candidates(careerId: string | undefined, user: any) {
-    const career = isStudent(user) ? user.careerId : careerId;
-    if (!career) throw new BadRequestException('Indica la carrera (careerId).');
-    return this.prismaService.user.findMany({
-      where: { careerId: career, role: { name: 'USER' } },
-      select: { id: true, name: true, level: true },
-      orderBy: { name: 'asc' },
-      take: 500,
-    });
-  }
-
-  /** Estudiantes de las carrera+nivel del docente (ADMIN: todos). */
-  async findStudents(q: UserQueryDto, user: any) {
-    const where: any = { ...this.userWhere(q), role: { name: 'USER' } };
-    if (!isAdmin(user)) {
-      const cohorts = await this.prismaService.teacherAssignment.findMany({
-        where: { teacherId: user.id }, select: { careerId: true, level: true },
-      });
-      where.AND = [{ OR: cohorts.length ? cohorts.map((c) => ({ careerId: c.careerId, level: c.level })) : [{ id: { in: [] } }] }];
-    }
-    return this.pageUsers(where, q);
   }
 
   async findOne(id: string) {
@@ -381,6 +357,7 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
     if (roleId && roleId !== user.roleId) {
       const role = await this.prismaService.role.findUnique({ where: { id: roleId } });
       if (!role) throw new BadRequestException('El rol indicado no existe.');
+      if (role.name === 'USER') throw new BadRequestException('Los estudiantes no tienen cuenta: regístralos en Estudiantes.');
       if (user.role.name === 'ADMIN' && (id === actor.id || (await this.countAdmins()) <= 1)) {
         throw new ConflictException('No puedes quitar el rol ADMIN al único administrador ni a tu propia cuenta.');
       }

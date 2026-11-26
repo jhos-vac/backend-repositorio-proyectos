@@ -9,14 +9,13 @@ import { BaseService } from 'src/prisma/base.service';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { ProjectQueryDto } from './dto/project-query.dto';
-import { ReviewProjectDto } from './dto/review-project.dto';
 import { BranchProjectDto } from './dto/branch-project.dto';
-import { MembersProjectDto } from './dto/members-project.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { USER_OMIT } from 'src/common/sanitize';
-import { isAdmin, isStudent, isTeacher } from 'src/common/access';
+import { isAdmin } from 'src/common/access';
 import { unlinkQuiet } from './files/storage';
 import { SimilarQueryDto } from './dto/similar-query.dto';
+import { SetStatusDto } from './dto/set-status.dto';
 import { keywords, similarityScore } from './similarity';
 
 /** Parecido mínimo (0 a 1) para avisar de un proyecto similar. */
@@ -28,7 +27,10 @@ const LIST_INCLUDE = {
   user: { omit: USER_OMIT },
   career: true,
   projectSkills: { include: { skill: true } },
-  userProjects: { include: { user: { select: { id: true, name: true, level: true } } } },
+  students: {
+    include: { student: { select: { id: true, name: true, email: true, level: true, group: true } } },
+    orderBy: { student: { name: 'asc' } },
+  },
   parent: { select: { id: true, name: true } },
   reviewedBy: { select: { id: true, name: true } },
   _count: { select: { branches: true } },
@@ -51,36 +53,68 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
   }
 
   /**
-   * Quién ve qué:
-   *  - ADMIN: todo.
-   *  - DOCENTE: aprobados + lo propio + todo lo de sus carrera/nivel asignados.
-   *  - ESTUDIANTE: aprobados + lo propio (en cualquier estado).
+   * BE-08: solo docentes y ADMIN tienen cuenta y no hay revisión, así que todo
+   * usuario autenticado ve todos los proyectos. Se mantiene como punto único por
+   * si cambia la regla.
    */
-  private async visibleWhere(user: AuthUser): Promise<any> {
-    if (isAdmin(user)) return {};
-    const or: any[] = [{ reviewStatus: 'approved' }, { createdBy: user.id }, { userProjects: { some: { userId: user.id } } }];
-    if (isTeacher(user)) {
-      for (const c of await this.cohortsOf(user.id)) or.push({ careerId: c.careerId, level: c.level });
-    }
+  private async visibleWhere(_user: AuthUser): Promise<any> {
+    return {};
+  }
+
+  /** Proyectos "míos": los que registré o los de mis carrera y nivel asignados. */
+  private async ownWhere(user: AuthUser): Promise<any> {
+    const or: any[] = [{ createdBy: user.id }];
+    for (const c of await this.cohortsOf(user.id)) or.push({ careerId: c.careerId, level: c.level });
     return { OR: or };
   }
 
-  /** Proyectos que el usuario puede revisar (su cohorte). ADMIN: todos. */
-  private async reviewableWhere(user: AuthUser): Promise<any> {
-    if (isAdmin(user)) return {};
-    const cohorts = await this.cohortsOf(user.id);
-    if (cohorts.length === 0) return { id: { in: [] } }; // sin asignaciones no revisa nada
-    return { OR: cohorts.map((c) => ({ careerId: c.careerId, level: c.level })), NOT: { createdBy: user.id } };
+  /** ¿El docente tiene asignada esta carrera y nivel? */
+  private async isAssigned(user: AuthUser, careerId: string, level: number | null | undefined) {
+    if (!level) return false;
+    const a = await this.prismaService.teacherAssignment.findFirst({
+      where: { teacherId: user.id, careerId, level },
+      select: { id: true },
+    });
+    return !!a;
   }
 
-  private buildFilters(q: ProjectQueryDto, user: AuthUser) {
+  /** El docente solo registra proyectos en sus carrera y nivel asignados (ADMIN: en cualquiera). */
+  private async assertCohort(user: AuthUser, careerId: string, level: number | null | undefined) {
+    if (isAdmin(user)) return;
+    if (!(await this.isAssigned(user, careerId, level))) {
+      throw new ForbiddenException('Solo puedes registrar proyectos en tus carreras y niveles asignados.');
+    }
+  }
+
+  /**
+   * Estudiantes del proyecto: individual = exactamente 1, grupal = 2 o más; todos
+   * registrados en la carrera (y nivel, si el proyecto lo tiene) del proyecto.
+   */
+  private async assertStudents(ids: string[], modality: string, careerId: string, level: number | null | undefined) {
+    const unique = Array.from(new Set(ids));
+    if (modality === 'individual' && unique.length !== 1) {
+      throw new BadRequestException('Un proyecto individual debe tener exactamente un estudiante.');
+    }
+    if (modality === 'grupal' && unique.length < 2) {
+      throw new BadRequestException('Un proyecto grupal debe tener al menos dos estudiantes.');
+    }
+    const found = await this.prismaService.student.count({
+      where: { id: { in: unique }, careerId, ...(level ? { level } : {}) },
+    });
+    if (found !== unique.length) {
+      throw new BadRequestException('Los estudiantes deben estar registrados en la misma carrera y nivel del proyecto.');
+    }
+    return unique;
+  }
+
+  private buildFilters(q: ProjectQueryDto, own: any) {
     const f: any = {};
     const and: any[] = [];
     if (q.reviewStatus) f.reviewStatus = q.reviewStatus;
     if (q.careerId) f.careerId = q.careerId;
     if (q.level) f.level = q.level;
-    // "Mío" = lo creó o es integrante (cualquier ciclo)
-    if (q.mine) and.push({ OR: [{ createdBy: user.id }, { userProjects: { some: { userId: user.id } } }] });
+    // "Mío" = lo registré o es de mis carrera y nivel asignados (cualquier ciclo)
+    if (q.mine) and.push(own);
     if (q.period) f.academic_period = q.period;
     if (q.skillIds?.length) and.push(...q.skillIds.map((skillId) => ({ projectSkills: { some: { skillId } } })));
     if (q.continuity === 'continuations') f.parentId = { not: null };
@@ -147,7 +181,8 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
   // ---------------------------------------------------------------- consultas
 
   async list(q: ProjectQueryDto, user: AuthUser) {
-    const where = { AND: [await this.visibleWhere(user), this.buildFilters(q, user), await this.pastFilter(q)] };
+    const own = q.mine ? await this.ownWhere(user) : {};
+    const where = { AND: [await this.visibleWhere(user), this.buildFilters(q, own), await this.pastFilter(q)] };
     return this.page(where, q);
   }
 
@@ -165,10 +200,10 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     return periods.map((p) => p.name);
   }
 
-  /** Filtro "ciclos pasados": proyectos aprobados de períodos ya terminados. */
+  /** Filtro "ciclos pasados": proyectos de períodos ya terminados. */
   private async pastFilter(q: Pick<ProjectQueryDto, 'pastPeriods'>): Promise<any> {
     if (!q.pastPeriods) return {};
-    return { reviewStatus: 'approved', academic_period: { in: await this.pastPeriodNames() } };
+    return { academic_period: { in: await this.pastPeriodNames() } };
   }
 
   /** Etiquetas (tecnologías) usadas en proyectos de ciclos pasados, con cuántos proyectos las usan. */
@@ -183,9 +218,13 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
       .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
   }
 
-  /** Resumen de los proyectos propios del usuario (creados por él o donde es integrante), de todos los ciclos. */
+  /**
+   * Resumen de los proyectos propios (registrados por el docente o de sus carrera y
+   * nivel asignados), de todos los ciclos. pending/rejected quedan en 0 porque ya no
+   * hay revisión; se mantienen para no romper el frontend.
+   */
   async mySummary(user: AuthUser) {
-    const own = { OR: [{ createdBy: user.id }, { userProjects: { some: { userId: user.id } } }] };
+    const own = await this.ownWhere(user);
     const done = {
       OR: [
         { status: { contains: 'complet', mode: 'insensitive' as const } },
@@ -193,14 +232,8 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
       ],
     };
     const count = (extra: any = {}) => this.prismaService.project.count({ where: { AND: [own, extra] } });
-    const [total, pending, approved, rejected, completed] = await Promise.all([
-      count(),
-      count({ reviewStatus: 'pending' }),
-      count({ reviewStatus: 'approved' }),
-      count({ reviewStatus: 'rejected' }),
-      count({ reviewStatus: 'approved', ...done }),
-    ]);
-    return { total, pending, approved, rejected, completed, inProgress: approved - completed };
+    const [total, completed] = await Promise.all([count(), count(done)]);
+    return { total, pending: 0, approved: total, rejected: 0, completed, inProgress: total - completed };
   }
 
   /**
@@ -282,19 +315,10 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     return { total, active, done: completed, featured, recent, topSkills };
   }
 
-  /** Cola de revisión (docente/admin). Por defecto solo los pendientes. */
-  async findForReview(q: ProjectQueryDto, user: AuthUser) {
-    const filters = this.buildFilters({ ...q, reviewStatus: q.reviewStatus ?? 'pending' } as ProjectQueryDto, user);
-    return this.page({ AND: [await this.reviewableWhere(user), filters] }, q);
-  }
-
   async findOne(id: string, user?: AuthUser) {
     const project = await this.prismaService.project.findFirst({
       where: { AND: [{ id }, user ? await this.visibleWhere(user) : {}] },
-      include: {
-        ...LIST_INCLUDE,
-        userProjects: { include: { user: { select: { id: true, name: true, level: true } } } },
-      },
+      include: LIST_INCLUDE,
     });
     if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
     return project;
@@ -326,29 +350,23 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
 
   // ---------------------------------------------------------------- creación
 
-  /** Alumno: carrera y nivel salen de su perfil y el proyecto nace "pendiente". Docente/admin: nace aprobado. */
-  private async authoring(dto: { careerId?: string; level?: number }, user: AuthUser) {
-    if (isStudent(user)) {
-      if (!user.level) {
-        throw new BadRequestException('Tu perfil no tiene nivel asignado. Pide al administrador que lo configure.');
-      }
-      return { careerId: user.careerId, level: user.level, reviewStatus: 'pending' };
-    }
-    return { careerId: dto.careerId, level: dto.level ?? null, reviewStatus: 'approved' };
-  }
-
+  /** BE-08: lo registra el docente (sus carrera y nivel) o el ADMIN, con sus estudiantes; no pasa por revisión. */
   async createWithUser(createProjectDto: CreateProjectDto, user: AuthUser) {
-    const { createdBy: _cb, level: _lv, careerId: _c, status: _s, ...rest } = createProjectDto as any;
-    const auth = await this.authoring(createProjectDto, user);
+    const { createdBy: _cb, status: _s, studentIds, modality, careerId, level, ...rest } = createProjectDto as any;
+    await this.assertCohort(user, careerId, level);
+    const ids = await this.assertStudents(studentIds, modality, careerId, level);
     await this.assertPeriod(createProjectDto.academic_period, true);
 
     return this.prismaService.project.create({
       data: {
         ...rest,
+        careerId,
+        level,
+        modality,
         status: 'en progreso',
-        ...auth,
+        reviewStatus: 'approved',
         createdBy: user.id,
-        userProjects: { create: { userId: user.id } },
+        students: { create: ids.map((studentId) => ({ studentId })) },
       } as any,
       include: LIST_INCLUDE,
     });
@@ -364,71 +382,59 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     if (!found) throw new BadRequestException('El período académico no existe. Pide al administrador que lo registre.');
   }
 
-  /** Reemplaza los integrantes: solo quien puede editar; deben ser estudiantes de la carrera del proyecto. */
-  async setMembers(id: string, dto: MembersProjectDto, user: AuthUser) {
-    const project = await this.prismaService.project.findUnique({ where: { id } });
-    if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
-    this.assertCanModify(project, user, 'editar');
-
-    const ids = Array.from(new Set([...(project.createdBy ? [project.createdBy] : []), ...dto.userIds]));
-    const extra = ids.filter((x) => x !== project.createdBy);
-    if (extra.length) {
-      const valid = await this.prismaService.user.count({
-        where: { id: { in: extra }, careerId: project.careerId, role: { name: 'USER' } },
-      });
-      if (valid !== extra.length) {
-        throw new BadRequestException('Los integrantes deben ser estudiantes de la misma carrera del proyecto.');
-      }
-    }
-    await this.prismaService.$transaction([
-      this.prismaService.userProject.deleteMany({ where: { projectId: id } }),
-      this.prismaService.userProject.createMany({ data: ids.map((userId) => ({ userId, projectId: id })) }),
-    ]);
-    return this.findOne(id, user);
-  }
-
   // ---------------------------------------------------------------- edición / borrado
 
-  /** Reglas: ADMIN todo; dueño docente todo lo suyo; dueño estudiante solo si NO está aprobado. */
-  private assertCanModify(project: { createdBy: string | null; reviewStatus: string }, user: AuthUser, verb: string) {
-    if (isAdmin(user)) return;
-    if (project.createdBy !== user.id) {
-      throw new ForbiddenException(`No tienes permiso para ${verb} este proyecto.`);
-    }
-    if (isStudent(user) && project.reviewStatus === 'approved') {
-      throw new ForbiddenException(`Un proyecto aprobado no puede ${verb === 'editar' ? 'modificarse' : 'eliminarse'} por el estudiante.`);
-    }
+  /** Pueden editar, borrar y cambiar el estado: ADMIN, el docente que lo registró o el asignado a su carrera y nivel. */
+  private async assertCanModify(project: { createdBy: string | null; careerId: string; level: number | null }, user: AuthUser, verb: string) {
+    if (isAdmin(user) || project.createdBy === user.id) return;
+    if (await this.isAssigned(user, project.careerId, project.level)) return;
+    throw new ForbiddenException(`No tienes permiso para ${verb} este proyecto.`);
   }
 
   async updateWithPermission(id: string, dto: UpdateProjectDto, user: AuthUser) {
-    const project = await this.prismaService.project.findUnique({ where: { id } });
+    const project = await this.prismaService.project.findUnique({
+      where: { id },
+      include: { students: { select: { studentId: true } } },
+    });
     if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
-    this.assertCanModify(project, user, 'editar');
+    await this.assertCanModify(project, user, 'editar');
 
-    // El cliente nunca cambia propietario ni flujo de revisión
-    const { createdBy: _cb, level, careerId, ...rest } = dto as any;
+    // El cliente nunca cambia el propietario; el estado de avance solo cambia con setStatus
+    const { createdBy: _cb, status: _st, studentIds, modality, careerId, level, ...rest } = dto as any;
     const data: any = { ...rest };
     if (rest.academic_period !== undefined && rest.academic_period !== project.academic_period) {
       await this.assertPeriod(rest.academic_period, true);
     }
 
-    if (isStudent(user)) {
-      // carrera y nivel de un estudiante no se editan; corregir un rechazo lo reenvía a revisión
-      if (project.reviewStatus === 'rejected') {
-        Object.assign(data, { reviewStatus: 'pending', reviewedAt: null });
-      }
-    } else {
-      if (careerId) data.careerId = careerId;
-      if (level !== undefined) data.level = level;
+    const nextCareer = careerId ?? project.careerId;
+    const nextLevel = level ?? project.level;
+    const cohortChanged = nextCareer !== project.careerId || nextLevel !== project.level;
+    if (cohortChanged) {
+      await this.assertCohort(user, nextCareer, nextLevel);
+      Object.assign(data, { careerId: nextCareer, level: nextLevel });
     }
 
-    return this.prismaService.project.update({ where: { id }, data, include: LIST_INCLUDE });
+    // Estudiantes y modalidad se validan juntos si cambia cualquiera de ellos o la carrera/nivel
+    let ids: string[] | undefined;
+    if (studentIds !== undefined || modality !== undefined || cohortChanged) {
+      const nextModality = modality ?? project.modality;
+      ids = await this.assertStudents(studentIds ?? project.students.map((s) => s.studentId), nextModality, nextCareer, nextLevel);
+      data.modality = nextModality;
+    }
+
+    if (!ids) return this.prismaService.project.update({ where: { id }, data, include: LIST_INCLUDE });
+    const [, , updated] = await this.prismaService.$transaction([
+      this.prismaService.projectStudent.deleteMany({ where: { projectId: id } }),
+      this.prismaService.projectStudent.createMany({ data: ids.map((studentId) => ({ projectId: id, studentId })) }),
+      this.prismaService.project.update({ where: { id }, data, include: LIST_INCLUDE }),
+    ]);
+    return updated;
   }
 
   async removeWithPermission(id: string, user: AuthUser) {
     const project = await this.prismaService.project.findUnique({ where: { id } });
     if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
-    this.assertCanModify(project, user, 'eliminar');
+    await this.assertCanModify(project, user, 'eliminar');
     return this.remove(id);
   }
 
@@ -436,56 +442,29 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     const docs = await this.prismaService.projectDocument.findMany({ where: { projectId: id }, select: { storedName: true } });
     await this.prismaService.projectSkills.deleteMany({ where: { projectId: id } });
     await this.prismaService.userProject.deleteMany({ where: { projectId: id } });
-    const result = await super.remove(id); // los registros de documentos/enlaces se borran en cascada
+    const result = await super.remove(id); // documentos, enlaces y estudiantes del proyecto se borran en cascada
     await Promise.all(docs.map((d) => unlinkQuiet(d.storedName)));
     return result;
   }
 
-  /**
-   * Quién puede subir/borrar PDF y enlaces: ADMIN siempre; el creador o un integrante solo mientras
-   * el proyecto esté aprobado y no finalizado (no en revisión, no rechazado, no finalizado).
-   */
-  assertCanManageFiles(
-    project: { createdBy: string | null; reviewStatus: string; status: string; userProjects?: { userId: string }[] },
-    user: AuthUser,
-  ) {
+  /** Subir/borrar PDF y enlaces: quien puede editar el proyecto, mientras no esté finalizado (ADMIN siempre). */
+  async assertCanManageFiles(project: { createdBy: string | null; careerId: string; level: number | null; status: string }, user: AuthUser) {
     if (isAdmin(user)) return;
-    const member = project.createdBy === user.id || (project.userProjects || []).some((m) => m.userId === user.id);
-    if (!member) throw new ForbiddenException('Solo el equipo del proyecto puede gestionar sus archivos y enlaces.');
-    if (project.reviewStatus === 'rejected') throw new ForbiddenException('El proyecto fue rechazado: no se pueden adjuntar archivos ni enlaces.');
-    if (project.reviewStatus !== 'approved') throw new ForbiddenException('El proyecto aún está en revisión: podrás adjuntar archivos cuando sea aprobado.');
+    await this.assertCanModify(project, user, 'gestionar los archivos de');
     if (/complet|finaliz/i.test(project.status || '')) throw new ForbiddenException('El proyecto está finalizado: ya no se pueden modificar sus archivos ni enlaces.');
   }
 
-  // ---------------------------------------------------------------- revisión
-
-  async review(id: string, dto: ReviewProjectDto, user: AuthUser) {
+  /**
+   * Marcar un proyecto como completado o reabrirlo. Lo decide el docente: el asignado a la
+   * carrera y nivel del proyecto o el que lo registró; ADMIN siempre.
+   */
+  async setStatus(id: string, dto: SetStatusDto, user: AuthUser) {
     const project = await this.prismaService.project.findUnique({ where: { id } });
     if (!project) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
 
-    if (!isAdmin(user)) {
-      if (project.createdBy === user.id) throw new ForbiddenException('No puedes revisar tu propio proyecto.');
-      const assigned = project.level
-        ? await this.prismaService.teacherAssignment.findFirst({
-            where: { teacherId: user.id, careerId: project.careerId, level: project.level },
-          })
-        : null;
-      if (!assigned) throw new ForbiddenException('Este proyecto no pertenece a tus carrera y nivel asignados.');
-    }
-    if (dto.decision === 'rejected' && !dto.note?.trim()) {
-      throw new BadRequestException('Indica el motivo del rechazo para que el estudiante pueda corregirlo.');
-    }
+    await this.assertCanModify(project, user, 'cambiar el estado de');
 
-    return this.prismaService.project.update({
-      where: { id },
-      data: {
-        reviewStatus: dto.decision,
-        reviewNote: dto.note?.trim() || null,
-        reviewedById: user.id,
-        reviewedAt: new Date(),
-      },
-      include: LIST_INCLUDE,
-    });
+    return this.prismaService.project.update({ where: { id }, data: { status: dto.status }, include: LIST_INCLUDE });
   }
 
   // ---------------------------------------------------------------- continuidad (ramas)
@@ -500,17 +479,18 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
       include: { projectSkills: true },
     });
     if (!src) throw new NotFoundException(`Proyecto con ID ${id} no encontrado`);
-    if (src.reviewStatus !== 'approved') {
-      throw new BadRequestException('Solo se pueden continuar proyectos aprobados.');
-    }
 
     const dup = await this.prismaService.project.findFirst({
-      where: { parentId: id, createdBy: user.id, reviewStatus: { not: 'rejected' } },
+      where: { parentId: id, createdBy: user.id },
       select: { id: true },
     });
     if (dup) throw new ConflictException('Ya tienes una continuación activa de este proyecto.');
 
-    const auth = await this.authoring({ careerId: src.careerId, level: src.level ?? undefined }, user);
+    // La continuación puede ser de otro nivel (p. ej. el siguiente); el docente debe tenerlo asignado
+    const level = dto.level ?? src.level;
+    await this.assertCohort(user, src.careerId, level);
+    const modality = dto.modality ?? (dto.studentIds ? (new Set(dto.studentIds).size === 1 ? 'individual' : 'grupal') : src.modality);
+    const ids = dto.studentIds ? await this.assertStudents(dto.studentIds, modality, src.careerId, level) : [];
     // La continuación pertenece a un período nuevo: el elegido o, por defecto, el más reciente configurado.
     await this.assertPeriod(dto.academic_period, false);
     const latest = dto.academic_period
@@ -530,12 +510,15 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
         cycle: src.cycle,
         academic_period,
         status: 'en progreso',
-        ...auth,
+        reviewStatus: 'approved',
+        careerId: src.careerId,
+        level,
+        modality,
         parentId: src.id,
         rootId,
         branchNumber: inChain + 1,
         createdBy: user.id,
-        userProjects: { create: { userId: user.id } },
+        students: { create: ids.map((studentId) => ({ studentId })) },
         projectSkills: { create: src.projectSkills.map((s) => ({ skillId: s.skillId })) },
       } as any,
       include: LIST_INCLUDE,

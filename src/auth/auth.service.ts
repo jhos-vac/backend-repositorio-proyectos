@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   HttpException,
   Injectable,
   InternalServerErrorException,
@@ -39,13 +40,6 @@ export class AuthService {
     });
   }
 
-  private isDomainAllowed(email: string): boolean {
-    const domain = (email.split('@')[1] ?? '').toLowerCase();
-    const allowedDomains = ['sudamericano.edu.ec', 'gmail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'icloud.com'];
-    const allowedExtensions = ['.edu.ec', '.gob.ec', '.org.ec', '.com.ec', '.net.ec', '.ec', '.com', '.edu'];
-    return allowedDomains.includes(domain) || allowedExtensions.some(ext => domain.endsWith(ext));
-  }
-
   private readonly logger = new Logger(AuthService.name);
   // Hash de descarte: se compara siempre para que el tiempo de respuesta no
   // revele si el correo existe.
@@ -76,31 +70,13 @@ export class AuthService {
     });
   }
 
-  async register(createUserDto: CreateUserDto) {
-    try {
-      const { password, email, roleId: _, ...userDto } = createUserDto;
-      if (!userDto.level) throw new BadRequestException('El nivel (1 a 4) es obligatorio.');
-      if (!this.isDomainAllowed(email)) throw new BadRequestException('Dominio de correo no permitido.');
-
-      const role = await this.prisma.role.findFirst({ where: { name: 'USER' } });
-      if (!role) throw new InternalServerErrorException("Error: El rol 'USER' no existe.");
-
-      const hashedPassword = await bcrypt.hash(password, 12);
-      const user = await this.prisma.user.create({
-        data: { ...userDto, email: email.toLowerCase(), password: hashedPassword, roleId: role.id },
-        omit: USER_OMIT,
-      });
-      const tokens = this.signTokens({ id: user.id, tokenVersion: 0 });
-      return { user, token: tokens.accessToken, ...tokens };
-    } catch (error) { this.handleDBErrors(error); }
-  }
-
   async registerAdmin(createUserDto: CreateUserDto) {
     try {
       const { password, email, roleId, ...userDto } = createUserDto;
       if (!roleId) throw new BadRequestException("El roleId es obligatorio.");
       const role = await this.prisma.role.findUnique({ where: { id: roleId } });
       if (!role) throw new BadRequestException("El rol indicado no existe.");
+      if (role.name === "USER") throw new BadRequestException("Los estudiantes no tienen cuenta: regístralos en Estudiantes.");
 
       const hashedPassword = await bcrypt.hash(password, 12);
       return await this.prisma.user.create({
@@ -116,6 +92,8 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email: email.toLowerCase() }, include: { role: true } });
     const valid = await bcrypt.compare(password, user?.password ?? this.dummyHash);
     if (!user || !valid) throw new UnauthorizedException("Credenciales incorrectas");
+    // BE-08: los estudiantes no tienen cuenta; los administra el docente
+    if (user.role.name === "USER") throw new ForbiddenException("Los estudiantes no tienen acceso al sistema.");
 
     return {
       userId: user.id,

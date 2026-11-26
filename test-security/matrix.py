@@ -11,22 +11,24 @@ ANSI = re.compile(r"\x1b\[[0-9;]*m")
 # política esperada: PUBLIC | ANY (autenticado) | ADMIN | SELF (propio o admin)
 P = {
  ("GET","/api"):"PUBLIC",
- ("POST","/api/auth/login"):"PUBLIC", ("POST","/api/auth/register"):"PUBLIC",
+ ("POST","/api/auth/login"):"PUBLIC",
  ("POST","/api/auth/refresh-token"):"PUBLIC", ("POST","/api/auth/forgot-password"):"PUBLIC",
  ("POST","/api/auth/reset-password/:token"):"PUBLIC",
  ("POST","/api/auth/register-admin"):"ADMIN", ("POST","/api/auth/logout"):"ANY",
  ("POST","/api/users/create-teacher"):"ADMIN", ("POST","/api/users/create-teachers"):"ADMIN", ("POST","/api/users"):"ADMIN", ("GET","/api/users"):"ADMIN",
  ("GET","/api/users/:id"):"SELF", ("PATCH","/api/users/:id"):"SELF", ("PATCH","/api/users/:id/image"):"SELF",
  ("PATCH","/api/users/:id/change-password"):"SELFONLY", ("DELETE","/api/users/:id"):"ADMIN",
- ("POST","/api/projects"):"ANY", ("GET","/api/projects"):"ANY", ("GET","/api/projects/skill/:skillId"):"ANY",
- ("GET","/api/projects/:id"):"ANY", ("PATCH","/api/projects/:id"):"ANY", ("DELETE","/api/projects/:id"):"ANY", ("GET","/api/projects/review"):"STAFF", ("GET","/api/projects/:id/lineage"):"ANY",
- ("PATCH","/api/projects/:id/review"):"STAFF", ("POST","/api/projects/:id/branch"):"ANY",
+ ("POST","/api/projects"):"STAFF", ("GET","/api/projects"):"ANY", ("GET","/api/projects/skill/:skillId"):"ANY",
+ ("GET","/api/projects/:id"):"ANY", ("PATCH","/api/projects/:id"):"STAFF", ("DELETE","/api/projects/:id"):"STAFF", ("GET","/api/projects/:id/lineage"):"ANY",
+ ("PATCH","/api/projects/:id/status"):"STAFF", ("POST","/api/projects/:id/branch"):"STAFF",
  ("GET","/api/projects/similar"):"ANY", ("GET","/api/projects/dashboard"):"ANY", ("GET","/api/projects/mine/summary"):"ANY", ("GET","/api/projects/past/tags"):"ANY",
- ("GET","/api/users/students"):"STAFF", ("PATCH","/api/users/:id/admin"):"ADMIN",
+ ("PATCH","/api/users/:id/admin"):"ADMIN",
+ ("GET","/api/students"):"STAFF", ("POST","/api/students"):"STAFF", ("POST","/api/students/bulk"):"STAFF",
+ ("GET","/api/students/:id"):"STAFF", ("PATCH","/api/students/:id"):"STAFF", ("DELETE","/api/students/:id"):"STAFF",
  ("GET","/api/assignments"):"ADMIN", ("GET","/api/assignments/mine"):"STAFF", ("PUT","/api/assignments"):"ADMIN",
  ("POST","/api/skills"):"ANY", ("GET","/api/skills"):"ANY", ("GET","/api/skills/:id"):"ANY",
  ("PATCH","/api/skills/:id"):"ANY", ("DELETE","/api/skills/:id"):"ANY",
- ("PUT","/api/projects/:id/members"):"ANY", ("GET","/api/projects/:id/documents"):"ANY", ("POST","/api/projects/:id/documents"):"ANY", ("GET","/api/projects/:id/documents/:docId/download"):"ANY", ("DELETE","/api/projects/:id/documents/:docId"):"ANY", ("GET","/api/projects/:id/links"):"ANY", ("POST","/api/projects/:id/links"):"ANY", ("DELETE","/api/projects/:id/links/:linkId"):"ANY", ("GET","/api/users/candidates"):"ANY", ("GET","/api/assignments/my-teacher"):"ANY",
+ ("GET","/api/projects/:id/documents"):"ANY", ("POST","/api/projects/:id/documents"):"ANY", ("GET","/api/projects/:id/documents/:docId/download"):"ANY", ("DELETE","/api/projects/:id/documents/:docId"):"ANY", ("GET","/api/projects/:id/links"):"ANY", ("POST","/api/projects/:id/links"):"ANY", ("DELETE","/api/projects/:id/links/:linkId"):"ANY",
  ("POST","/api/period"):"ADMIN", ("GET","/api/period"):"ANY", ("GET","/api/period/:id"):"ANY", ("DELETE","/api/period/:id"):"ADMIN",
  ("POST","/api/careers"):"ADMIN", ("GET","/api/careers"):"PUBLIC", ("GET","/api/careers/:id"):"PUBLIC",
  ("PATCH","/api/careers/:id"):"ADMIN", ("DELETE","/api/careers/:id"):"ADMIN",
@@ -63,11 +65,14 @@ def login(email,pw):
 
 tok={"ADMIN":login("luis@gmail.com","Admin#Test2026x"),"TEACHER":login("teacher1@sudamericano.edu.ec","Demo#Test2026x")}
 s,b=call("GET","/api/careers"); career=json.loads(b)["data"][0]["id"]
-s,b=call("POST","/api/auth/register",body={"email":"alumno.test@gmail.com","password":"Alumno#2026x","name":"Alumno Test","careerId":career,"level":1})
-if s not in(200,201): tok["USER"]=login("alumno.test@gmail.com","Alumno#2026x")
-else: tok["USER"]=json.loads(b)["accessToken"]
+# BE-08: los estudiantes no tienen cuenta; ningún actor USER puede autenticarse.
+s,b=call("GET","/api/roles?limit=50",tok["ADMIN"]); userRole=[r for r in json.loads(b)["data"] if r["name"]=="USER"][0]["id"]
+s,_=call("POST","/api/auth/register-admin",tok["ADMIN"],body={"email":"alumno.test@sudamericano.edu.ec","password":"Alumno#2026x","name":"Alumno Test","careerId":career,"roleId":userRole,"level":1})
+print(f"register-admin con rol USER -> {s} (esperado 400)")
+ACTORS=("TEACHER","ADMIN")
 
-fail=0; rows=[]
+fail=0 if s==400 else 1; rows=[]
+if s!=400: print("  FALLO: register-admin aceptó el rol USER")
 def check(cond,msg):
     global fail
     if not cond: fail+=1; print("  FALLO:",msg)
@@ -78,7 +83,7 @@ for method,route in routes:
     path=re.sub(r":\w+",UUID,route)
     if route=="/api/auth/reset-password/:token": path="/api/auth/reset-password/abc"
     res={}
-    for actor in ("anon","USER","TEACHER","ADMIN"):
+    for actor in ("anon",)+ACTORS:
         t=None if actor=="anon" else tok[actor]
         body={'oldPassword':'x','newPassword':'Abcd123!x'} if route.endswith('change-password') else None
         st,_=call(method,path,t,body); res[actor]=st
@@ -87,18 +92,18 @@ for method,route in routes:
     else:
         check(res["anon"]==401,f"{method} {route} anon debería 401 y dio {res['anon']}")
         if pol=="ADMIN":
-            check(res["USER"]==403 and res["TEACHER"]==403,f"{method} {route} USER/TEACHER deberían 403: {res}")
+            check(res["TEACHER"]==403,f"{method} {route} TEACHER debería 403: {res}")
             check(res["ADMIN"] not in(401,403),f"{method} {route} ADMIN bloqueado: {res}")
         elif pol=="STAFF":
-            check(res["USER"]==403 and res["TEACHER"] not in(401,403) and res["ADMIN"] not in(401,403),f"{method} {route} STAFF: {res}")
+            check(res["TEACHER"] not in(401,403) and res["ADMIN"] not in(401,403),f"{method} {route} STAFF: {res}")
         elif pol=="ANY":
-            for a in("USER","TEACHER","ADMIN"): check(res[a] not in(401,403),f"{method} {route} {a}->{res[a]}")
+            for a in ACTORS: check(res[a] not in(401,403),f"{method} {route} {a}->{res[a]}")
         elif pol=="SELFONLY":  # ni el admin cambia claves ajenas
-            check(all(res[a]==403 for a in("USER","TEACHER","ADMIN")),f"{method} {route} debería 403 para todos: {res}")
+            check(all(res[a]==403 for a in ACTORS),f"{method} {route} debería 403 para todos: {res}")
         elif pol=="SELF":  # UUID ajeno: no-admin 403, admin pasa
-            check(res["USER"]==403 and res["TEACHER"]==403,f"{method} {route} ajeno USER/TEACHER deberían 403: {res}")
+            check(res["TEACHER"]==403,f"{method} {route} ajeno TEACHER debería 403: {res}")
             check(res["ADMIN"] not in(401,403),f"{method} {route} ADMIN bloqueado: {res}")
     rows.append((method,route,pol,res))
-for m,r,p,res in rows: print(f"{m:6} {r:42} {p:7} anon={res['anon']} user={res['USER']} teacher={res['TEACHER']} admin={res['ADMIN']}")
+for m,r,p,res in rows: print(f"{m:6} {r:42} {p:7} anon={res['anon']} teacher={res['TEACHER']} admin={res['ADMIN']}")
 print("\nRESULTADO:", "OK - todas las rutas cubiertas y aseguradas" if fail==0 else f"{fail} FALLOS")
 sys.exit(1 if fail else 0)
