@@ -268,6 +268,14 @@ async function main() {
 
     console.log(`✅ Created ${skills.length} skills`);
 
+    // ========== PERÍODOS ACADÉMICOS (solo mes y año) ==========
+    await prisma.period.createMany({
+        data: [
+            { name: "Mayo-2026 – Septiembre-2026", startMonth: 5, startYear: 2026, endMonth: 9, endYear: 2026 },
+            { name: "Septiembre-2026 – Enero-2027", startMonth: 9, startYear: 2026, endMonth: 1, endYear: 2027 },
+        ],
+    });
+
     // ========== USERS ==========
     console.log("👤 Creating users...");
     // Sin contraseñas fijas en el código: se leen del entorno o se generan al azar.
@@ -297,11 +305,20 @@ async function main() {
         data: {
             email: process.env.SEED_ADMIN_EMAIL || "luis@gmail.com",
             password: adminHashed,
-            name: "Administrator",
+            name: process.env.SEED_ADMIN_NAME || "Administrador",
             roleId: adminRole.id,
             careerId: careers[0].id, 
         },
     });
+
+    // Producción: solo catálogos y la cuenta de administrador; los docentes los crea el admin.
+    // Los datos de ejemplo (docentes, estudiantes, proyectos) solo con SEED_DEMO=true o DEV_RESET=true.
+    const demo = process.env.SEED_DEMO === "true" || process.env.DEV_RESET === "true";
+    if (!demo) {
+        console.log(`✅ Admin: ${adminUser.email}`);
+        console.log("🎉 Seed completed (sin datos de ejemplo).");
+        return;
+    }
 
     // Teacher users
     const teacher1 = await prisma.user.create({
@@ -359,14 +376,6 @@ async function main() {
     console.log("✅ Created users:");
     console.log(` - Admin: ${adminUser.email}`);
     console.log(` - Teacher: ${teacher1.email}`);
-
-    // ========== PERÍODOS ACADÉMICOS (solo mes y año) ==========
-    await prisma.period.createMany({
-        data: [
-            { name: "Mayo-2026 – Septiembre-2026", startMonth: 5, startYear: 2026, endMonth: 9, endYear: 2026 },
-            { name: "Septiembre-2026 – Enero-2027", startMonth: 9, startYear: 2026, endMonth: 1, endYear: 2027 },
-        ],
-    });
 
     // ========== PROJECTS ==========
     console.log("📁 Creating projects...");
