@@ -30,4 +30,8 @@ export class AdminUpdateUserDto {
 
   @IsOptional() @IsBoolean()
   needsPasswordChange?: boolean;
+
+  /** Restablece la contraseña a la inicial por defecto; el usuario deberá cambiarla al entrar */
+  @IsOptional() @IsBoolean()
+  resetPassword?: boolean;
 }

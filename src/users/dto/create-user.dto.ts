@@ -12,10 +12,11 @@ export class CreateUserDto {
     @IsEmail({}, { message: 'El correo electrónico no es válido' })
     email: string;
 
-    @ApiProperty({ description: 'Contraseña segura del usuario' })
+    @ApiProperty({ description: 'Contraseña inicial (opcional: si falta se usa la contraseña por defecto)', required: false })
+    @IsOptional()
     @MaxLength(72) // límite real de bcrypt
     @IsStrongPassword(STRONG_PASSWORD, { message: STRONG_PASSWORD_MESSAGE })
-    password: string;
+    password?: string;
 
     @ApiProperty({ description: 'Nombre completo del usuario' })
     @IsString({ message: 'El nombre debe ser una cadena de texto' })

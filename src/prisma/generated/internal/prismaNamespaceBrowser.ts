@@ -222,6 +222,7 @@ export const PeriodScalarFieldEnum = {
   startYear: 'startYear',
   endMonth: 'endMonth',
   endYear: 'endYear',
+  active: 'active',
   createdAt: 'createdAt'
 } as const
 
@@ -231,6 +232,7 @@ export type PeriodScalarFieldEnum = (typeof PeriodScalarFieldEnum)[keyof typeof 
 export const StudentScalarFieldEnum = {
   id: 'id',
   name: 'name',
+  cedula: 'cedula',
   email: 'email',
   careerId: 'careerId',
   level: 'level',

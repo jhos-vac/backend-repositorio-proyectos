@@ -198,6 +198,8 @@ model Period {
   startYear  Int?
   endMonth   Int?
   endYear    Int?
+  /// Período en curso: solo uno a la vez y solo lo cambia el ADMIN. Los proyectos y estudiantes nuevos se registran en él.
+  active     Boolean  @default(false)
   createdAt DateTime @default(now())
 }
 
@@ -205,7 +207,8 @@ model Period {
 model Student {
   id             String   @id @default(uuid())
   name           String
-  email          String   @unique // correo institucional
+  cedula         String?  @unique // identificación del SGA (la plantilla del SGA no trae correo)
+  email          String?  @unique // correo institucional (opcional)
   careerId       String
   career         Career   @relation(fields: [careerId], references: [id])
   level          Int // 1 a 4

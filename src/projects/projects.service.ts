@@ -358,11 +358,12 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     const { createdBy: _cb, status: _s, studentIds, modality, careerId, level, ...rest } = createProjectDto as any;
     await this.assertCohort(user, careerId, level);
     const ids = await this.assertStudents(studentIds, modality, careerId, level);
-    await this.assertPeriod(createProjectDto.academic_period, true);
+    const academic_period = await this.resolvePeriod(user, createProjectDto.academic_period);
 
     return this.prismaService.project.create({
       data: {
         ...rest,
+        academic_period,
         careerId,
         level,
         modality,
@@ -382,16 +383,24 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
    * período existente, modalidad y estudiantes (por correo) de esa carrera y nivel.
    */
   async createMany(rows: BulkProjectRowDto[], user: AuthUser) {
-    const emails = Array.from(new Set(rows.flatMap((r) => r.studentEmails)));
+    // Estudiantes por correo o por cédula (los del SGA no traen correo)
+    const keys = Array.from(new Set(rows.flatMap((r) => r.studentEmails)));
+    const active = await this.prismaService.period.findFirst({ where: { active: true }, select: { name: true } });
+    // El docente siempre registra en el período activo; el ADMIN puede indicar otro en la fila
+    rows.forEach((r) => { if (!isAdmin(user) || !r.academic_period) r.academic_period = active?.name as string; });
     const [cohorts, careers, periods, students] = await Promise.all([
       isAdmin(user) ? Promise.resolve(null) : this.cohortsOf(user.id),
       this.prismaService.career.findMany({ where: { id: { in: rows.map((r) => r.careerId) } }, select: { id: true } }),
-      this.prismaService.period.findMany({ where: { name: { in: rows.map((r) => r.academic_period) } }, select: { name: true } }),
-      this.prismaService.student.findMany({ where: { email: { in: emails } }, select: { id: true, email: true, careerId: true, level: true } }),
+      this.prismaService.period.findMany({ where: { name: { in: rows.map((r) => r.academic_period).filter((p): p is string => !!p) } }, select: { name: true } }),
+      this.prismaService.student.findMany({
+        where: { OR: [{ email: { in: keys } }, { cedula: { in: keys } }] },
+        select: { id: true, email: true, cedula: true, careerId: true, level: true },
+      }),
     ]);
     const careerIds = new Set(careers.map((c) => c.id));
     const periodNames = new Set(periods.map((p) => p.name));
-    const byEmail = new Map(students.map((s) => [s.email, s]));
+    const byEmail = new Map<string, (typeof students)[number]>();
+    students.forEach((s) => { if (s.email) byEmail.set(s.email, s); if (s.cedula) byEmail.set(s.cedula, s); });
 
     const errors: string[] = [];
     const resolved: string[][] = [];
@@ -402,10 +411,11 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
       else if (cohorts && !cohorts.some((c) => c.careerId === row.careerId && c.level === row.level)) {
         err('la carrera y el nivel no están entre tus asignaciones.');
       }
-      if (!periodNames.has(row.academic_period)) err(`el período «${row.academic_period}» no existe.`);
+      if (!row.academic_period) err('el administrador aún no activa un período académico.');
+      else if (!periodNames.has(row.academic_period)) err(`el período «${row.academic_period}» no existe.`);
 
       const unique = Array.from(new Set(row.studentEmails));
-      if (unique.length !== row.studentEmails.length) err('hay un correo de estudiante repetido.');
+      if (unique.length !== row.studentEmails.length) err('hay un estudiante repetido.');
       if (row.modality === 'individual' && unique.length !== 1) err('un proyecto individual debe tener exactamente un estudiante.');
       if (row.modality === 'grupal' && unique.length < 2) err('un proyecto grupal debe tener al menos dos estudiantes.');
       if (unique.length > MAX_STUDENTS) err(`un proyecto admite hasta ${MAX_STUDENTS} estudiantes.`);
@@ -439,6 +449,20 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     return { created: created.length, projects: created };
   }
 
+  /**
+   * Período del proyecto: el docente siempre registra en el período activo (no lo elige);
+   * el ADMIN puede indicar otro existente o, si no indica, también el activo.
+   */
+  private async resolvePeriod(user: AuthUser, requested?: string): Promise<string> {
+    if (isAdmin(user) && requested) {
+      await this.assertPeriod(requested, true);
+      return requested;
+    }
+    const active = await this.prismaService.period.findFirst({ where: { active: true }, select: { name: true } });
+    if (!active) throw new BadRequestException('El administrador aún no activa un período académico.');
+    return active.name;
+  }
+
   /** El período académico debe existir (lo configura el ADMIN). */
   private async assertPeriod(name: string | undefined, required: boolean) {
     if (!name) {
@@ -469,7 +493,9 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     // El cliente nunca cambia el propietario; el estado de avance solo cambia con setStatus
     const { createdBy: _cb, status: _st, studentIds, modality, careerId, level, ...rest } = dto as any;
     const data: any = { ...rest };
-    if (rest.academic_period !== undefined && rest.academic_period !== project.academic_period) {
+    // Solo el ADMIN cambia el período de un proyecto ya registrado
+    if (!isAdmin(user)) delete data.academic_period;
+    else if (rest.academic_period !== undefined && rest.academic_period !== project.academic_period) {
       await this.assertPeriod(rest.academic_period, true);
     }
 
@@ -558,12 +584,8 @@ export class ProjectsService extends BaseService<any, CreateProjectDto, UpdatePr
     await this.assertCohort(user, src.careerId, level);
     const modality = dto.modality ?? (dto.studentIds ? (new Set(dto.studentIds).size === 1 ? 'individual' : 'grupal') : src.modality);
     const ids = dto.studentIds ? await this.assertStudents(dto.studentIds, modality, src.careerId, level) : [];
-    // La continuación pertenece a un período nuevo: el elegido o, por defecto, el más reciente configurado.
-    await this.assertPeriod(dto.academic_period, false);
-    const latest = dto.academic_period
-      ? null
-      : (await this.prismaService.period.findMany({ orderBy: [{ startYear: { sort: 'desc', nulls: 'last' } }, { startMonth: { sort: 'desc', nulls: 'last' } }], take: 1 }))[0];
-    const academic_period = dto.academic_period ?? latest?.name ?? src.academic_period;
+    // La continuación se registra en el período activo (el ADMIN puede indicar otro)
+    const academic_period = await this.resolvePeriod(user, dto.academic_period);
     const rootId = src.rootId ?? src.id;
     const inChain = await this.prismaService.project.count({ where: { OR: [{ id: rootId }, { rootId }] } });
 
