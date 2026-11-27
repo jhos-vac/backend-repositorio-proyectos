@@ -5,6 +5,7 @@ import {
   Body, 
   Param, 
   Delete, 
+  Patch,
   ParseUUIDPipe
 } from '@nestjs/common';
 import { PeriodService } from './period.service';
@@ -27,6 +28,20 @@ export class PeriodController {
   @AllowPendingPassword()
   findAll() {
     return this.periodService.findAll();
+  }
+
+  /** Período en curso: lo usan los formularios para mostrarlo (no se elige). */
+  @Get('active')
+  @Auth()
+  @AllowPendingPassword()
+  findActive() {
+    return this.periodService.findActive();
+  }
+
+  @Patch(':id/activate')
+  @Auth(ValidRoles.ADMIN)
+  activate(@Param('id', ParseUUIDPipe) id: string) {
+    return this.periodService.activate(id);
   }
 
   @Get(':id')

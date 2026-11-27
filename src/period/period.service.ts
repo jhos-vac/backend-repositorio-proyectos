@@ -30,6 +30,20 @@ export class PeriodService {
     });
   }
 
+  /** Período en curso (null si el ADMIN aún no activa ninguno). */
+  findActive() {
+    return this.prisma.period.findFirst({ where: { active: true } });
+  }
+
+  /** Solo el ADMIN: marca este período como el único en curso. */
+  async activate(id: string) {
+    await this.findOne(id);
+    return this.prisma.$transaction(async (tx) => {
+      await tx.period.updateMany({ where: { active: true, NOT: { id } }, data: { active: false } });
+      return tx.period.update({ where: { id }, data: { active: true } });
+    });
+  }
+
   async findOne(id: string) {
     const period = await this.prisma.period.findUnique({ where: { id } });
     if (!period) throw new NotFoundException(`Period with ID ${id} not found`);
@@ -38,6 +52,7 @@ export class PeriodService {
 
   async remove(id: string) {
     const period = await this.findOne(id);
+    if (period.active) throw new ConflictException('No se puede eliminar el período activo: activa otro primero.');
     const used = await this.prisma.project.count({ where: { academic_period: period.name } });
     if (used > 0) {
       throw new ConflictException(`No se puede eliminar: ${used} proyecto(s) pertenecen a este período.`);

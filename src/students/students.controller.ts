@@ -26,7 +26,7 @@ export class StudentsController {
   /** Carga masiva (archivo): todos o ninguno. */
   @Post('bulk')
   createMany(@Body() dto: CreateStudentsDto, @GetUser() user: User) {
-    return this.service.createMany(dto.students, user as any);
+    return this.service.createMany(dto.students, user as any, dto.skipExisting);
   }
 
   @Get(':id')

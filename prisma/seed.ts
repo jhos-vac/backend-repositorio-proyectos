@@ -272,7 +272,7 @@ async function main() {
     await prisma.period.createMany({
         data: [
             { name: "Mayo-2026 – Septiembre-2026", startMonth: 5, startYear: 2026, endMonth: 9, endYear: 2026 },
-            { name: "Septiembre-2026 – Enero-2027", startMonth: 9, startYear: 2026, endMonth: 1, endYear: 2027 },
+            { name: "Septiembre-2026 – Enero-2027", startMonth: 9, startYear: 2026, endMonth: 1, endYear: 2027, active: true },
         ],
     });
 
@@ -307,7 +307,9 @@ async function main() {
             password: adminHashed,
             name: process.env.SEED_ADMIN_NAME || "Administrador",
             roleId: adminRole.id,
-            careerId: careers[0].id, 
+            careerId: careers[0].id,
+            // Toda cuenta cambia la clave en su primer ingreso (en desarrollo no, para probar rápido)
+            needsPasswordChange: process.env.DEV_RESET !== "true",
         },
     });
 

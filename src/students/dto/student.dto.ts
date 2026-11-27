@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
-  ArrayMaxSize, ArrayMinSize, IsArray, IsEmail, IsInt, IsOptional, IsString, IsUUID, Max, MaxLength, Min, ValidateNested,
+  ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsEmail, IsInt, IsOptional, IsString, IsUUID, Matches, Max, MaxLength, Min, ValidateIf, ValidateNested,
 } from 'class-validator';
 import { PaginationDto } from 'src/Libs/common';
 
@@ -14,10 +14,18 @@ export class CreateStudentDto {
   @MaxLength(120)
   name: string;
 
-  @Transform(({ value }) => (typeof value === 'string' ? value.trim().toLowerCase() : value))
+  /** Cédula (identificación del SGA). Obligatoria si no hay correo. */
+  @ValidateIf((o) => !o.email || o.cedula)
+  @Transform(trim)
+  @Matches(/^\d{10}$/, { message: 'La cédula debe tener 10 dígitos (o indica el correo).' })
+  cedula?: string;
+
+  /** Correo institucional (opcional: la plantilla del SGA no lo trae). */
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' ? value.trim().toLowerCase() || undefined : value))
   @IsEmail({}, { message: 'El correo electrónico no es válido' })
   @MaxLength(254)
-  email: string;
+  email?: string;
 
   @IsUUID('all', { message: 'La carrera no es válida' })
   careerId: string;
@@ -52,6 +60,11 @@ export class CreateStudentsDto {
   @ValidateNested({ each: true })
   @Type(() => CreateStudentDto)
   students: CreateStudentDto[];
+
+  /** Omite (sin error) los que ya están registrados con esa cédula o correo: útil al subir varias listas del SGA del mismo curso. */
+  @IsOptional()
+  @IsBoolean()
+  skipExisting?: boolean;
 }
 
 export class StudentQueryDto extends PaginationDto {

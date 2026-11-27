@@ -13,6 +13,7 @@ import * as bcrypt from "bcrypt";
 import { CreateUserDto } from "src/users/dto/create-user.dto";
 import { PrismaService } from "src/prisma/prisma.service";
 import { LoginDto } from "./dto/loginDto";
+import { DEFAULT_PASSWORD } from "src/common/password";
 import { RefreshDto } from "./dto/refreshDto";
 import { JwtPayload, TokenType } from "./interfaces/jwt-payload.interface";
 import { ACCESS_TTL, REFRESH_TTL, loadJwtSecrets } from "./jwt.config";
@@ -78,9 +79,10 @@ export class AuthService {
       if (!role) throw new BadRequestException("El rol indicado no existe.");
       if (role.name === "USER") throw new BadRequestException("Los estudiantes no tienen cuenta: regístralos en Estudiantes.");
 
-      const hashedPassword = await bcrypt.hash(password, 12);
+      const hashedPassword = await bcrypt.hash(password || DEFAULT_PASSWORD, 12);
       return await this.prisma.user.create({
-        data: { ...userDto, email: email.toLowerCase(), password: hashedPassword, roleId },
+        // Toda cuenta creada por el ADMIN debe cambiar la clave en su primer ingreso
+        data: { ...userDto, email: email.toLowerCase(), password: hashedPassword, roleId, needsPasswordChange: true },
         include: { role: true },
         omit: USER_OMIT,
       });

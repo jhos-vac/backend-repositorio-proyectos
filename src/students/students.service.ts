@@ -56,6 +56,7 @@ export class StudentsService {
         OR: [
           { name: { contains: search, mode: 'insensitive' } },
           { email: { contains: search, mode: 'insensitive' } },
+          { cedula: { contains: search } },
         ],
       });
     }
@@ -81,11 +82,12 @@ export class StudentsService {
   }
 
   async create(dto: CreateStudentDto, user: AuthUser) {
-    this.assertEmail(dto.email);
+    if (dto.email) this.assertEmail(dto.email);
     await this.assertCohort(user, dto.careerId, dto.level);
     await this.assertCareer(dto.careerId);
-    await this.assertEmailFree(dto.email);
-    return this.prisma.student.create({ data: { ...dto, createdById: user.id }, include: INCLUDE });
+    await this.assertFree(dto);
+    const academicPeriod = await this.periodFor(user, dto.academicPeriod);
+    return this.prisma.student.create({ data: { ...dto, academicPeriod, createdById: user.id }, include: INCLUDE });
   }
 
   async update(id: string, dto: UpdateStudentDto, user: AuthUser) {
@@ -96,9 +98,12 @@ export class StudentsService {
     if (dto.careerId) await this.assertCareer(dto.careerId);
     if (dto.email && dto.email !== current.email) {
       this.assertEmail(dto.email);
-      await this.assertEmailFree(dto.email);
+      await this.assertFree({ email: dto.email });
     }
-    return this.prisma.student.update({ where: { id }, data: dto, include: INCLUDE });
+    if (dto.cedula && dto.cedula !== current.cedula) await this.assertFree({ cedula: dto.cedula });
+    const data = { ...dto };
+    if (!isAdmin(user)) delete data.academicPeriod; // el período solo lo cambia el ADMIN
+    return this.prisma.student.update({ where: { id }, data, include: INCLUDE });
   }
 
   async remove(id: string, user: AuthUser) {
@@ -112,35 +117,53 @@ export class StudentsService {
    * archivo o ya registrados, carrera, carrera y nivel del docente) y, si alguna
    * falla, no crea ninguna. Si todas pasan, se insertan en una sola operación.
    */
-  async createMany(rows: CreateStudentDto[], user: AuthUser) {
+  async createMany(all: CreateStudentDto[], user: AuthUser, skipExisting = false) {
+    let rows = all;
+    let skipped = 0;
+    if (skipExisting) {
+      const keys = all.flatMap((r) => [r.cedula, r.email]).filter((k): k is string => !!k);
+      const found = await this.prisma.student.findMany({
+        where: { OR: [{ cedula: { in: keys } }, { email: { in: keys } }] },
+        select: { cedula: true, email: true },
+      });
+      const known = new Set(found.flatMap((s) => [s.cedula, s.email]).filter(Boolean));
+      rows = all.filter((r) => !(r.cedula && known.has(r.cedula)) && !(r.email && known.has(r.email)));
+      skipped = all.length - rows.length;
+      if (!rows.length) return { created: 0, skipped };
+    }
     const cohorts = isAdmin(user) ? [] : await this.cohortsOf(user.id);
-    const emails = rows.map((r) => r.email);
+    const emails = rows.map((r) => r.email).filter((e): e is string => !!e);
+    const cedulas = rows.map((r) => r.cedula).filter((c): c is string => !!c);
     const [taken, careers] = await Promise.all([
-      this.prisma.student.findMany({ where: { email: { in: emails } }, select: { email: true } }),
+      this.prisma.student.findMany({ where: { OR: [{ email: { in: emails } }, { cedula: { in: cedulas } }] }, select: { email: true, cedula: true } }),
       this.prisma.career.findMany({ where: { id: { in: rows.map((r) => r.careerId) } }, select: { id: true } }),
     ]);
-    const takenSet = new Set(taken.map((s) => s.email));
+    const takenSet = new Set(taken.flatMap((s) => [s.email, s.cedula].filter(Boolean)));
     const careerIds = new Set(careers.map((c) => c.id));
 
     const errors: string[] = [];
     const seen = new Set<string>();
     for (const [i, row] of rows.entries()) {
-      const label = `Fila ${i + 1} (${row.email})`;
-      if (!isInstitutionalEmail(row.email)) errors.push(`${label}: ${institutionalEmailMessage()}`);
-      if (seen.has(row.email)) errors.push(`${label}: el correo está repetido en el archivo.`);
-      if (takenSet.has(row.email)) errors.push(`${label}: ya existe un estudiante con ese correo.`);
+      const label = `Fila ${i + 1} (${row.cedula || row.email})`;
+      if (row.email && !isInstitutionalEmail(row.email)) errors.push(`${label}: ${institutionalEmailMessage()}`);
+      for (const [key, what] of [[row.cedula, 'la cédula'], [row.email, 'el correo']] as const) {
+        if (!key) continue;
+        if (seen.has(key)) errors.push(`${label}: ${what} está repetido en el archivo.`);
+        if (takenSet.has(key)) errors.push(`${label}: ya existe un estudiante con ${what} ${key}.`);
+        seen.add(key);
+      }
       if (!careerIds.has(row.careerId)) errors.push(`${label}: la carrera no existe.`);
       else if (!isAdmin(user) && !cohorts.some((c) => c.careerId === row.careerId && c.level === row.level)) {
         errors.push(`${label}: la carrera y el nivel no están entre tus asignaciones.`);
       }
-      seen.add(row.email);
     }
     if (errors.length) throw new BadRequestException(errors);
 
+    const active = await this.periodFor(user, undefined);
     const { count } = await this.prisma.student.createMany({
-      data: rows.map((r) => ({ ...r, createdById: user.id })),
+      data: rows.map((r) => ({ ...r, academicPeriod: isAdmin(user) && r.academicPeriod ? r.academicPeriod : active, createdById: user.id })),
     });
-    return { created: count };
+    return { created: count, skipped };
   }
 
   private async assertCareer(careerId: string) {
@@ -149,9 +172,19 @@ export class StudentsService {
     }
   }
 
-  private async assertEmailFree(email: string) {
-    if (await this.prisma.student.findUnique({ where: { email }, select: { id: true } })) {
+  private async assertFree({ email, cedula }: { email?: string; cedula?: string }) {
+    if (email && (await this.prisma.student.findUnique({ where: { email }, select: { id: true } }))) {
       throw new BadRequestException('Ya existe un estudiante con ese correo.');
     }
+    if (cedula && (await this.prisma.student.findUnique({ where: { cedula }, select: { id: true } }))) {
+      throw new BadRequestException('Ya existe un estudiante con esa cédula.');
+    }
+  }
+
+  /** Período del estudiante: el activo (el ADMIN puede indicar otro). */
+  private async periodFor(user: AuthUser, requested?: string) {
+    if (isAdmin(user) && requested) return requested;
+    const active = await this.prisma.period.findFirst({ where: { active: true }, select: { name: true } });
+    return active?.name ?? null;
   }
 }

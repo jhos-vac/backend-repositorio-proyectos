@@ -17,6 +17,7 @@ import { UserQueryDto } from './dto/user-query.dto';
 import { AdminUpdateUserDto } from './dto/admin-update-user.dto';
 import { Prisma } from 'src/prisma/generated/client'; 
 import { USER_OMIT } from 'src/common/sanitize';
+import { DEFAULT_PASSWORD } from 'src/common/password';
 import * as deepEmailValidator from 'deep-email-validator';
 import { promises as fs } from 'fs';
 import { join } from 'path';
@@ -89,7 +90,7 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
     if (!role) throw new BadRequestException('El rol indicado no existe.');
     if (role.name === 'USER') throw new BadRequestException('Los estudiantes no tienen cuenta: regístralos en Estudiantes.');
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password || DEFAULT_PASSWORD, 12);
 
     try {
       const user = await this.prismaService.user.create({
@@ -125,7 +126,7 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
     const role = await this.prismaService.role.findFirst({ where: { name: 'TEACHER' } });
     if (!role) throw new InternalServerErrorException('Error: El rol TEACHER no existe.');
 
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const hashedPassword = await bcrypt.hash(password || DEFAULT_PASSWORD, 12);
 
     try {
       const user = await this.prismaService.user.create({
@@ -187,13 +188,13 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
     }
     if (errors.length) throw new BadRequestException(errors);
 
-    const hashed = await Promise.all(rows.map((r) => bcrypt.hash(r.password, 12)));
+    const hashed = await bcrypt.hash(DEFAULT_PASSWORD, 12); // todas con la clave inicial
     try {
       const { count } = await this.prismaService.user.createMany({
         data: rows.map((r, i) => ({
           name: r.name.trim(),
           email: emails[i],
-          password: hashed[i],
+          password: hashed,
           roleId: role.id,
           careerId: r.careerId,
           needsPasswordChange: true, // clave temporal: deben cambiarla al entrar
@@ -349,7 +350,7 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
     const user = await this.prismaService.user.findUnique({ where: { id }, include: { role: true } });
     if (!user) throw new NotFoundException('Usuario no encontrado');
 
-    const { password, email, roleId, ...rest } = dto;
+    const { password, email, roleId, resetPassword: _reset, ...rest } = dto;
     const data: any = { ...rest };
     if (email) data.email = email.toLowerCase();
 
@@ -371,8 +372,8 @@ export class UsersService extends BaseService<any, CreateUserDto, UpdateUserDto>
     if (newRoleName === 'TEACHER' || newRoleName === 'ADMIN') {
       // si deja de ser docente pierde sus asignaciones
     }
-    if (password) {
-      data.password = await bcrypt.hash(password, 12);
+    if (password || dto.resetPassword) {
+      data.password = await bcrypt.hash(password || DEFAULT_PASSWORD, 12);
       data.needsPasswordChange = dto.needsPasswordChange ?? true;
       data.tokenVersion = { increment: 1 };
     }
