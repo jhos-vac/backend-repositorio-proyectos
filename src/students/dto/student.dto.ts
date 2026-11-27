@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
-  ArrayMaxSize, ArrayMinSize, IsArray, IsEmail, IsInt, IsOptional, IsString, IsUUID, Matches, Max, MaxLength, Min, ValidateIf, ValidateNested,
+  ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsEmail, IsInt, IsOptional, IsString, IsUUID, Matches, Max, MaxLength, Min, ValidateIf, ValidateNested,
 } from 'class-validator';
 import { PaginationDto } from 'src/Libs/common';
 
@@ -60,6 +60,11 @@ export class CreateStudentsDto {
   @ValidateNested({ each: true })
   @Type(() => CreateStudentDto)
   students: CreateStudentDto[];
+
+  /** Omite (sin error) los que ya están registrados con esa cédula o correo: útil al subir varias listas del SGA del mismo curso. */
+  @IsOptional()
+  @IsBoolean()
+  skipExisting?: boolean;
 }
 
 export class StudentQueryDto extends PaginationDto {

@@ -117,7 +117,20 @@ export class StudentsService {
    * archivo o ya registrados, carrera, carrera y nivel del docente) y, si alguna
    * falla, no crea ninguna. Si todas pasan, se insertan en una sola operación.
    */
-  async createMany(rows: CreateStudentDto[], user: AuthUser) {
+  async createMany(all: CreateStudentDto[], user: AuthUser, skipExisting = false) {
+    let rows = all;
+    let skipped = 0;
+    if (skipExisting) {
+      const keys = all.flatMap((r) => [r.cedula, r.email]).filter((k): k is string => !!k);
+      const found = await this.prisma.student.findMany({
+        where: { OR: [{ cedula: { in: keys } }, { email: { in: keys } }] },
+        select: { cedula: true, email: true },
+      });
+      const known = new Set(found.flatMap((s) => [s.cedula, s.email]).filter(Boolean));
+      rows = all.filter((r) => !(r.cedula && known.has(r.cedula)) && !(r.email && known.has(r.email)));
+      skipped = all.length - rows.length;
+      if (!rows.length) return { created: 0, skipped };
+    }
     const cohorts = isAdmin(user) ? [] : await this.cohortsOf(user.id);
     const emails = rows.map((r) => r.email).filter((e): e is string => !!e);
     const cedulas = rows.map((r) => r.cedula).filter((c): c is string => !!c);
@@ -150,7 +163,7 @@ export class StudentsService {
     const { count } = await this.prisma.student.createMany({
       data: rows.map((r) => ({ ...r, academicPeriod: isAdmin(user) && r.academicPeriod ? r.academicPeriod : active, createdById: user.id })),
     });
-    return { created: count };
+    return { created: count, skipped };
   }
 
   private async assertCareer(careerId: string) {
